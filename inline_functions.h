@@ -20,16 +20,17 @@ extern "C" {
 	x = (((x >> 2) & UINT16_C(0x3333)) + (x & UINT16_C(0x3333)));
 	x = (((x >> 4) + x) & UINT16_C(0x0f0f));
 	x += (x >> 8);
-	return(x & 0x0000001f);
+	return (x & 0x0000001f);
     }
 
     /**
      * ひとつのマスの中に候補となる数字が１つだけか？
      */
-    static inline int is_single(cell_t * cell)
+    static inline int is_single(const cell_t cell)
     {
-	return ones16(cell->symbol) == 1;
+	return ones16(cell.symbol) == 1;
     }
+
 #if defined(__cplusplus)
 }
 #endif

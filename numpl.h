@@ -9,6 +9,7 @@ extern "C" {
 
 #define LINE_SIZE 9
 #define ARRAY_SIZE (LINE_SIZE * LINE_SIZE)
+#define LINE_KINDS 3
 
     typedef struct {
 	unsigned symbol : 9;

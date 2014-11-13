@@ -38,6 +38,8 @@ const int blocks[9][9] = {
     {60, 61, 62, 69, 70, 71, 78, 79, 80}
 };
 
+const int const (* all_lines[3])[9] = {rows, cols, blocks};
+
 const int locked_rows[9][3] = {
     {0, 1, 2}, {0, 1, 2}, {0, 1, 2},
     {3, 4, 5}, {3, 4, 5}, {3, 4, 5},
