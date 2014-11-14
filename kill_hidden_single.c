@@ -23,7 +23,11 @@ static int kill_hidden_line(const int line[], cell_t * ar)
 	int count = 0;
 	for (int i = 0; i < LINE_SIZE; i++) {
 	    int idx = line[i];
-	    if ((ar[idx].symbol != sym) && (ar[idx].symbol & sym)) {
+	    if (ar[idx].symbol == sym) {
+		count = 0;
+		break;
+	    }
+	    if (ar[idx].symbol & sym) {
 		pos = idx;
 		count++;
 	    }
