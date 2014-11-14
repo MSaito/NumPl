@@ -15,7 +15,7 @@ int kill_single(sudoku_array * array)
     result = 0;
     for (int i = 0; i < LINE_KINDS; i++) {
 	for (int j = 0; j < LINE_SIZE; j++) {
-	    result += kill_line(rows[i], array->ar);
+	    result += kill_line(all_lines[i][j], array->ar);
 	}
     }
     return result;

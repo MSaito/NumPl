@@ -7,6 +7,7 @@ extern "C" {
 #endif
 
 int kill_single(sudoku_array * array);
+int kill_hidden_single(sudoku_array * array);
 
 #if defined(__cplusplus)
 }
