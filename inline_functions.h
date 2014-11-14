@@ -31,6 +31,10 @@ extern "C" {
 	return ones16(cell.symbol) == 1;
     }
 
+    static inline void set_single_flag(cell_t cell)
+    {
+    }
+
 #if defined(__cplusplus)
 }
 #endif

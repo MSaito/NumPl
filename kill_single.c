@@ -4,18 +4,18 @@
 #include "inline_functions.h"
 
 static int kill_line(const int line[], cell_t * ar);
+static int check_array(sudoku_array * array);
 
 int kill_single(sudoku_array * array)
 {
-    int r;
-    int result = 0;
+    int result = check_array(array);
+    if (result < 0) {
+	return result;
+    }
+    result = 0;
     for (int i = 0; i < LINE_KINDS; i++) {
 	for (int j = 0; j < LINE_SIZE; j++) {
-	    r = kill_line(rows[i], array->ar);
-	    if (r < 0) {
-		return r;
-	    }
-	    result += r;
+	    result += kill_line(rows[i], array->ar);
 	}
     }
     return result;
@@ -40,9 +40,18 @@ static int kill_line(const int line[], cell_t * ar)
 	    ar[idx].symbol &= ~syms;
 	    count++;
 	}
-	if (ar[idx].symbol == 0) {
-	    return -1;
-	}
     }
     return count;
+}
+
+static int check_array(sudoku_array * array)
+{
+    cell_t *ar = array->ar;
+    for (int i = 0; i < ARRAY_SIZE; i++) {
+	if (ar[i].symbol == 0) {
+	    return -1;
+	}
+	set_single_flag(ar[i]);
+    }
+    return 0;
 }

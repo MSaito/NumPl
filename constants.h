@@ -12,7 +12,7 @@ extern "C" {
     /** array of blocks */
     extern const int blocks[LINE_SIZE][LINE_SIZE];
     /** array of virtual lines */
-    extern const int const (* all_lines[3])[9];
+    extern const int (* const all_lines[LINE_KINDS])[LINE_SIZE];
 
 #if defined(__cplusplus)
 }
