@@ -10,6 +10,8 @@ extern "C" {
 #define LINE_SIZE 9
 #define ARRAY_SIZE (LINE_SIZE * LINE_SIZE)
 #define LINE_KINDS 3
+#define BLOCK_ROWS 3
+#define BLOCK_COLS 3
 #define MAX_SYMBOL 0x100
 #define FULL_SYMBOL 0x1ff
 
