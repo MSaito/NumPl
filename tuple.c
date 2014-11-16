@@ -31,6 +31,9 @@ static int kill_tuple_lines(const int line[], cell_t array[])
 	return 0;
     }
     for (uint16_t mask = 3; mask < FULL_SYMBOL; mask++) {
+	if ((mask & multiple) != multiple) {
+	    continue;
+	}
 	int count = ones16(mask);
 	if (count <= 1 || count >= 8) {
 	    continue;
@@ -51,7 +54,7 @@ static uint16_t count_multiple(const int line[], cell_t array[])
     int mask = 0;
     for (int i = 0; i < LINE_SIZE; i++) {
 	int ind = line[i];
-	if (ones16(array[ind].symbol) != 1) {
+	if (!is_single(array[ind])) {
 	    mask |= array[ind].symbol;
 	}
     }
