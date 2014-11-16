@@ -4,9 +4,9 @@
 #include "inline_functions.h"
 
 static int kill_line(const int line[], cell_t * ar);
-static int check_array(sudoku_array * array);
+static int check_array(numpl_array * array);
 
-int kill_single(sudoku_array * array)
+int kill_single(numpl_array * array)
 {
     int result = check_array(array);
     if (result < 0) {
@@ -44,7 +44,7 @@ static int kill_line(const int line[], cell_t * ar)
     return count;
 }
 
-static int check_array(sudoku_array * array)
+static int check_array(numpl_array * array)
 {
     cell_t *ar = array->ar;
     for (int i = 0; i < ARRAY_SIZE; i++) {

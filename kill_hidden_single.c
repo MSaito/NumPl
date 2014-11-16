@@ -5,7 +5,7 @@
 
 static int kill_hidden_line(const int line[], cell_t * ar);
 
-int kill_hidden_single(sudoku_array * array)
+int kill_hidden_single(numpl_array * array)
 {
     int result = 0;
     for (int i = 0; i < LINE_KINDS; i++) {

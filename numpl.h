@@ -22,7 +22,7 @@ extern "C" {
 
     typedef struct {
 	cell_t ar[ARRAY_SIZE];
-    } sudoku_array;
+    } numpl_array;
 
 
 
