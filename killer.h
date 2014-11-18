@@ -10,6 +10,7 @@ extern "C" {
     int kill_hidden_single(numpl_array * array);
     int kill_locked_candidate(numpl_array * array);
     int kill_tuple(numpl_array * array);
+    int kill_fish(numpl_array * array);
 
 #if defined(__cplusplus)
 }
