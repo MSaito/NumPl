@@ -15,15 +15,15 @@ int kill_locked_candidate(numpl_array * array)
 {
     int count = 0;
     for (int i = 0; i < LINE_SIZE; i++) {
-	for (int j = 0; j < BLOCK_COLS; j++) {
-	    count = kill_locked_lines(BLOCK_COLS, blocks[i],
+	for (int j = 0; j < BLOCK_ROWS; j++) {
+	    count = kill_locked_lines(BLOCK_ROWS, blocks[i],
 				      rows[locked_rows[i][j]], array->ar);
 	    if (count > 0) {
 		return 1;
 	    }
 	}
-	for (int j = 0; j < BLOCK_ROWS; j++) {
-	    count = kill_locked_lines(BLOCK_ROWS, blocks[i],
+	for (int j = 0; j < BLOCK_COLS; j++) {
+	    count = kill_locked_lines(BLOCK_COLS, blocks[i],
 				       cols[locked_cols[i][j]], array->ar);
 	    if (count > 0) {
 		return 1;
@@ -72,7 +72,7 @@ static int kill_locked_lines(int common_size, const int index1[],
     return 0;
 }
 
-static void search_common(int idx[], const int common_size, const int index1[], const int index2[])
+static void search_common(int idx[], int common_size, const int index1[], const int index2[])
 {
     int p = 0;
     for (int i = 0; i < common_size; i++) {
