@@ -1,3 +1,7 @@
+/**
+ * X-Wing, SwordFish, ... といった解法アルゴリズム
+ * 現時点では finned, sashimi には対応していない。
+ */
 #include "numpl.h"
 #include "killer.h"
 #include "inline_functions.h"
@@ -23,10 +27,14 @@ static int contains(uint16_t array[], int pos, uint16_t value);
 static void print_patterns(uint16_t pattern[], int size);
 #endif
 
+/**
+ * fish 系解法メインプログラム
+ * X-Wing から検索する
+ */
 int kill_fish(numpl_array * array)
 {
-    for (int i = 2; i < 8; i++) {
-	for (uint16_t mask = 1; mask <= 0x100; mask = mask << 1) {
+    for (int i = 2; i < LINE_SIZE - 1; i++) {
+	for (uint16_t mask = 1; mask <= MAX_SYMBOL; mask = mask << 1) {
 	    int count = fishsub(i, mask, rows, array);
 	    if (count > 0) {
 		return count;
@@ -40,6 +48,13 @@ int kill_fish(numpl_array * array)
     return 0;
 }
 
+/**
+ * fish系下請け関数
+ * @param fish_count 2 ならX-Wing, 3 ならSwordFish
+ * @param mask 注目している数字
+ * @param rows rows が渡ってくれば横に条件成立を探す、colsなら縦に条件成立を探す
+ * @param array ナンプレ盤面配列
+ */
 static int fishsub(int fish_count, uint16_t mask,
 		 const int rows[LINE_SIZE][LINE_SIZE],
 		 numpl_array * array)
@@ -65,6 +80,7 @@ static int fishsub(int fish_count, uint16_t mask,
 	    count2++;
 	}
     }
+    // 以下の二つのif文は明らかに条件が成立しない場合に検索を諦める
     if (count1 < fish_count) {
 	return 0;
     }
@@ -83,6 +99,7 @@ static int fishsub(int fish_count, uint16_t mask,
 		count++;
 	    }
 	}
+	// ここで条件成立が確定
 	if (count == fish_count) {
 	    int result = kill_fish_cells(mask, pat, mat, rows, array);
 	    if (result > 0) {
@@ -111,6 +128,14 @@ static void print_patterns(uint16_t pattern[], int size)
 }
 #endif
 
+/**
+ * 特定の数字に着目して二次元のビット配列にする。
+ * ただし、uint16_t の一次元配列に入れる。
+ * @param mask 着目している数字
+ * @param mat 出力配列
+ * @param rows 入力配列
+ * @param array ナンプレ盤面配列
+ */
 static void make_mat(uint16_t mask,
 		     uint16_t mat[LINE_SIZE],
 		     const int rows[LINE_SIZE][LINE_SIZE],
@@ -128,6 +153,14 @@ static void make_mat(uint16_t mask,
     }
 }
 
+/**
+ * fish_count 未満のビットパターンを組み合わせて fish_count になるビットパターンを
+ * 作って返す。
+ * @param fish_count 2 ならX-Wing, 3 なら SwordFish
+ * @param patterns 入出力配列
+ * @param point pattern配列に入っているパターンの個数
+ * @param size pattern配列の宣言された大きさ
+ */
 static void adjust_patterns(int fish_count, uint16_t patterns[],
 			    int point, int size)
 {
@@ -166,6 +199,16 @@ static void adjust_patterns(int fish_count, uint16_t patterns[],
 
 }
 
+/**
+ * fish解法で条件が成立しているときに、その条件によって消せる数字があれば消して
+ * 消した個数を返す。消せる数字がなければ0を返す。
+ * @param mask 注目している数字
+ * @param pat パターン
+ * @param mat ビットパターンの配列
+ * @param rows 行または列
+ * @param array ナンプレ盤面配列
+ * @return 消した数字の個数
+ */
 static int kill_fish_cells(uint16_t mask,
 			  uint16_t pat,
 			  uint16_t mat[LINE_SIZE],
@@ -190,9 +233,16 @@ static int kill_fish_cells(uint16_t mask,
     return count;
 }
 
-static int contains(uint16_t array[], int pos, uint16_t value)
+/**
+ * 配列の中に等しいものがあるか調べる
+ * @param array 配列
+ * @param size 配列のサイズ
+ * @param value 調べる値
+ * @return 0:等しいものはない。1:等しいものがある。
+ */
+static int contains(uint16_t array[], int size, uint16_t value)
 {
-    for (int i = 0; i < pos; i++) {
+    for (int i = 0; i < size; i++) {
 	if (array[i] == value) {
 	    return 1;
 	}

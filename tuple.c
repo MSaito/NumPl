@@ -1,3 +1,9 @@
+/**
+ * Tuple(Naked Pair, Naked Triple, ...
+ *       Hidden Pair, Hidden Triple, ...)
+ * ある数字の組み合わせだけで、その組み合わせに使われている数字の個数と同じ数のマスを
+ * 使っている時、それ以外のマスにあるその組み合わせの数字は消せる。
+ */
 #include "killer.h"
 #include "numpl.h"
 #include "constants.h"
@@ -10,6 +16,11 @@ static int count_naked_cells(uint16_t mask, const int index[],
 			     cell_t array[]);
 static int kill_naked_cells(uint16_t mask, const int index[], cell_t array[]);
 
+/**
+ * Tuple メイン関数
+ * @param array ナンプレ盤面配列
+ * @return 1:この解法によって数字をけせた 0:この解法によって数字を消せなかった
+ */
 int kill_tuple(numpl_array * array)
 {
     int c = 0;
@@ -24,6 +35,12 @@ int kill_tuple(numpl_array * array)
     return 0;
 }
 
+/**
+ * Tuple 下請け関数
+ * @param line 仮想行
+ * @param array ナンプレ盤面配列（実際の配列）
+ * @return 1:この解法によって数字をけせた 0:この解法によって数字を消せなかった
+ */
 static int kill_tuple_lines(const int line[], cell_t array[])
 {
     uint16_t multiple = count_multiple(line, array);
@@ -35,7 +52,7 @@ static int kill_tuple_lines(const int line[], cell_t array[])
 	    continue;
 	}
 	int count = ones16(mask);
-	if (count <= 1 || count >= 8) {
+	if (count <= 1 || count >= LINE_SIZE -1) {
 	    continue;
 	}
 	int cells = count_naked_cells(mask, line, array);
@@ -49,6 +66,12 @@ static int kill_tuple_lines(const int line[], cell_t array[])
     return 0;
 }
 
+/**
+ * 仮想行内で単一数字マスでないマスで使われている数字をまとめて返す。
+ * @param line 仮想行
+ * @param array ナンプレ盤面配列（実際の配列）
+ * @return 仮想行内で単一数字マスでないマスで使われている数字（ビットパターン）
+ */
 static uint16_t count_multiple(const int line[], cell_t array[])
 {
     int mask = 0;
@@ -61,6 +84,13 @@ static uint16_t count_multiple(const int line[], cell_t array[])
     return mask;
 }
 
+/**
+ * 数字の組み合わせ(mask)だけが含まれるマスの数を数える
+ * @param mask 数字の組み合わせ（ビットパターン）
+ * @param line 仮想行
+ * @param array ナンプレ盤面配列（実際の配列）
+ * @return 数字の組み合わせ(mask)だけが含まれるマスの数
+ */
 static int count_naked_cells(uint16_t mask, const int line[], cell_t array[])
 {
     int count = 0;
@@ -73,6 +103,13 @@ static int count_naked_cells(uint16_t mask, const int line[], cell_t array[])
     return count;
 }
 
+/**
+ * 数字の組み合わせ以外も含むマスから数字の組み合わせを消す
+ * @param mask 数字の組み合わせ（ビットパターン）
+ * @param line 仮想行
+ * @param array ナンプレ盤面配列（実際の配列）
+ * @return 数字の組み合わせを消したマスの数
+ */
 static int kill_naked_cells(uint16_t mask, const int line[], cell_t array[])
 {
     int count = 0;
