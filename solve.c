@@ -7,9 +7,13 @@
 #include <stdio.h>
 #include <string.h>
 
+/** 候補を減らす関数タイプ */
 typedef int (*solver_t)(numpl_array *);
 
+/** 関数の数 */
 static const int max_solvers = 5;
+
+/** 関数 */
 static solver_t solvers[] = {
     kill_single,
     kill_hidden_single,
@@ -23,6 +27,12 @@ static void output_detail(numpl_array * array);
 static void output(numpl_array * array);
 static void set_info(solve_info * info, int count, solver_t sv);
 
+/**
+ * マス１つ分の出力を作る
+ * 単一数字か固定なら[]で囲って出力する。そうでなければ候補をすべて出力
+ * @param str 出力文字列
+ * @param s 出力するマス
+ */
 static void to_string_detail(char str[3][4], cell_t s)
 {
     if (is_single(s) || s.fixed) {
@@ -67,6 +77,10 @@ static void to_string_detail(char str[3][4], cell_t s)
     }
 }
 
+/**
+ * マスにある候補をすべて出力する
+ * @param array ナンプレ盤面配列
+ */
 static void output_detail(numpl_array * array)
 {
     char str[LINE_SIZE][3][4];
@@ -89,6 +103,11 @@ static void output_detail(numpl_array * array)
     }
 }
 
+/**
+ * ナンプレ盤面を横に一列出力する
+ * 複数候補が入っているマスは？を出力する
+ * @param array ナンプレ盤面配列
+ */
 static void output(numpl_array * array)
 {
     char c;
@@ -150,6 +169,8 @@ static void set_info(solve_info * info, int count, solver_t sv)
 }
 
 /**
+ * 盤面が解けた状態にあるか判定する
+ * @param array ナンプレ盤面配列
  * @return 1 solved
  * @return 0 not solved
  * @return -1 unsolvable
@@ -172,6 +193,15 @@ int is_solved(const numpl_array * array)
     }
 }
 
+/**
+ * 人間がナンプレを解くときの手法を使って解く
+ * どの手法を使ったかをinfo に記録する。
+ * @param array ナンプレ盤面配列
+ * @param info どの解法を使ったかを記録する
+ * @return 1 解けた
+ * @return 0 解けていない
+ * @return -1 矛盾が発生していて解けない
+ */
 int solve(numpl_array * array, solve_info * info)
 {
     info->ks_count = 0;
