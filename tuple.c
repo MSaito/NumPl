@@ -48,7 +48,7 @@ static int kill_tuple_lines(const int line[], cell_t array[])
 	return 0;
     }
     for (uint16_t mask = 3; mask < FULL_SYMBOL; mask++) {
-	if ((mask & multiple) != multiple) {
+	if ((mask | multiple) != multiple) {
 	    continue;
 	}
 	int count = ones16(mask);
