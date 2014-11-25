@@ -18,8 +18,16 @@ extern "C" {
 	int solved;
     } solve_info;
 
+    typedef struct {
+	numpl_array save;
+	int saved;
+    } recursion_solve_t;
+
     int solve(numpl_array * array, solve_info * info);
     int is_solved(const numpl_array * array);
+    int simple_solve(numpl_array * array);
+    int equal(const numpl_array * a, const numpl_array * b);
+    int recursion_solve(const numpl_array * array, recursion_solve_t *data);
 
 #if defined(__cplusplus)
 }

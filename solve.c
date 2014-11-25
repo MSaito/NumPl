@@ -12,6 +12,7 @@ typedef int (*solver_t)(numpl_array *);
 
 /** 関数の数 */
 static const int max_solvers = 5;
+static const int max_simple_solvers = 2;
 
 /** 関数 */
 static solver_t solvers[] = {
@@ -21,6 +22,13 @@ static solver_t solvers[] = {
     kill_tuple,
     kill_fish,
     NULL};
+
+/** 機械的解放関数 */
+static solver_t simple_solvers[] = {
+    kill_single,
+    kill_hidden_single,
+    NULL};
+
 
 static void to_string_detail(char str[3][4], cell_t s);
 static void output_detail(numpl_array * array);
@@ -242,6 +250,107 @@ int solve(numpl_array * array, solve_info * info)
     } else {
 	return info->solved;
     }
+}
+
+/**
+ * 機械的解法（kill_single, kill_hidden_single)を繰り返し
+ * 使用してナンプレを解こうとする。
+ * @param array ナンプレ盤面配列
+ * @return -1 矛盾があって解けない
+ * @return 0 これ以上機械的解法では解けない
+ * @return 1 解けた
+ */
+int simple_solve(numpl_array * array)
+{
+    int r = 0;
+    do {
+	for (int i = 0; i < max_simple_solvers && solvers[i] != NULL; i++) {
+	    r = simple_solvers[i](array);
+	    if (r < 0) {
+		return -1;
+	    }
+	    if (r > 0) {
+		break;
+	    }
+	}
+    } while (r != 0);
+    return r;
+}
+
+/**
+ * 二つのナンプレ盤面配列が等しいか調べる
+ * @param a ナンプレ盤面配列1
+ * @param b ナンプレ盤面配列2
+ * @return 1 等しい
+ * @return 0 等しくない
+ */
+int equal(const numpl_array * a, const numpl_array * b)
+{
+    for (int i = 0; i < ARRAY_SIZE; i++) {
+	if (a->ar[i].symbol != b->ar[i].symbol ||
+	    a->ar[i].fixed != b->ar[i].fixed ||
+	    is_single(a->ar[i]) != is_single(b->ar[i])) {
+	    return 0;
+	}
+    }
+    return 1;
+}
+
+/**
+ * 再帰的解法
+ * 人間的な解法アルゴリズムは使わずに機械的解法で解く
+ * 機械的解法で解けないときは、複数候補のあるマスの候補から一つ選んで解けるか試す
+ * ということを再帰的に実行する。
+ * また、解が複数あるかどうかもチェックする。
+ * @param array ナンプレ盤面配列
+ * @param data 再帰用持ち回しデータ
+ * @return -1 矛盾があって解けない
+ * @return 1 解けた
+ * @return 2 解が複数存在する。
+ */
+int recursion_solve(const numpl_array * array, recursion_solve_t *data)
+{
+    numpl_array work;
+    work = *array;
+    int solved = simple_solve(&work);
+    if (solved < 0) {
+	return solved;
+    }
+    solved = is_solved(&work);
+    if (solved == 1) {
+	if (!data->saved) {
+	    data->save = work;
+	    data->saved = 1;
+	} else if (!equal(&data->save, &work)) {
+	    solved = 2;
+	}
+    }
+    if (solved != 0) {
+	return solved;
+    }
+    int result = -1;
+    for (int i = 0; i < ARRAY_SIZE; i++) {
+	if (is_single(work.ar[i])) {
+	    continue;
+	}
+	cell_t s = work.ar[i];
+	for (int j = 0; j < LINE_SIZE; j++) {
+	    work.ar[i] = s;
+	    unsigned int mask = s.symbol & (1 << j);
+	    if (!mask) {
+		continue;
+	    }
+	    work.ar[i].symbol = mask;
+	    solved = recursion_solve(&work, data);
+	    if (solved > 1) {
+		return solved;
+	    } else if (solved == 1) {
+		result = 1;
+	    }
+	}
+	break;
+    }
+    return result;
 }
 
 #if defined(MAIN)
