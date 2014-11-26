@@ -302,13 +302,14 @@ int equal(const numpl_array * a, const numpl_array * b)
  * 機械的解法で解けないときは、複数候補のあるマスの候補から一つ選んで解けるか試す
  * ということを再帰的に実行する。
  * また、解が複数あるかどうかもチェックする。
+ * 解けたときは array に解をセットする。
  * @param array ナンプレ盤面配列
  * @param data 再帰用持ち回しデータ
  * @return -1 矛盾があって解けない
  * @return 1 解けた
  * @return 2 解が複数存在する。
  */
-int recursion_solve(const numpl_array * array, recursion_solve_t *data)
+int recursion_solve(numpl_array * array, recursion_solve_t *data)
 {
     numpl_array work;
     work = *array;
@@ -326,6 +327,7 @@ int recursion_solve(const numpl_array * array, recursion_solve_t *data)
 	}
     }
     if (solved != 0) {
+	*array = work;
 	return solved;
     }
     int result = -1;
@@ -343,8 +345,10 @@ int recursion_solve(const numpl_array * array, recursion_solve_t *data)
 	    work.ar[i].symbol = mask;
 	    solved = recursion_solve(&work, data);
 	    if (solved > 1) {
+		*array = work;
 		return solved;
 	    } else if (solved == 1) {
+		*array = work;
 		result = 1;
 	    }
 	}
@@ -356,7 +360,7 @@ int recursion_solve(const numpl_array * array, recursion_solve_t *data)
 #if defined(MAIN)
 #include <getopt.h>
 static int quiet = 0;
-static int reduce_flag = 0;
+static int recursion_flag = 0;
 static char * mondai_p = NULL;
 static int parse_opt(int argc, char * argv[]);
 static int parse_opt(int argc, char * argv[])
@@ -366,7 +370,7 @@ static int parse_opt(int argc, char * argv[])
         {"reduce", no_argument, NULL, 'r'},
         {NULL, 0, NULL, 0}};
     quiet = 0;
-    reduce_flag = 0;
+    recursion_flag = 0;
     const char * pgm = argv[0];
     int c;
     int error = 0;
@@ -383,7 +387,7 @@ static int parse_opt(int argc, char * argv[])
 	    quiet = 1;
 	    break;
 	case 'r':
-	    reduce_flag = 1;
+	    recursion_flag = 1;
 	    break;
 	case '?':
 	default:
@@ -395,7 +399,7 @@ static int parse_opt(int argc, char * argv[])
     argv += optind;
 #if defined(DEBUG)
     printf("quiet = %d\n", quiet);
-    printf("reduce = %d\n", reduce_flag);
+    printf("recursion = %d\n", recursion_flag);
     printf("argc = %d\n", argc);
 #endif
     if (error) {
@@ -431,15 +435,24 @@ int main(int argc, char * argv[])
     if (!quiet) {
 	output(&work);
     }
-#if 0
-    if (reduce_flag) {
-	r = reduce(&work, 2);
-	if (!quiet) {
-	    printf("reduced = %d\n", r);
+    if (recursion_flag) {
+	recursion_solve_t data;
+	data.saved = 0;
+	r = recursion_solve(&work, &data);
+	if (r <= 0) {
+	    printf("can't solve\n");
+	    return 1;
+	} else if (r > 1) {
+	    printf("has more than 2 solution\n");
+	    output(&work);
+	    output(&data.save);
+	    return 2;
+	} else {
+	    printf("solved\n");
+	    output(&work);
 	}
-	fixed_only(&work, FULL_SYMBOL);
+	return 0;
     }
-#endif
     solve_info info;
     solve(&work, &info);
     if (!quiet) {

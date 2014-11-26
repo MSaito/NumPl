@@ -48,8 +48,13 @@ static int kill_line(const int line[], cell_t * ar)
 	int idx = line[i];
 	if (is_single(ar[idx])) {
 	    syms |= ar[idx].symbol;
+	    count++;
 	}
     }
+    if (count != ones16(syms)) {
+	return -1;
+    }
+    count = 0;
     for (int i = 0; i < LINE_SIZE; i++) {
 	int idx = line[i];
 	if (is_single(ar[idx])) {
