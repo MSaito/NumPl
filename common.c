@@ -9,6 +9,9 @@
 #include <stdio.h>
 #include <ctype.h>
 
+/** 疑似乱数生成器 xsadd */
+xsadd_t xsadd;
+
 /**
  * 固定されたマスの数を数える。
  * 固定されたマスとは、出題時に数字が入っていて、利用者が変更することのできないマスである。
@@ -143,3 +146,76 @@ void read_mondai(char mondai[], FILE * fp)
     }
 }
 
+/**
+ * 0 から n (含まない) までの数をランダムに生成する
+ * @param n 範囲
+ * @return 0 から n(含まない)までの数を返す
+ */
+int get_random(unsigned int n)
+{
+    return n * xsadd_float(&xsadd);
+}
+
+/**
+ * ナンプレで使う数字をランダムに生成する
+ * @param symbols ナンプレで使う数字が重複なくランダムな順番でセットされる
+ */
+void get_random_symbol(uint16_t symbols[LINE_SIZE])
+{
+    uint16_t mask = 1;
+    for (int i = 0; i < LINE_SIZE; i++) {
+	symbols[i] = mask;
+	mask = mask << 1;
+    }
+    for (int i = 0; i < LINE_SIZE; i++) {
+	int r = get_random(LINE_SIZE);
+	uint16_t tmp = symbols[i];
+	symbols[i] = symbols[r];
+	symbols[r] = tmp;
+    }
+
+}
+
+/**
+ * 0 から LINE_SIZE -1までの数をランダムに生成する。
+ * @param numbers 0 からLINE_SIZE -1 までの数が重複なくセットされる。
+ */
+void get_random_number(uint16_t numbers[LINE_SIZE])
+{
+    get_random_number_size(numbers, LINE_SIZE);
+}
+
+/**
+ * 0 から size -1までの数をランダムに生成する。
+ * @param numbers 0 からsize -1 までの数が重複なくセットされる。
+ * @param size numbers 配列の大きさ
+ */
+void get_random_number_size(uint16_t numbers[], int size)
+{
+    for (int i = 0; i < size; i++) {
+	numbers[i] = i;
+    }
+    for (int i = 0; i < size; i++) {
+	int r = get_random(size);
+	uint16_t tmp = numbers[i];
+	numbers[i] = numbers[r];
+	numbers[r] = tmp;
+    }
+
+}
+
+/**
+ * 0 から size - 1までの数をランダムに生成する。
+ * get_random_number_size と同じだが配列の型が違う
+ * @param numbers 0 からsize -1 までの数が重複なくセットされる。
+ * @param size numbers 配列の大きさ
+ */
+void shuffle_int(int array[], int size)
+{
+    for (int i = 0; i < size; i++) {
+	int r = get_random(size);
+	int tmp = array[i];
+	array[i] = array[r];
+	array[r] = tmp;
+    }
+}
