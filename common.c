@@ -30,7 +30,8 @@ int count_fixed(const numpl_array *array)
  * 固定されたマス以外にすべてfullで指定された数字群を入れる。
  * この関数には、プログラムで問題を解き始めるときに空白のマスに候補を全て入れるためと、
  * 問題を作成し終わったときに、固定されたマス以外を空白にするという二つの用途がある。
- *
+ * @param numpl_array ナンプレ盤面配列
+ * @param full 固定されたマス以外にセットする数字候補
  */
 void fixed_only(numpl_array * array, uint16_t full)
 {
@@ -51,7 +52,10 @@ void fixed_only(numpl_array * array, uint16_t full)
 /**
  * 入力文字列から盤面配列を作成する
  * 空白と数字以外は無視する。（改行は無視される）
- *
+ * @param numpl_array ナンプレ盤面配列
+ * @param text 入力テキスト
+ * @return -1 入力テキストに問題あり
+ * @return 0 正常
  */
 int input(numpl_array * array, char * text)
 {
@@ -85,6 +89,7 @@ int input(numpl_array * array, char * text)
  * ナンプレの盤面を１行で出力する。
  * これは大量に問題を生成したときに１問１行の形式で問題を出力するための関数である。
  * 出力の前後にはダブルクォートが付く
+ * @param array ナンプレ盤面配列
  */
 void print_array(numpl_array * array)
 {
@@ -114,6 +119,8 @@ void print_array(numpl_array * array)
  * これはファイルから問題を読み込むための関数である。
  * ここでは問題を文字列として読み込むだけなので、このあと input 関数によって
  * ナンプレの盤面に変換する必要がある。
+ * @param mondai 出力文字列
+ * @param fp 入力ファイルポインター
  */
 void read_mondai(char mondai[], FILE * fp)
 {
