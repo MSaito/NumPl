@@ -20,6 +20,7 @@ extern "C" {
     void get_random_number(uint16_t numbers[LINE_SIZE]);
     void get_random_number_size(uint16_t numbers[], int size);
     void shuffle_int(int array[], int size);
+    uint16_t random_one_symbol(uint16_t symbols);
 
 #if defined(__cplusplus)
 }

@@ -219,3 +219,28 @@ void shuffle_int(int array[], int size)
 	array[r] = tmp;
     }
 }
+
+/**
+ * ビットパターンからランダムにひとつのビットを選ぶ
+ * @param ビットパターン
+ * @return 選ばれたビット
+ */
+uint16_t random_one_symbol(uint16_t symbols)
+{
+    if (symbols == 0) {
+	return 0;
+    }
+    uint16_t size = ones16(FULL_SYMBOL);
+    int pos = get_random(size);
+    int count = 0;
+    for (int i = 0; i < size; i++) {
+	uint16_t mask = 1 << i;
+	if (count == pos) {
+	    return mask;
+	}
+	if (mask & symbols) {
+	    count++;
+	}
+    }
+    return 0;
+}

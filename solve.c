@@ -31,9 +31,8 @@ static solver_t simple_solvers[] = {
 
 
 static void to_string_detail(char str[3][4], cell_t s);
-static void output_detail(numpl_array * array);
-static void output(numpl_array * array);
 static void set_info(solve_info * info, int count, solver_t sv);
+static int recursion_solve_sub(numpl_array * array, recursion_solve_t *data);
 
 /**
  * マス１つ分の出力を作る
@@ -89,7 +88,7 @@ static void to_string_detail(char str[3][4], cell_t s)
  * マスにある候補をすべて出力する
  * @param array ナンプレ盤面配列
  */
-static void output_detail(numpl_array * array)
+void output_detail(numpl_array * array)
 {
     char str[LINE_SIZE][3][4];
     for (int i = 0; i < LINE_SIZE; i++) {
@@ -116,7 +115,7 @@ static void output_detail(numpl_array * array)
  * 複数候補が入っているマスは？を出力する
  * @param array ナンプレ盤面配列
  */
-static void output(numpl_array * array)
+void output(numpl_array * array)
 {
     char c;
     for (int i = 0; i < LINE_SIZE; i++) {
@@ -212,13 +211,7 @@ int is_solved(const numpl_array * array)
  */
 int solve(numpl_array * array, solve_info * info)
 {
-    info->ks_count = 0;
-    info->kh_count = 0;
-    info->kt_count = 0;
-    info->kl_count = 0;
-    info->sf_count = 0;
-    info->fx_count = 0;
-    info->solved = 0;
+    memset(info, 0, sizeof(solve_info));
     int c = 0;
     do {
 	for (int i = 0; i < max_solvers; i++) {
@@ -297,7 +290,26 @@ int equal(const numpl_array * a, const numpl_array * b)
 }
 
 /**
- * 再帰的解法
+ * 再帰的解法（ラッパー）
+ * 人間的な解法アルゴリズムは使わずに機械的解法で解く
+ * 機械的解法で解けないときは、複数候補のあるマスの候補から一つ選んで解けるか試す
+ * ということを再帰的に実行する。
+ * また、解が複数あるかどうかもチェックする。
+ * 解けたときは array に解をセットする。
+ * @param array ナンプレ盤面配列
+ * @return -1 矛盾があって解けない
+ * @return 1 解けた
+ * @return 2 解が複数存在する。
+ */
+int recursion_solve(numpl_array * array)
+{
+    recursion_solve_t data;
+    data.saved = 0;
+    return recursion_solve_sub(array, &data);
+}
+
+/**
+ * 再帰的解法（実体）
  * 人間的な解法アルゴリズムは使わずに機械的解法で解く
  * 機械的解法で解けないときは、複数候補のあるマスの候補から一つ選んで解けるか試す
  * ということを再帰的に実行する。
@@ -309,7 +321,7 @@ int equal(const numpl_array * a, const numpl_array * b)
  * @return 1 解けた
  * @return 2 解が複数存在する。
  */
-int recursion_solve(numpl_array * array, recursion_solve_t *data)
+static int recursion_solve_sub(numpl_array * array, recursion_solve_t *data)
 {
     numpl_array work;
     work = *array;
@@ -343,7 +355,7 @@ int recursion_solve(numpl_array * array, recursion_solve_t *data)
 		continue;
 	    }
 	    work.ar[i].symbol = mask;
-	    solved = recursion_solve(&work, data);
+	    solved = recursion_solve_sub(&work, data);
 	    if (solved > 1) {
 		*array = work;
 		return solved;
@@ -355,6 +367,39 @@ int recursion_solve(numpl_array * array, recursion_solve_t *data)
 	break;
     }
     return result;
+}
+
+/**
+ * ナンプレ問題の情報を出力する。
+ * @param info ナンプレ問題の情報
+ * @param verbose 詳細フラグ
+ */
+void print_solve_info(solve_info * info, int verbose)
+{
+    if (verbose) {
+	printf("kill_single:%d\n", info->ks_count);
+	printf("kill_hidden:%d\n", info->kh_count);
+	printf("kill_locked:%d\n", info->kl_count);
+	printf("kill_tuple :%d\n", info->kt_count);
+	printf("max_tuple  :%d\n", info->max_tuple);
+	printf("max_hidden :%d\n", info->max_hidden);
+	printf("swordfish  :%d\n", info->sf_count);
+	printf("max_fish   :%d\n", info->max_fish);
+	printf("fx_count   :%d\n", info->fx_count);
+	printf("solved     :%d\n", info->solved);
+    } else {
+	printf("%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,",
+	       info->ks_count,
+	       info->kh_count,
+	       info->kl_count,
+	       info->kt_count,
+	       info->max_tuple,
+	       info->max_hidden,
+	       info->sf_count,
+	       info->max_fish,
+	       info->fx_count,
+	       info->solved);
+    }
 }
 
 #if defined(MAIN)
@@ -436,16 +481,14 @@ int main(int argc, char * argv[])
 	output(&work);
     }
     if (recursion_flag) {
-	recursion_solve_t data;
-	data.saved = 0;
-	r = recursion_solve(&work, &data);
+	r = recursion_solve(&work);
 	if (r <= 0) {
 	    printf("can't solve\n");
 	    return 1;
 	} else if (r > 1) {
 	    printf("has more than 2 solution\n");
-	    output(&work);
-	    output(&data.save);
+	    //output(&work);
+	    //output(&data.save);
 	    return 2;
 	} else {
 	    printf("solved\n");
@@ -462,28 +505,9 @@ int main(int argc, char * argv[])
 	} else {
 	    output_detail(&work);
 	}
-	printf("kill_single:%d\n", info.ks_count);
-	printf("kill_hidden:%d\n", info.kh_count);
-	printf("kill_locked:%d\n", info.kl_count);
-	printf("kill_tuple :%d\n", info.kt_count);
-	printf("max_tuple  :%d\n", info.max_tuple);
-	printf("max_hidden :%d\n", info.max_hidden);
-	printf("swordfish  :%d\n", info.sf_count);
-	printf("max_fish   :%d\n", info.max_fish);
-	printf("fx_count   :%d\n", info.fx_count);
-	printf("solved     :%d\n", info.solved);
+	print_solve_info(&info, 1);
     } else {
-	printf("%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,",
-	       info.ks_count,
-	       info.kh_count,
-	       info.kl_count,
-	       info.kt_count,
-	       info.max_tuple,
-	       info.max_hidden,
-	       info.sf_count,
-	       info.max_fish,
-	       info.fx_count,
-	       info.solved);
+	print_solve_info(&info, 0);
 	fixed_only(&work, 0);
 	print_array(&work);
 	printf("\n");

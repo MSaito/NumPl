@@ -10,6 +10,10 @@ KILLER_OBJ = kill_single.o kill_hidden_single.o locked_candidate.o \
 solve: solve.c constants.o ${KILLER_OBJ} common.o
 	${CC} -DMAIN -o $@ solve.c constants.o ${KILLER_OBJ} common.o
 
+digging_hole: digging_hole.c ${KILLER_OBJ} solve.o constants.o common.o xsadd.o
+	${CC} -DMAIN -o $@ digging_hole.c solve.o constants.o ${KILLER_OBJ} \
+		common.o xsadd.o
+
 constants.o: constants.h numpl.h
 
 .c.o:
