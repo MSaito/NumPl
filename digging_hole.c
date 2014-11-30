@@ -53,7 +53,7 @@ static int digging_hole(numpl_array * array)
     for (int i = 0; i < ARRAY_SIZE; i++) {
 	array->ar[i].fixed = 1;
     }
-    numpl_array work = *array;
+    numpl_array save = *array;
     for (int i = 0; i < ARRAY_SIZE / 2; i++) {
 	int idx1 = get_random(ARRAY_SIZE);
 	int idx2 = get_counter(idx1);
@@ -65,14 +65,27 @@ static int digging_hole(numpl_array * array)
 	array->ar[idx1].symbol = FULL_SYMBOL;
 	array->ar[idx2].symbol = FULL_SYMBOL;
 	solve_info info;
-	int r = solve(&work, &info);
+	fixed_only(array, FULL_SYMBOL);
+	int r = solve(array, &info);
 	if (r == 0) {
-	    *array = work;
+	    *array = save;
+#if defined(DEBUG)
+	    printf("load and return r = %d\n", r);
+	    //output(array);
+#endif
 	    return 1;
 	} else if (r == 1) {
-	    work = *array;
+	    save = *array;
+#if defined(DEBUG)
+	    printf("save r = %d i = %d\n", r, i);
+	    //output_detail(array);
+#endif
 	} else {
-	    *array = work;
+	    *array = save;
+#if defined(DEBUG)
+	    printf("load r = %d i = %d\n", r, i);
+	    //output_detail(array);
+#endif
 	}
     }
     return -1;
@@ -87,11 +100,14 @@ int main(int argc, char * argv[])
     xsadd_init(&xsadd, seed); // これを忘れてはならない
     numpl_array array;
     int r = 0;
+#if defined(DEBUG)
+    printf("start digging_hole\n");
+#endif
     do {
 	r = prepare_array(&array);
     } while (r != 1);
 #if defined(DEBUG)
-    printf("after prepare_array r = %d", r);
+    printf("after prepare_array r = %d\n", r);
     output_detail(&array);
 #endif
     numpl_array save = array;
@@ -100,7 +116,7 @@ int main(int argc, char * argv[])
 	r = digging_hole(&array);
     } while (r != 1);
 #if defined(DEBUG)
-    printf("after digging_hole r = %d", r);
+    printf("after digging_hole r = %d\n", r);
     output_detail(&array);
 #endif
     fixed_only(&array, FULL_SYMBOL);
