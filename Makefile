@@ -1,7 +1,7 @@
 #for GNU make
 
 #DDEBUG = -O0 -g -ggdb -DDEBUG=1
-#DDEBUG = -DDEBUG=1
+DDEBUG = -DDEBUG=1
 
 CC = gcc -I. -Wall -O3 -std=c99 -Wmissing-prototypes $(DDEBUG)
 KILLER_OBJ = kill_single.o kill_hidden_single.o locked_candidate.o \

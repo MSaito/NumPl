@@ -9,7 +9,9 @@
 #include "killer.h"
 
 static int prepare_array(numpl_array * array);
-static int digging_hole(numpl_array * array);
+static int digging_hole(numpl_array * array, int symmetric);
+static int digging_hole_recursion(numpl_array * array, int pos,
+				  solve_info * info, int symmetric);
 
 /**
  * ナンプレ盤面の完成形を得る。
@@ -48,47 +50,108 @@ static int prepare_array(numpl_array * array)
  * @return 1: 作成できた
  * @return それ以外: 作成できなかった
  */
-static int digging_hole(numpl_array * array)
+static int digging_hole(numpl_array * array, int symmetric)
 {
     for (int i = 0; i < ARRAY_SIZE; i++) {
 	array->ar[i].fixed = 1;
     }
     numpl_array save = *array;
-    for (int i = 0; i < ARRAY_SIZE / 2; i++) {
+    int loop_size = ARRAY_SIZE;
+    if (symmetric) {
+	loop_size = ARRAY_SIZE / 2;
+    }
+    for (int i = 0; i < loop_size; i++) {
 	int idx1 = get_random(ARRAY_SIZE);
 	int idx2 = get_counter(idx1);
 	if (array->ar[idx1].fixed == 0) {
 	    continue;
 	}
 	array->ar[idx1].fixed = 0;
-	array->ar[idx2].fixed = 0;
 	array->ar[idx1].symbol = FULL_SYMBOL;
-	array->ar[idx2].symbol = FULL_SYMBOL;
+	if (symmetric) {
+	    array->ar[idx2].fixed = 0;
+	    array->ar[idx2].symbol = FULL_SYMBOL;
+	}
 	solve_info info;
 	fixed_only(array, FULL_SYMBOL);
 	int r = solve(array, &info);
 	if (r == 0) {
 	    *array = save;
-#if defined(DEBUG)
+#if defined(DEBUG) && 0
 	    printf("load and return r = %d\n", r);
 	    //output(array);
 #endif
 	    return 1;
 	} else if (r == 1) {
 	    save = *array;
-#if defined(DEBUG)
+#if defined(DEBUG) && 0
 	    printf("save r = %d i = %d\n", r, i);
 	    //output_detail(array);
 #endif
 	} else {
 	    *array = save;
-#if defined(DEBUG)
+#if defined(DEBUG) && 0
 	    printf("load r = %d i = %d\n", r, i);
 	    //output_detail(array);
 #endif
 	}
     }
     return -1;
+}
+
+/**
+ * digging hole アルゴリズムを再帰的に使い問題を作成する
+ * 点対称な問題を作成する。
+ * 人間的解法で解ける盤面を生成する。
+ * @param array ナンプレ盤面（入出力）
+ * @return 1: 作成できた
+ * @return それ以外: 作成できなかった
+ */
+static int digging_hole_recursion(numpl_array * array, int pos,
+				  solve_info * info, int symmetric)
+{
+    fixed_only(array, FULL_SYMBOL);
+    int r = solve(array, info);
+    if (r != 1) {
+	return r;
+    }
+    numpl_array best = *array;
+    numpl_array save = *array;
+    int min_fixed = ARRAY_SIZE + 1;
+    int loop_size = ARRAY_SIZE;
+    if (symmetric) {
+	loop_size = ARRAY_SIZE / 2;
+    }
+    for (int i = pos; i < loop_size; i++) {
+	int idx1 = i;
+	int idx2 = get_counter(idx1);
+	if (array->ar[idx1].fixed == 0) {
+	    continue;
+	}
+	array->ar[idx1].fixed = 0;
+	array->ar[idx1].symbol = FULL_SYMBOL;
+	if (symmetric) {
+	    array->ar[idx2].fixed = 0;
+	    array->ar[idx2].symbol = FULL_SYMBOL;
+	}
+	r = digging_hole_recursion(array, i + 1, info, symmetric);
+	if (r <= 0) {
+	    *array = save;
+	    continue;
+	} else if (r == 1) {
+	    if (info->fx_count < min_fixed) {
+		min_fixed = info->fx_count;
+		best = *array;
+	    }
+	    *array = save;
+	}
+    }
+    *array = save;
+    if (min_fixed == ARRAY_SIZE + 1) {
+	return -1;
+    } else {
+	return 1;
+    }
 }
 
 #if defined(MAIN)
@@ -113,14 +176,23 @@ int main(int argc, char * argv[])
     numpl_array save = array;
     do {
 	array = save;
-	r = digging_hole(&array);
+	r = digging_hole(&array, 1);
     } while (r != 1);
 #if defined(DEBUG)
     printf("after digging_hole r = %d\n", r);
     output_detail(&array);
 #endif
     fixed_only(&array, FULL_SYMBOL);
+    save = array;
     solve_info info;
+    r = digging_hole_recursion(&array, 0, &info, 1);
+    if (r <= 0) {
+	array = save;
+    }
+#if defined(DEBUG)
+    printf("after digging_hole_recursion r = %d\n", r);
+    output_detail(&array);
+#endif
     r = solve(&array, &info);
     print_solve_info(&info, 1);
     if (r == 1) {
