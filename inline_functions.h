@@ -53,6 +53,27 @@ extern "C" {
 	return ARRAY_SIZE - 1 - index;
     }
 
+    /**
+     * 盤面配列内の位置から行番号を求める
+     * @pram idx 盤面配列内の位置
+     * @return 行番号
+     */
+    static inline int torow(int idx)
+    {
+	return idx / LINE_SIZE;
+    }
+
+    /**
+     * 盤面配列内の位置から列番号を求める
+     * @pram idx 盤面配列内の位置
+     * @return 列番号
+     */
+    static inline int tocol(int idx)
+    {
+	return idx % LINE_SIZE;
+    }
+
+
 #if defined(__cplusplus)
 }
 #endif

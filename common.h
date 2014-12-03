@@ -21,6 +21,7 @@ extern "C" {
     void get_random_number_size(uint16_t numbers[], int size);
     void shuffle_int(int array[], int size);
     uint16_t random_one_symbol(uint16_t symbols);
+    int get_counter_pos(int pos, int mode);
 
 #if defined(__cplusplus)
 }
