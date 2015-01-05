@@ -19,7 +19,7 @@ static int kill_diff(uint16_t mask, const int common[], int common_size,
 /**
  * Locked Candidate メイン関数
  * @param array ナンプレ盤面配列
- * @return 1:この解法により数字を消した。2:消せなかった
+ * @return 1:この解法により数字を消した。0:消せなかった
  */
 int kill_locked_candidate(numpl_array * array)
 {
@@ -41,6 +41,79 @@ int kill_locked_candidate(numpl_array * array)
 	}
     }
     return count;
+}
+
+/**
+ * Locked Candidate 解析メイン関数
+ * @param array ナンプレ盤面配列
+ * @param info 解情報
+ * @return 仮の評価値
+ */
+int64_t analyze_locked_candidate(numpl_array * array, solve_info * info)
+{
+    int count = 0;
+    int64_t best_score = -1;
+    numpl_array save;
+    numpl_array best;
+    solve_info save_info;
+    solve_info best_info;
+    int64_t score;
+    int64_t this_score = 0;
+    int changed = 1;
+    int64_t pre_score = analyze_hidden_single(array, info) * 100;
+    if (info->solved) {
+	return pre_score * 100;
+    }
+    while (changed) {
+	changed = 0;
+	save = *array;
+	save_info = *info;
+	for (int i = 0; i < LINE_SIZE; i++) {
+	    for (int j = 0; j < BLOCK_ROWS; j++) {
+		count = kill_locked_lines(BLOCK_ROWS, blocks[i],
+					  rows[locked_rows[i][j]], array->ar);
+		if (count == 0) {
+		    continue;
+		}
+		changed = 1;
+		score = analyze_hidden_single(array, info);
+		if (score > best_score) {
+		    best = *array;
+		    best_info = *info;
+		    best_score = score;
+		}
+		*array = save;
+		*info = save_info;
+	    }
+	    for (int j = 0; j < BLOCK_COLS; j++) {
+		count = kill_locked_lines(BLOCK_COLS, blocks[i],
+					  cols[locked_cols[i][j]], array->ar);
+		if (count == 0) {
+		    continue;
+		}
+		changed = 1;
+		score = analyze_hidden_single(array, info);
+		if (score > best_score) {
+		    best = *array;
+		    best_info = *info;
+		    best_score = score;
+		}
+		*array = save;
+		*info = save_info;
+	    }
+	}
+	if (changed) {
+	    info->kl_count++;
+	    *array = best;
+	    *info = best_info;
+	    this_score += best_score * 100 + 1;
+	    best_score = -1;
+	}
+	if (info->solved) {
+	    break;
+	}
+    }
+    return pre_score + this_score;
 }
 
 /**

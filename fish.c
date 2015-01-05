@@ -7,6 +7,7 @@
 #include "inline_functions.h"
 #include "constants.h"
 #include <stdio.h>
+#include <math.h>
 
 static int fishsub(int fish_count, uint16_t mask,
 		 const int rows[LINE_SIZE][LINE_SIZE],
@@ -23,13 +24,16 @@ static int kill_fish_cells(uint16_t mask,
 		     const int rows[LINE_SIZE][LINE_SIZE],
 		     numpl_array * array);
 static int contains(uint16_t array[], int pos, uint16_t value);
-#if defined(DEBUG)
+#if defined(DEBUG) && 0
 static void print_patterns(uint16_t pattern[], int size);
 #endif
 
 /**
  * fish 系解法メインプログラム
  * X-Wing から検索する
+ * @param array ナンプレ盤面配列
+ * @return 0: この解法が適用できない
+ * @return 1: この解法で候補が削除できた
  */
 int kill_fish(numpl_array * array)
 {
@@ -46,6 +50,66 @@ int kill_fish(numpl_array * array)
 	}
     }
     return 0;
+}
+
+/**
+ * fish 系解析メインプログラム
+ * X-Wing から検索する
+ * @param array ナンプレ盤面配列
+ * @return 仮の評価値
+ */
+int64_t analyze_fish(numpl_array * array, solve_info * info)
+{
+    int64_t best_score = -1;
+    numpl_array save = *array;
+    numpl_array best;
+    solve_info save_info = *info;
+    solve_info best_info;
+    int64_t score;
+    int64_t this_score = 0;
+    int count = 0;
+    uint64_t pre_score = analyze_tuple(array, info) * 100;
+    if (info->solved) {
+	return pre_score;
+    }
+    for (int i = 2; i < LINE_SIZE - 1; i++) {
+	int changed = 1;
+	while (changed && !info->solved) {
+	    changed = 0;
+	    for (uint16_t mask = 1; mask <= MAX_SYMBOL; mask = mask << 1) {
+		count = fishsub(i, mask, rows, array);
+		if (count <= 0) {
+		    count = fishsub(i, mask, cols, array);
+		}
+		if (count < 0) {
+		    return count;
+		} else if (count == 0) {
+		    continue;
+		}
+		changed = 1;
+		score = analyze_tuple(array, info);
+		if (score > best_score) {
+		    best = *array;
+		    best_info = *info;
+		    best_score = score;
+		}
+		*array = save;
+		*info = save_info;
+	    }
+	    if (changed) {
+		info->sf_count++;
+		info->fish[i - 2]++;
+		*array = best;
+		*info = best_info;
+		this_score += best_score * 100 + 1;
+		best_score = -1;
+	    }
+	}
+	if (info->solved) {
+	    break;
+	}
+    }
+    return pre_score + this_score;
 }
 
 /**
@@ -110,7 +174,7 @@ static int fishsub(int fish_count, uint16_t mask,
     return 0;
 }
 
-#if defined(DEBUG)
+#if defined(DEBUG) && 0
 static void print_patterns(uint16_t pattern[], int size)
 {
     for (int i = 0; i < size; i++) {

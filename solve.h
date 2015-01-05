@@ -15,6 +15,9 @@ extern "C" {
 	int max_tuple;
 	int max_hidden;
 	int max_fish;
+	int naked_tuple[LINE_SIZE / 2 + 1];
+	int hidden_tuple[LINE_SIZE / 2 + 1];
+	int fish[LINE_SIZE];
 	int solved;
     } solve_info;
 
@@ -24,6 +27,7 @@ extern "C" {
     } recursion_solve_t;
 
     int solve(numpl_array * array, solve_info * info);
+    int analyze(numpl_array * array, solve_info * info);
     int is_solved(const numpl_array * array);
     int simple_solve(numpl_array * array);
     int equal(const numpl_array * a, const numpl_array * b);

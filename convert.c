@@ -4,6 +4,7 @@
 #include "xsadd.h"
 #include "constants.h"
 #include "common.h"
+#include "solve.h"
 #include <time.h>
 #include <stdlib.h>
 
@@ -220,6 +221,11 @@ int main(int argc, char * argv[])
     }
     fixed_only(&work, 0);
     random_convert(&work);
+    fixed_only(&work, FULL_SYMBOL);
+    solve_info info;
+    solve(&work, &info);
+    print_solve_info(&info, 0);
+    fixed_only(&work, 0);
     print_array(&work);
     printf("\n");
     return 0;

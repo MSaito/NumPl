@@ -23,7 +23,7 @@ static solver_t solvers[] = {
     kill_fish,
     NULL};
 
-/** 機械的解放関数 */
+/** 機械的解法関数 */
 static solver_t simple_solvers[] = {
     kill_single,
     kill_hidden_single,
@@ -385,10 +385,19 @@ void print_solve_info(solve_info * info, int verbose)
 	printf("max_hidden :%d\n", info->max_hidden);
 	printf("swordfish  :%d\n", info->sf_count);
 	printf("max_fish   :%d\n", info->max_fish);
+	for (int i = 0; i < LINE_SIZE / 2 + 1; i++) {
+	    printf("naked_tuple[%d] = %d\n", i + 2, info->naked_tuple[i]);
+	}
+	for (int i = 0; i < LINE_SIZE / 2 + 1; i++) {
+	    printf("hidden_tuple[%d] = %d\n", i + 2, info->hidden_tuple[i]);
+	}
+	for (int i = 0; i < LINE_SIZE - 2; i++) {
+	    printf("fish[%d] = %d\n", i + 2, info->fish[i]);
+	}
 	printf("fx_count   :%d\n", info->fx_count);
 	printf("solved     :%d\n", info->solved);
     } else {
-	printf("%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,",
+	printf("%d,%d,%d,%d,%d,%d,%d,%d,",
 	       info->ks_count,
 	       info->kh_count,
 	       info->kl_count,
@@ -396,7 +405,17 @@ void print_solve_info(solve_info * info, int verbose)
 	       info->max_tuple,
 	       info->max_hidden,
 	       info->sf_count,
-	       info->max_fish,
+	       info->max_fish);
+	for (int i = 0; i < LINE_SIZE / 2 + 1; i++) {
+	    printf("%d,", info->naked_tuple[i]);
+	}
+	for (int i = 0; i < LINE_SIZE / 2 + 1; i++) {
+	    printf("%d,", info->hidden_tuple[i]);
+	}
+	for (int i = 0; i < LINE_SIZE - 2; i++) {
+	    printf("%d,", info->fish[i]);
+	}
+	printf("%d,%d,",
 	       info->fx_count,
 	       info->solved);
     }

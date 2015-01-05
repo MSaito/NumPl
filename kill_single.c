@@ -15,7 +15,7 @@ static int check_array(numpl_array * array);
  * Naked Single メイン関数
  * この関数は一番基本となる関数なので一回消したあとも続けて実行する。
  * @param array ナンプレ盤面配列
- * @return 数字を消したマスの数
+ * @return 数字を消した行の数
  */
 int kill_single(numpl_array * array)
 {
@@ -26,16 +26,53 @@ int kill_single(numpl_array * array)
     result = 0;
     for (int i = 0; i < LINE_KINDS; i++) {
 	for (int j = 0; j < LINE_SIZE; j++) {
-	    result += kill_line(all_lines[i][j], array->ar);
+	    int r = kill_line(all_lines[i][j], array->ar);
+	    if (r < 0) {
+		return r;
+	    } else {
+		result++;
+	    }
 	}
     }
     return result;
 }
 
 /**
+ * Naked Single 解析メイン関数
+ * この関数は一番基本となる関数なので一回消したあとも続けて実行する。
+ * @param array ナンプレ盤面配列
+ * @param info 解情報
+ * @return 数字を消した仮想行の数
+ */
+int64_t analyze_single(numpl_array * array, solve_info * info)
+{
+    int result = check_array(array);
+    if (result < 0) {
+	return result;
+    }
+    result = 0;
+    int r = 1;
+    while (r > 0) {
+	for (int i = 0; i < LINE_KINDS; i++) {
+	    for (int j = 0; j < LINE_SIZE; j++) {
+		r = kill_line(all_lines[i][j], array->ar);
+		if (r < 0) {
+		    return r;
+		} else {
+		    info->ks_count++;
+		    result++;
+		}
+	    }
+	}
+    }
+    if (is_solved(array)) {
+	info->solved = 1;
+    }
+    return result;
+}
+
+/**
  * Naked Single 下請け関数
- * 注意：この関数では同じ数字が二カ所のマスに単独であるとき
- * その矛盾を発見できない。
  * @param line 仮想行
  * @param ar ナンプレ盤面配列（実際の配列）
  * @return 数字を消したマスの数

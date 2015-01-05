@@ -9,12 +9,21 @@
 #include "constants.h"
 #include "inline_functions.h"
 #include <stdio.h>
+#include <math.h>
 
 static uint16_t count_multiple(const int index[], cell_t array[]);
 static int kill_tuple_lines(const int line[], cell_t array[]);
 static int count_naked_cells(uint16_t mask, const int index[],
 			     cell_t array[]);
 static int kill_naked_cells(uint16_t mask, const int index[], cell_t array[]);
+static int count_hidden_cells(uint16_t mask, const int index[],
+			      cell_t array[]);
+static int kill_hidden_cells(uint16_t mask, const int index[],
+			     cell_t array[]);
+static int kill_naked(int tuple_num, numpl_array * array);
+static int kill_hidden(int tuple_num, numpl_array * array);
+static int kill_naked_lines(int tuple_num, const int index[], cell_t array[]);
+static int kill_hidden_lines(int tuple_num, const int index[], cell_t array[]);
 
 /**
  * Tuple メイン関数
@@ -33,6 +42,73 @@ int kill_tuple(numpl_array * array)
 	}
     }
     return 0;
+}
+
+/**
+ * Tuple 解析メイン関数
+ * @param array ナンプレ盤面配列
+ * @param info 解情報
+ * @return 仮の評価値
+ */
+int64_t analyze_tuple(numpl_array * array, solve_info * info)
+{
+    static const int control_size = 7;
+    static const int control[7][2] ={
+	{0, 2}, {0, 3}, {1, 2}, {1, 3}, {0, 4}, {1, 4}, {0, 5}};
+    int64_t best_score = -1;
+    numpl_array save = *array;
+    numpl_array best;
+    solve_info save_info = *info;
+    solve_info best_info;
+    int64_t score;
+    int64_t this_score = 0;
+    int c = 0;
+    int changed = 1;
+    uint64_t pre_score = analyze_locked_candidate(array, info) * 100;
+    if (info->solved) {
+	return pre_score;
+    }
+    while (changed) {
+	changed = 0;
+	for (int i = 0; i < control_size; i++) {
+	    int tuple_count = control[i][1];
+	    if (control[i][0] == 0) {
+		c = kill_naked(tuple_count, array);
+	    } else {
+		c = kill_hidden(tuple_count, array);
+	    }
+	    if (c < 0) {
+		return c;
+	    } else if (c == 0) {
+		continue;
+	    }
+	    changed = 1;
+	    if (control[i][0] == 0) {
+		info->naked_tuple[tuple_count - 2]++;
+	    } else {
+		info->hidden_tuple[tuple_count - 2]++;
+	    }
+	    score = analyze_locked_candidate(array, info);
+	    if (score > best_score) {
+		best = *array;
+		best_info = *info;
+		best_score = score;
+	    }
+	    *array = save;
+	    *info = save_info;
+	}
+	if (changed) {
+	    info->kt_count++;
+	    *array = best;
+	    *info = best_info;
+	    this_score += best_score * 100 + 1;
+	    best_score = -1;
+	}
+	if (info->solved) {
+	    break;
+	}
+    }
+    return pre_score + this_score;
 }
 
 /**
@@ -124,3 +200,148 @@ static int kill_naked_cells(uint16_t mask, const int line[], cell_t array[])
     return count;
 }
 
+/**
+ * Tuple naked 用解析下請け関数
+ * @param tuple_num 組の数(2:Naked Pair, 3:Naked Triple)
+ * @param array ナンプレ盤面配列（実際の配列）
+ * @return 1:この解法によって数字をけせた 0:この解法によって数字を消せなかった
+ */
+static int kill_naked(int tuple_num, numpl_array * array)
+{
+    int c = 0;
+    for (int i = 0; i < LINE_KINDS; i++) {
+	for (int j = 0; j < LINE_SIZE; j++) {
+	    c = kill_naked_lines(tuple_num, all_lines[i][j], array->ar);
+	    if (c > 0) {
+		return 1;
+	    }
+	}
+    }
+    return 0;
+}
+
+/**
+ * Tuple hidden 用解析下請け関数
+ * @param tuple_num 組の数(2:Hidden Pair, 3:Hidden Triple)
+ * @param array ナンプレ盤面配列（実際の配列）
+ * @return 1:この解法によって数字をけせた 0:この解法によって数字を消せなかった
+ */
+static int kill_hidden(int tuple_num, numpl_array * array)
+{
+    int c = 0;
+    for (int i = 0; i < LINE_KINDS; i++) {
+	for (int j = 0; j < LINE_SIZE; j++) {
+	    c = kill_hidden_lines(tuple_num, all_lines[i][j], array->ar);
+	    if (c > 0) {
+		return 1;
+	    }
+	}
+    }
+    return 0;
+}
+
+/**
+ * 仮想行１行についてnaked tupleの処理を行う
+ * @param tuple_num 組の数(2:Naked Pair, 3:Naked Triple)
+ * @param index 仮想行
+ * @param array ナンプレ盤面配列（実際の配列）
+ * @return 1:この解法によって数字をけせた 0:この解法によって数字を消せなかった
+ */
+static int kill_naked_lines(int tuple_num, const int index[], cell_t array[])
+{
+    uint16_t multiple = count_multiple(index, array);
+    if (ones16(multiple) < tuple_num || ones16(multiple) <= 2) {
+	return 0;
+    }
+    int result = 0;
+    int count = tuple_num;
+    for (uint16_t mask = 3; mask < FULL_SYMBOL; mask++) {
+	if ((mask | multiple) != multiple) {
+	    continue;
+	}
+	if (ones16(mask) != count) {
+	    continue;
+	}
+	int cells = count_naked_cells(mask, index, array);
+	if (cells == count) {
+	    result = kill_naked_cells(mask, index, array);
+	    if (result > 0) {
+		break;
+	    }
+	}
+    }
+    return result;
+}
+
+/**
+ * 仮想行１行についてhidden tupleの処理を行う
+ * @param tuple_num 組の数(2:Hidden Pair, 3:Hidden Triple)
+ * @param index 仮想行
+ * @param array ナンプレ盤面配列（実際の配列）
+ * @return 1:この解法によって数字をけせた 0:この解法によって数字を消せなかった
+ */
+static int kill_hidden_lines(int tuple_num, const int index[], cell_t array[])
+{
+    uint16_t multiple = count_multiple(index, array);
+    if (ones16(multiple) < tuple_num || ones16(multiple) <= 2) {
+	return 0;
+    }
+    int result = 0;
+    int count = tuple_num;
+    for (uint16_t mask = 3; mask < FULL_SYMBOL; mask++) {
+	if ((mask | multiple) != multiple) {
+	    continue;
+	}
+	if (ones16(mask) != count) {
+	    continue;
+	}
+	int cells = count_hidden_cells(mask, index, array);
+	if (cells == count) {
+	    result = kill_hidden_cells(mask, index, array);
+	    if (result > 0) {
+		break;
+	    }
+	}
+    }
+    return result;
+}
+
+/**
+ * 与えられた候補の組についてhidden tuple が成立するマスの数を数える
+ * @param mask 候補数字の組
+ * @param index 仮想行
+ * @param array ナンプレ盤面配列（実際の配列）
+ * @return 与えられた組を含むマスの数
+ */
+static int count_hidden_cells(uint16_t mask, const int index[], cell_t array[])
+{
+    int count = 0;
+    for (int i = 0; i < LINE_SIZE; i++) {
+	cell_t sym = array[index[i]];
+	if ((sym.symbol & mask) != 0) {
+	    count++;
+	}
+    }
+    return count;
+}
+
+/**
+ * 与えられた候補の組についてnakede tuple によってそのマスから他の候補を削除する
+ * @param mask 候補数字の組
+ * @param index 仮想行
+ * @param array ナンプレ盤面配列（実際の配列）
+ * @return 候補を削除したマスの数
+ */
+static int kill_hidden_cells(uint16_t mask, const int index[], cell_t array[])
+{
+    int count = 0;
+    for (int i = 0; i < LINE_SIZE; i++) {
+	uint16_t sym = array[index[i]].symbol;
+	if ((sym | mask) != mask &&
+	    (sym & mask) != 0) {
+	    array[index[i]].symbol = sym & mask;
+	    count++;
+	}
+    }
+    return count;
+}
