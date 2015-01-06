@@ -146,7 +146,7 @@ static int digging_hole_recursion(numpl_array * array, int pos,
             *array = save;
         }
     }
-    *array = save;
+    *array = best;
     if (min_fixed == ARRAY_SIZE + 1) {
         return -1;
     } else {

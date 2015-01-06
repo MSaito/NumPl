@@ -8,7 +8,7 @@ CC = gcc -I. -Wall -Wextra -Wno-unused-parameter -O3 -std=c99 \
 KILLER_OBJ = kill_single.o kill_hidden_single.o locked_candidate.o \
 	tuple.o fish.o
 
-all:solve digging_hole convert
+all:solve digging_hole convert analyze
 
 solve: solve.c constants.o ${KILLER_OBJ} common.o analyze.o
 	${CC} -DMAIN -o $@ solve.c constants.o ${KILLER_OBJ} common.o analyze.o

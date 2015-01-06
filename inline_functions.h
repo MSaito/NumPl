@@ -25,6 +25,15 @@ extern "C" {
 	return (x & 0x0000001f);
     }
 
+    static inline int floor_log2(uint16_t x)
+    {
+        x |= (x >> 1);
+        x |= (x >> 2);
+        x |= (x >> 4);
+        x |= (x >> 8);
+        return(ones16(x) - 1);
+    }
+
     /**
      * ひとつのマスの中に候補となる数字が１つだけか？
      * @param cell ナンプレのマス

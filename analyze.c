@@ -41,26 +41,30 @@ int analyze(numpl_array * array, solve_info * info)
 	return 1;
     } else if (is_solved(array)) {
 	info->solved = 1;
+	info->fx_count = count_fixed(array);
 #if defined(DEBUG)
 	printf("OUT solved");
 #endif
 	return 1;
     }
-    int c = 0;
+    int64_t c = 0;
     do {
 #if defined(DEBUG)
-	printf("ANALYZE DO c = %d\n", c);
+	printf("ANALYZE DO c = %"PRId64"\n", c);
 #endif
 	c = analyze_fish(array, info);
 	if (c < 0) {
 	    info->solved = 0;
-	    return -1;
+	    break;
 	}
 	if (c > 0) {
 	    break;
 	}
     } while (c > 0 || !info->solved);
     if (c < 0) {
+#if defined(DEBUG)
+	printf("OUT ANALYZE c = %"PRId64"\n", c);
+#endif
 	info->solved = 0;
 	return -1;
     }
@@ -185,8 +189,8 @@ int main(int argc, char * argv[])
 	output(&work);
     }
     solve_info info;
-    analyze(&work, &info);
-    if (!quiet) {
+    r = analyze(&work, &info);
+    if (!quiet || r < 0) {
 	if (info.solved) {
 	    printf("\nsolved\n");
 	    output(&work);

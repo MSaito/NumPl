@@ -20,8 +20,8 @@ static int count_hidden_cells(uint16_t mask, const int index[],
 			      cell_t array[]);
 static int kill_hidden_cells(uint16_t mask, const int index[],
 			     cell_t array[]);
-static int kill_naked(int tuple_num, numpl_array * array);
-static int kill_hidden(int tuple_num, numpl_array * array);
+static int64_t analyze_tuple_sub(int naked, int tuple_num,
+				 numpl_array * array, solve_info * info);
 static int kill_naked_lines(int tuple_num, const int index[], cell_t array[]);
 static int kill_hidden_lines(int tuple_num, const int index[], cell_t array[]);
 
@@ -55,52 +55,79 @@ int64_t analyze_tuple(numpl_array * array, solve_info * info)
     static const int control_size = 7;
     static const int control[7][2] ={
 	{0, 2}, {0, 3}, {1, 2}, {1, 3}, {0, 4}, {1, 4}, {0, 5}};
-    int64_t best_score = -1;
-    numpl_array save = *array;
-    numpl_array best;
-    solve_info save_info = *info;
-    solve_info best_info;
+    int64_t score;
+    for (int i = 0; i < control_size; i++) {
+	int tuple_count = control[i][1];
+	score = analyze_tuple_sub(control[i][0], tuple_count, array, info);
+	if (score < 0) {
+	    return score;
+	}
+	if (score > 0) {
+	    break;
+	}
+    }
+    return score;
+}
+
+/**
+ * Tuple 用解析下請け関数
+ * @param naked naked/hidden の区別
+ * @param tuple_num 組の数(2:Naked Pair, 3:Naked Triple)
+ * @param array ナンプレ盤面配列（実際の配列）
+ * @return 1:この解法によって数字をけせた 0:この解法によって数字を消せなかった
+ */
+static int64_t analyze_tuple_sub(int naked, int tuple_num, numpl_array * array,
+    solve_info * info)
+{
+    int c = 0;
     int64_t score;
     int64_t this_score = 0;
-    int c = 0;
     int changed = 1;
-    uint64_t pre_score = analyze_locked_candidate(array, info) * 100;
-    if (info->solved) {
-	return pre_score;
-    }
+    uint64_t pre_score = 0;
     while (changed) {
+	pre_score += analyze_locked_candidate(array, info) * 100;
+	if (info->solved) {
+	    break;
+	}
 	changed = 0;
-	for (int i = 0; i < control_size; i++) {
-	    int tuple_count = control[i][1];
-	    if (control[i][0] == 0) {
-		c = kill_naked(tuple_count, array);
-	    } else {
-		c = kill_hidden(tuple_count, array);
+	int64_t best_score = -1;
+	numpl_array save = *array;
+	numpl_array best;
+	solve_info save_info = *info;
+	solve_info best_info;
+	for (int i = 0; i < LINE_KINDS; i++) {
+	    for (int j = 0; j < LINE_SIZE; j++) {
+		if (naked) {
+		    c = kill_naked_lines(tuple_num, all_lines[i][j], array->ar);
+		} else {
+		    c = kill_hidden_lines(tuple_num, all_lines[i][j],
+					  array->ar);
+		}
+		if (c < 0) {
+		    return c;
+		} else if (c == 0) {
+		    continue;
+		}
+		changed = 1;
+		if (naked) {
+		    info->naked_tuple[tuple_num - 2]++;
+		} else {
+		    info->hidden_tuple[tuple_num - 2]++;
+		}
+		score = analyze_locked_candidate(array, info);
+		if (score > best_score) {
+		    best = *array;
+		    best_info = *info;
+		    best_score = score;
+		}
+		*array = save;
+		*info = save_info;
 	    }
-	    if (c < 0) {
-		return c;
-	    } else if (c == 0) {
-		continue;
-	    }
-	    changed = 1;
-	    if (control[i][0] == 0) {
-		info->naked_tuple[tuple_count - 2]++;
-	    } else {
-		info->hidden_tuple[tuple_count - 2]++;
-	    }
-	    score = analyze_locked_candidate(array, info);
-	    if (score > best_score) {
-		best = *array;
-		best_info = *info;
-		best_score = score;
-	    }
-	    *array = save;
-	    *info = save_info;
 	}
 	if (changed) {
-	    info->kt_count++;
 	    *array = best;
 	    *info = best_info;
+	    info->kt_count++;
 	    this_score += best_score * 100 + 1;
 	    best_score = -1;
 	}
@@ -198,46 +225,6 @@ static int kill_naked_cells(uint16_t mask, const int line[], cell_t array[])
 	}
     }
     return count;
-}
-
-/**
- * Tuple naked 用解析下請け関数
- * @param tuple_num 組の数(2:Naked Pair, 3:Naked Triple)
- * @param array ナンプレ盤面配列（実際の配列）
- * @return 1:この解法によって数字をけせた 0:この解法によって数字を消せなかった
- */
-static int kill_naked(int tuple_num, numpl_array * array)
-{
-    int c = 0;
-    for (int i = 0; i < LINE_KINDS; i++) {
-	for (int j = 0; j < LINE_SIZE; j++) {
-	    c = kill_naked_lines(tuple_num, all_lines[i][j], array->ar);
-	    if (c > 0) {
-		return 1;
-	    }
-	}
-    }
-    return 0;
-}
-
-/**
- * Tuple hidden 用解析下請け関数
- * @param tuple_num 組の数(2:Hidden Pair, 3:Hidden Triple)
- * @param array ナンプレ盤面配列（実際の配列）
- * @return 1:この解法によって数字をけせた 0:この解法によって数字を消せなかった
- */
-static int kill_hidden(int tuple_num, numpl_array * array)
-{
-    int c = 0;
-    for (int i = 0; i < LINE_KINDS; i++) {
-	for (int j = 0; j < LINE_SIZE; j++) {
-	    c = kill_hidden_lines(tuple_num, all_lines[i][j], array->ar);
-	    if (c > 0) {
-		return 1;
-	    }
-	}
-    }
-    return 0;
 }
 
 /**

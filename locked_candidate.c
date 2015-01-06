@@ -5,6 +5,9 @@
 #include "numpl.h"
 #include "constants.h"
 #include "killer.h"
+#include "solve.h"
+#include <stdio.h>
+#include <inttypes.h>
 
 static int kill_locked_lines(int common_size, const int index1[],
 			     const int index2[], cell_t array[]);
@@ -52,7 +55,6 @@ int kill_locked_candidate(numpl_array * array)
 int64_t analyze_locked_candidate(numpl_array * array, solve_info * info)
 {
     int count = 0;
-    int64_t best_score = -1;
     numpl_array save;
     numpl_array best;
     solve_info save_info;
@@ -60,14 +62,20 @@ int64_t analyze_locked_candidate(numpl_array * array, solve_info * info)
     int64_t score;
     int64_t this_score = 0;
     int changed = 1;
-    int64_t pre_score = analyze_hidden_single(array, info) * 100;
-    if (info->solved) {
-	return pre_score * 100;
-    }
+    int64_t pre_score = 0;
     while (changed) {
+	pre_score += analyze_hidden_single(array, info) * 100;
+#if defined(DEBUG)
+	printf("analyze_hidden_single pre score = %"PRId64" solved = %d\n",
+	       pre_score, info->solved);
+#endif
+	if (info->solved) {
+	    break;
+	}
 	changed = 0;
 	save = *array;
 	save_info = *info;
+	int64_t best_score = -1;
 	for (int i = 0; i < LINE_SIZE; i++) {
 	    for (int j = 0; j < BLOCK_ROWS; j++) {
 		count = kill_locked_lines(BLOCK_ROWS, blocks[i],
@@ -77,7 +85,16 @@ int64_t analyze_locked_candidate(numpl_array * array, solve_info * info)
 		}
 		changed = 1;
 		score = analyze_hidden_single(array, info);
+#if defined(DEBUG)
+		printf("analyze_hidden_single score = %"PRId64"\n", score);
+#endif
 		if (score > best_score) {
+#if defined(DEBUG)
+		    printf("analyze locked best %"PRId64" -> %"PRId64" info\n",
+			   best_score, score);
+		    print_solve_info(info, 0);
+		    printf("\n");
+#endif
 		    best = *array;
 		    best_info = *info;
 		    best_score = score;
@@ -93,7 +110,16 @@ int64_t analyze_locked_candidate(numpl_array * array, solve_info * info)
 		}
 		changed = 1;
 		score = analyze_hidden_single(array, info);
+#if defined(DEBUG)
+		printf("analyze_hidden_single score = %"PRId64"\n", score);
+#endif
 		if (score > best_score) {
+#if defined(DEBUG)
+		    printf("analyze locked best %"PRId64" -> %"PRId64" info\n",
+			   best_score, score);
+		    print_solve_info(info, 0);
+		    printf("\n");
+#endif
 		    best = *array;
 		    best_info = *info;
 		    best_score = score;
@@ -103,16 +129,19 @@ int64_t analyze_locked_candidate(numpl_array * array, solve_info * info)
 	    }
 	}
 	if (changed) {
-	    info->kl_count++;
 	    *array = best;
 	    *info = best_info;
+	    info->kl_count++;
 	    this_score += best_score * 100 + 1;
-	    best_score = -1;
 	}
 	if (info->solved) {
 	    break;
 	}
     }
+#if defined(DEBUG)
+    printf("locked candidate return %"PRId64" solved = %d\n",
+	   pre_score + this_score, info->solved);
+#endif
     return pre_score + this_score;
 }
 

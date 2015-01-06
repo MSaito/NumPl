@@ -97,10 +97,10 @@ int64_t analyze_fish(numpl_array * array, solve_info * info)
 		*info = save_info;
 	    }
 	    if (changed) {
-		info->sf_count++;
-		info->fish[i - 2]++;
 		*array = best;
 		*info = best_info;
+		info->sf_count++;
+		info->fish[i - 2]++;
 		this_score += best_score * 100 + 1;
 		best_score = -1;
 	    }

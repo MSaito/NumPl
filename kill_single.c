@@ -7,6 +7,7 @@
 #include "constants.h"
 #include "killer.h"
 #include "inline_functions.h"
+#include <stdio.h>
 
 static int kill_line(const int line[], cell_t * ar);
 static int check_array(numpl_array * array);
@@ -29,7 +30,7 @@ int kill_single(numpl_array * array)
 	    int r = kill_line(all_lines[i][j], array->ar);
 	    if (r < 0) {
 		return r;
-	    } else {
+	    } else if (r > 0) {
 		result++;
 	    }
 	}
@@ -46,19 +47,25 @@ int kill_single(numpl_array * array)
  */
 int64_t analyze_single(numpl_array * array, solve_info * info)
 {
-    int result = check_array(array);
-    if (result < 0) {
-	return result;
+    int r = check_array(array);
+    if (r < 0) {
+	return r;
     }
-    result = 0;
-    int r = 1;
-    while (r > 0) {
+    int changed = 1;
+    int result = 0;
+    while (changed) {
+	r = check_array(array);
+	if (r < 0) {
+	    return r;
+	}
+	changed = 0;
 	for (int i = 0; i < LINE_KINDS; i++) {
 	    for (int j = 0; j < LINE_SIZE; j++) {
 		r = kill_line(all_lines[i][j], array->ar);
 		if (r < 0) {
 		    return r;
-		} else {
+		} else if (r > 0) {
+		    changed = 1;
 		    info->ks_count++;
 		    result++;
 		}
@@ -68,6 +75,11 @@ int64_t analyze_single(numpl_array * array, solve_info * info)
     if (is_solved(array)) {
 	info->solved = 1;
     }
+#if defined(DEBUG)
+    printf("analyze_single finish info:");
+    print_solve_info(info, 0);
+    printf("\n");
+#endif
     return result;
 }
 

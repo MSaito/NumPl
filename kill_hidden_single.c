@@ -8,6 +8,8 @@
 #include "killer.h"
 #include "inline_functions.h"
 #include "solve.h"
+#include <stdio.h>
+#include <inttypes.h>
 
 static int kill_hidden_line(const int line[], cell_t * ar);
 
@@ -41,15 +43,23 @@ int64_t analyze_hidden_single(numpl_array * array, solve_info * info)
     numpl_array best;
     solve_info save_info;
     solve_info best_info;
-    int64_t best_score = -1;
     int64_t this_score = 0;
     int changed = 1;
-    int64_t pre_score = analyze_single(array, info) * 100;
-    if (info->solved) {
-	return pre_score * 100;
-    }
+    int64_t pre_score = 0;
+    int64_t score = 0;
     while (changed) {
+	pre_score += analyze_single(array, info) * 100;
+#if defined(DEBUG)
+	printf("analyze_single pre score = %"PRId64" info \n", pre_score);
+	print_solve_info(info, 0);
+	printf("\n");
+#endif
+	if (info->solved) {
+	    break;
+	}
+	// ベストのものを探す
 	changed = 0;
+	int64_t best_score = -1;
 	save = *array;
 	save_info = *info;
 	for (int i = 0; i < LINE_KINDS; i++) {
@@ -62,8 +72,17 @@ int64_t analyze_hidden_single(numpl_array * array, solve_info * info)
 		    continue;
 		}
 		changed = 1;
-		int64_t score = analyze_single(array, info);
+		score = analyze_single(array, info) * 100;
+#if defined(DEBUG)
+		printf("analyze_single score = %"PRId64"\n", score);
+#endif
 		if (score > best_score) {
+#if defined(DEBUG)
+		    printf("analyze_single best %"PRId64" -> %"PRId64" info\n",
+			   best_score, score);
+		    print_solve_info(info, 0);
+		    printf("\n");
+#endif
 		    best = *array;
 		    best_info = *info;
 		    best_score = score;
@@ -73,18 +92,25 @@ int64_t analyze_hidden_single(numpl_array * array, solve_info * info)
 	    }
 	}
 	if (changed) {
-	    info->kh_count++;
 	    *array = best;
 	    *info = best_info;
-	    this_score += best_score * 100 + 1;
-	    best_score = -1;
+	    info->kh_count++;
+	    this_score += best_score + 1;
+#if defined(DEBUG)
+	    printf("analyze_single this score = %"PRId64"\n", this_score);
+#endif
 	}
 	if (info->solved) {
 	    break;
 	}
     }
+#if defined(DEBUG)
+    printf("analyze_hidden_single score = %"PRId64" solved = %d\n",
+	   pre_score + this_score, info->solved);
+#endif
     if (info->solved) {
 	return (pre_score + this_score) * 100;
+	//return (pre_score + this_score);
     } else {
 	return pre_score + this_score;
     }

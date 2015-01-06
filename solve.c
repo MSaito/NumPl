@@ -120,39 +120,13 @@ void output(numpl_array * array)
     char c;
     for (int i = 0; i < LINE_SIZE; i++) {
 	for (int j = 0; j < LINE_SIZE; j++) {
-	    switch (array->ar[rows[i][j]].symbol) {
-	    case 0:
+	    int ones = ones16(array->ar[rows[i][j]].symbol);
+	    if (ones == 0) {
 		c = ' ';
-		break;
-	    case 1:
-		c = '1';
-		break;
-	    case 2:
-		c = '2';
-		break;
-	    case 4:
-		c = '3';
-		break;
-	    case 8:
-		c = '4';
-		break;
-	    case 16:
-		c = '5';
-		break;
-	    case 32:
-		c = '6';
-		break;
-	    case 64:
-		c = '7';
-		break;
-	    case 128:
-		c = '8';
-		break;
-	    case 256:
-		c = '9';
-		break;
-	    default:
+	    } else if (ones != 1) {
 		c = '?';
+	    } else {
+		c = '1' + floor_log2(array->ar[rows[i][j]].symbol);
 	    }
 	    printf("%c", c);
 	}
@@ -221,6 +195,11 @@ int solve(numpl_array * array, solve_info * info)
 	    c = solvers[i](array);
 	    if (c > 0) {
 		set_info(info, c, solvers[i]);
+#if defined(DEBUG)
+		printf("info:");
+		print_solve_info(info, 0);
+		printf("\n");
+#endif
 		break;
 	    }
 	    if (c < 0) {
