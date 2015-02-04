@@ -82,7 +82,16 @@ extern "C" {
 	return idx % LINE_SIZE;
     }
 
-
+    /**
+     * 盤面配列内の位置からブロック番号を求める
+     * @pram idx 盤面配列内の位置
+     * @return ブロック番号
+     */
+    static inline int toblk(int idx)
+    {
+	return (torow(idx) / BLOCK_ROWS) * BLOCK_ROWS
+	    + tocol(idx) / BLOCK_COLS;
+    }
 #if defined(__cplusplus)
 }
 #endif

@@ -11,6 +11,7 @@ extern "C" {
 	int kt_count;
 	int kl_count;
 	int sf_count;
+	int xy_count;
 	int fx_count;
 	int max_tuple;
 	int max_hidden;
