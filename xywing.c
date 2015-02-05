@@ -40,10 +40,10 @@ int kill_xywing(numpl_array * array)
 /**
  * XY Wing 解析メイン関数
  * @param array ナンプレ盤面配列
- * @param info 解析情報
+ * @param info 解情報
  * @return 1:この解法により数字を消した。0:消せなかった
  */
-int64_t analyze_xywing(numpl_array * array, solve_info *info)
+int analyze_xywing(numpl_array * array, solve_info *info)
 {
 #if defined(DEBUG)
     printf("in xywing_info\n");

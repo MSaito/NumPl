@@ -35,85 +35,20 @@ int kill_hidden_single(numpl_array * array)
  * Hidden Single 解析メインプログラム
  * @param array ナンプレ盤面配列
  * @param info 解情報
- * @return 仮の評価値
+ * @return 数字を消した行の数
  */
-int64_t analyze_hidden_single(numpl_array * array, solve_info * info)
+int analyze_hidden_single(numpl_array * array, solve_info * info)
 {
-    numpl_array save;
-    numpl_array best;
-    solve_info save_info;
-    solve_info best_info;
-    int64_t this_score = 0;
-    int changed = 1;
-    int64_t pre_score = 0;
-    int64_t score = 0;
-    while (changed) {
-	pre_score += analyze_single(array, info) * 100;
-#if defined(DEBUG)
-	printf("analyze_single pre score = %"PRId64" info \n", pre_score);
-	print_solve_info(info, 0);
-	printf("\n");
-#endif
-	if (info->solved) {
-	    break;
-	}
-	// ベストのものを探す
-	changed = 0;
-	int64_t best_score = -1;
-	save = *array;
-	save_info = *info;
-	for (int i = 0; i < LINE_KINDS; i++) {
-	    for (int j = 0; j < LINE_SIZE; j++) {
-		save = *array;
-		int result = kill_hidden_line(all_lines[i][j], array->ar);
-		if (result < 0) {
-		    return result;
-		} else if (result == 0) {
-		    continue;
-		}
-		changed = 1;
-		score = analyze_single(array, info) * 100;
-#if defined(DEBUG)
-		printf("analyze_single score = %"PRId64"\n", score);
-#endif
-		if (score > best_score) {
-#if defined(DEBUG)
-		    printf("analyze_single best %"PRId64" -> %"PRId64" info\n",
-			   best_score, score);
-		    print_solve_info(info, 0);
-		    printf("\n");
-#endif
-		    best = *array;
-		    best_info = *info;
-		    best_score = score;
-		}
-		*array = save;
-		*info = save_info;
+    for (int i = 0; i < LINE_KINDS; i++) {
+	for (int j = 0; j < LINE_SIZE; j++) {
+	    int result = kill_hidden_line(all_lines[i][j], array->ar);
+	    if (result > 0) {
+		info->kh_count++;
+		return 1;
 	    }
 	}
-	if (changed) {
-	    *array = best;
-	    *info = best_info;
-	    info->kh_count++;
-	    this_score += best_score + 1;
-#if defined(DEBUG)
-	    printf("analyze_single this score = %"PRId64"\n", this_score);
-#endif
-	}
-	if (info->solved) {
-	    break;
-	}
     }
-#if defined(DEBUG)
-    printf("analyze_hidden_single score = %"PRId64" solved = %d\n",
-	   pre_score + this_score, info->solved);
-#endif
-    if (info->solved) {
-	return (pre_score + this_score) * 100;
-	//return (pre_score + this_score);
-    } else {
-	return pre_score + this_score;
-    }
+    return 0;
 }
 
 /**

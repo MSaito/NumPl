@@ -56,60 +56,29 @@ int kill_fish(numpl_array * array)
  * fish 系解析メインプログラム
  * X-Wing から検索する
  * @param array ナンプレ盤面配列
- * @return 仮の評価値
+ * @return 0: この解法が適用できない
+ * @return 1: この解法で候補が削除できた
  */
-int64_t analyze_fish(numpl_array * array, solve_info * info)
+int analyze_fish(numpl_array * array, solve_info * info)
 {
-    int64_t best_score = -1;
-    numpl_array save = *array;
-    numpl_array best;
-    solve_info save_info = *info;
-    solve_info best_info;
-    int64_t score;
-    int64_t this_score = 0;
     int count = 0;
-    uint64_t pre_score = analyze_tuple(array, info) * 100;
-    if (info->solved) {
-	return pre_score;
-    }
     for (int i = 2; i < LINE_SIZE - 1; i++) {
-	int changed = 1;
-	while (changed && !info->solved) {
-	    changed = 0;
-	    for (uint16_t mask = 1; mask <= MAX_SYMBOL; mask = mask << 1) {
-		count = fishsub(i, mask, rows, array);
-		if (count <= 0) {
-		    count = fishsub(i, mask, cols, array);
-		}
-		if (count < 0) {
-		    return count;
-		} else if (count == 0) {
-		    continue;
-		}
-		changed = 1;
-		score = analyze_tuple(array, info);
-		if (score > best_score) {
-		    best = *array;
-		    best_info = *info;
-		    best_score = score;
-		}
-		*array = save;
-		*info = save_info;
+	for (uint16_t mask = 1; mask <= MAX_SYMBOL; mask = mask << 1) {
+	    count = fishsub(i, mask, rows, array);
+	    if (count <= 0) {
+		count = fishsub(i, mask, cols, array);
 	    }
-	    if (changed) {
-		*array = best;
-		*info = best_info;
-		info->sf_count++;
-		info->fish[i - 2]++;
-		this_score += best_score * 100 + 1;
-		best_score = -1;
+	    if (count < 0) {
+		return count;
+	    } else if (count == 0) {
+		continue;
 	    }
-	}
-	if (info->solved) {
-	    break;
+	    info->sf_count++;
+	    info->fish[i - 2]++;
+	    return 1;
 	}
     }
-    return pre_score + this_score;
+    return 0;
 }
 
 /**

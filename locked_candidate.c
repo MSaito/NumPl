@@ -50,99 +50,30 @@ int kill_locked_candidate(numpl_array * array)
  * Locked Candidate 解析メイン関数
  * @param array ナンプレ盤面配列
  * @param info 解情報
- * @return 仮の評価値
+ * @return 1:この解法により数字を消した。0:消せなかった
  */
-int64_t analyze_locked_candidate(numpl_array * array, solve_info * info)
+int analyze_locked_candidate(numpl_array * array, solve_info * info)
 {
     int count = 0;
-    numpl_array save;
-    numpl_array best;
-    solve_info save_info;
-    solve_info best_info;
-    int64_t score;
-    int64_t this_score = 0;
-    int changed = 1;
-    int64_t pre_score = 0;
-    while (changed) {
-	pre_score += analyze_hidden_single(array, info) * 100;
-#if defined(DEBUG)
-	printf("analyze_hidden_single pre score = %"PRId64" solved = %d\n",
-	       pre_score, info->solved);
-#endif
-	if (info->solved) {
-	    break;
-	}
-	changed = 0;
-	save = *array;
-	save_info = *info;
-	int64_t best_score = -1;
-	for (int i = 0; i < LINE_SIZE; i++) {
-	    for (int j = 0; j < BLOCK_ROWS; j++) {
-		count = kill_locked_lines(BLOCK_ROWS, blocks[i],
-					  rows[locked_rows[i][j]], array->ar);
-		if (count == 0) {
-		    continue;
-		}
-		changed = 1;
-		score = analyze_hidden_single(array, info);
-#if defined(DEBUG)
-		printf("analyze_hidden_single score = %"PRId64"\n", score);
-#endif
-		if (score > best_score) {
-#if defined(DEBUG)
-		    printf("analyze locked best %"PRId64" -> %"PRId64" info\n",
-			   best_score, score);
-		    print_solve_info(info, 0);
-		    printf("\n");
-#endif
-		    best = *array;
-		    best_info = *info;
-		    best_score = score;
-		}
-		*array = save;
-		*info = save_info;
-	    }
-	    for (int j = 0; j < BLOCK_COLS; j++) {
-		count = kill_locked_lines(BLOCK_COLS, blocks[i],
-					  cols[locked_cols[i][j]], array->ar);
-		if (count == 0) {
-		    continue;
-		}
-		changed = 1;
-		score = analyze_hidden_single(array, info);
-#if defined(DEBUG)
-		printf("analyze_hidden_single score = %"PRId64"\n", score);
-#endif
-		if (score > best_score) {
-#if defined(DEBUG)
-		    printf("analyze locked best %"PRId64" -> %"PRId64" info\n",
-			   best_score, score);
-		    print_solve_info(info, 0);
-		    printf("\n");
-#endif
-		    best = *array;
-		    best_info = *info;
-		    best_score = score;
-		}
-		*array = save;
-		*info = save_info;
+    for (int i = 0; i < LINE_SIZE; i++) {
+	for (int j = 0; j < BLOCK_ROWS; j++) {
+	    count = kill_locked_lines(BLOCK_ROWS, blocks[i],
+				      rows[locked_rows[i][j]], array->ar);
+	    if (count > 0) {
+		info->kl_count++;
+		return 1;
 	    }
 	}
-	if (changed) {
-	    *array = best;
-	    *info = best_info;
-	    info->kl_count++;
-	    this_score += best_score * 100 + 1;
-	}
-	if (info->solved) {
-	    break;
+	for (int j = 0; j < BLOCK_COLS; j++) {
+	    count = kill_locked_lines(BLOCK_COLS, blocks[i],
+				       cols[locked_cols[i][j]], array->ar);
+	    if (count > 0) {
+		info->kl_count++;
+		return 1;
+	    }
 	}
     }
-#if defined(DEBUG)
-    printf("locked candidate return %"PRId64" solved = %d\n",
-	   pre_score + this_score, info->solved);
-#endif
-    return pre_score + this_score;
+    return 0;
 }
 
 /**

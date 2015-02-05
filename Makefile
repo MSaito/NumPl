@@ -6,7 +6,7 @@
 CC = gcc -I. -Wall -Wextra -Wno-unused-parameter -O3 -std=c99 \
 -Wmissing-prototypes $(DDEBUG)
 KILLER_OBJ = kill_single.o kill_hidden_single.o locked_candidate.o \
-	tuple.o fish.o
+	tuple.o fish.o xywing.o
 
 all:solve digging_hole convert analyze
 

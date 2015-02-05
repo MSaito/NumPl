@@ -45,7 +45,7 @@ int kill_single(numpl_array * array)
  * @param info 解情報
  * @return 数字を消した仮想行の数
  */
-int64_t analyze_single(numpl_array * array, solve_info * info)
+int analyze_single(numpl_array * array, solve_info * info)
 {
     int r = check_array(array);
     if (r < 0) {

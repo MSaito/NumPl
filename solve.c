@@ -360,10 +360,10 @@ void print_solve_info(solve_info * info, int verbose)
 	printf("kill_hidden:%d\n", info->kh_count);
 	printf("kill_locked:%d\n", info->kl_count);
 	printf("kill_tuple :%d\n", info->kt_count);
-	printf("max_tuple  :%d\n", info->max_tuple);
-	printf("max_hidden :%d\n", info->max_hidden);
+	//printf("max_tuple  :%d\n", info->max_tuple);
+	//printf("max_hidden :%d\n", info->max_hidden);
 	printf("swordfish  :%d\n", info->sf_count);
-	printf("max_fish   :%d\n", info->max_fish);
+	//printf("max_fish   :%d\n", info->max_fish);
 	for (int i = 0; i < LINE_SIZE / 2 + 1; i++) {
 	    printf("naked_tuple[%d] = %d\n", i + 2, info->naked_tuple[i]);
 	}
@@ -373,18 +373,20 @@ void print_solve_info(solve_info * info, int verbose)
 	for (int i = 0; i < LINE_SIZE - 2; i++) {
 	    printf("fish[%d] = %d\n", i + 2, info->fish[i]);
 	}
+	printf("xywing     :%d\n", info->xy_count);
 	printf("fx_count   :%d\n", info->fx_count);
 	printf("solved     :%d\n", info->solved);
     } else {
-	printf("%d,%d,%d,%d,%d,%d,%d,%d,",
+	printf("%d,%d,%d,%d,%d,",
 	       info->ks_count,
 	       info->kh_count,
 	       info->kl_count,
 	       info->kt_count,
-	       info->max_tuple,
-	       info->max_hidden,
-	       info->sf_count,
-	       info->max_fish);
+	       //info->max_tuple,
+	       //info->max_hidden,
+	       info->sf_count
+	       //info->max_fish
+	    );
 	for (int i = 0; i < LINE_SIZE / 2 + 1; i++) {
 	    printf("%d,", info->naked_tuple[i]);
 	}
@@ -394,7 +396,8 @@ void print_solve_info(solve_info * info, int verbose)
 	for (int i = 0; i < LINE_SIZE - 2; i++) {
 	    printf("%d,", info->fish[i]);
 	}
-	printf("%d,%d,",
+	printf("%d,%d,%d",
+	       info->xy_count,
 	       info->fx_count,
 	       info->solved);
     }
@@ -505,7 +508,9 @@ int main(int argc, char * argv[])
 	}
 	print_solve_info(&info, 1);
     } else {
+	printf("\"");
 	print_solve_info(&info, 0);
+	printf("\":");
 	fixed_only(&work, 0);
 	print_array(&work);
 	printf("\n");

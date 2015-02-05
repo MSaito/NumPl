@@ -6,10 +6,10 @@
 #include "solve.h"
 #include "killer.h"
 #include "common.h"
+#include "analyze.h"
 #include <stdio.h>
 #include <string.h>
 
-#if 0
 /** 候補を減らす関数タイプ */
 typedef int (*analyzer_t)(numpl_array *, solve_info *);
 
@@ -20,50 +20,41 @@ static analyzer_t analyzers[] = {
     analyze_locked_candidate,
     analyze_tuple,
     analyze_fish,
+    analyze_xywing,
     NULL};
 
-static double get_analyze_value(solve_info * info);
-#endif
-
 /**
- * 与えられた問題を解く上で必要な最小の解法を求める
- *
+ * 与えられた問題を解く上で必要な解法を求める
+ * @param array ナンプレ盤面配列
+ * @param info 解情報
+ * @return 1:解けた
+ * @return 0:解けない
  */
 int analyze(numpl_array * array, solve_info * info)
 {
 #if defined(DEBUG)
     printf("IN ANALYZE\n");
 #endif
-    if (info->solved) {
-#if defined(DEBUG)
-	printf("OUT solved\n");
-#endif
-	return 1;
-    } else if (is_solved(array)) {
-	info->solved = 1;
-	info->fx_count = count_fixed(array);
-#if defined(DEBUG)
-	printf("OUT solved");
-#endif
-	return 1;
-    }
-    int64_t c = 0;
+    memset(info, 0, sizeof(info));
+    int c = 0;
     do {
 #if defined(DEBUG)
-	printf("ANALYZE DO c = %"PRId64"\n", c);
+	printf("ANALYZE DO c = %d\n", c);
 #endif
-	c = analyze_fish(array, info);
-	if (c < 0) {
-	    info->solved = 0;
-	    break;
+	for (int i = 0; analyzers[i] != NULL; i++) {
+	    c = analyzers[i](array, info);
+	    if (c < 0) {
+		info->solved = 0;
+		break;
+	    }
+	    if (c > 0) {
+		break;
+	    }
 	}
-	if (c > 0) {
-	    break;
-	}
-    } while (c > 0 || !info->solved);
+    } while (c > 0);
     if (c < 0) {
 #if defined(DEBUG)
-	printf("OUT ANALYZE c = %"PRId64"\n", c);
+	printf("OUT ANALYZE c = %d\n", c);
 #endif
 	info->solved = 0;
 	return -1;
@@ -80,12 +71,11 @@ int analyze(numpl_array * array, solve_info * info)
     return info->solved;
 }
 
-#if 0
 /**
  * 難易度を仮に評価する。
  *
  */
-static double get_analyze_value(solve_info * info)
+double get_analyze_value(solve_info * info)
 {
     double v = info->fx_count;
     double s = 100;
@@ -106,9 +96,9 @@ static double get_analyze_value(solve_info * info)
 	v += s * info->fish[i];
 	s *= 100;
     }
+    v += s * info->xy_count;
     return v;
 }
-#endif
 
 #if defined(MAIN)
 #include <getopt.h>
@@ -199,7 +189,9 @@ int main(int argc, char * argv[])
 	}
 	print_solve_info(&info, 1);
     } else {
+	printf("\"");
 	print_solve_info(&info, 0);
+	printf("\":");
 	fixed_only(&work, 0);
 	print_array(&work);
 	printf("\n");
