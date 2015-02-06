@@ -126,7 +126,7 @@ void output(numpl_array * array)
 	    } else if (ones != 1) {
 		c = '?';
 	    } else {
-		c = '1' + floor_log2(array->ar[rows[i][j]].symbol);
+		c = '0' + symbol2num(array->ar[rows[i][j]].symbol);
 	    }
 	    printf("%c", c);
 	}

@@ -28,7 +28,7 @@ extern "C" {
     } recursion_solve_t;
 
     int solve(numpl_array * array, solve_info * info);
-    int analyze(numpl_array * array, solve_info * info);
+//    int analyze(numpl_array * array, solve_info * info);
     int is_solved(const numpl_array * array);
     int simple_solve(numpl_array * array);
     int equal(const numpl_array * a, const numpl_array * b);

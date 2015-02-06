@@ -25,13 +25,19 @@ extern "C" {
 	return (x & 0x0000001f);
     }
 
-    static inline int floor_log2(uint16_t x)
+    /**
+     * ビットパターンから数値に直す。
+     * (複数ビットあっても最上位ビットだけ見る）
+     * @param x 入力ビットパターン
+     * @return 入力ビットパターンに対応する数値
+     */
+    static inline int symbol2num(uint16_t x)
     {
-        x |= (x >> 1);
-        x |= (x >> 2);
-        x |= (x >> 4);
-        x |= (x >> 8);
-        return(ones16(x) - 1);
+	x |= (x >> 1);
+	x |= (x >> 2);
+	x |= (x >> 4);
+	x |= (x >> 8);
+	return ones16(x);
     }
 
     /**

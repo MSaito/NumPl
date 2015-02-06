@@ -16,6 +16,11 @@ solve: solve.c constants.o ${KILLER_OBJ} common.o analyze.o
 analyze: analyze.c solve.o constants.o ${KILLER_OBJ} common.o
 	${CC} -DMAIN -o $@ analyze.c solve.o constants.o ${KILLER_OBJ} common.o
 
+normalize: normalize.c analyze.o constants.o ${KILLER_OBJ} common.o convert.o \
+	solve.o
+	${CC} -DMAIN -o $@ normalize.c analyze.o constants.o ${KILLER_OBJ} \
+	common.o convert.o solve.o
+
 digging_hole: digging_hole.c ${KILLER_OBJ} solve.o constants.o common.o \
 	analyze.o xsadd.o
 	${CC} -DMAIN -o $@ digging_hole.c solve.o constants.o ${KILLER_OBJ} \

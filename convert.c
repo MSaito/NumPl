@@ -9,11 +9,8 @@
 #include <stdlib.h>
 
 static void vl_change(numpl_array * array, const int vl1[], const int vl2[]);
-static void block_reverse(numpl_array * array, int mode);
-static void line_change(numpl_array * array, int mode);
 static uint16_t symbol_change(uint16_t sym, uint16_t symtbl[LINE_SIZE]);
 static void random_symbol(numpl_array * array);
-static void reverse_change(numpl_array * array, int mode);
 
 /**
  * Virtual Line 交換
@@ -74,7 +71,7 @@ static void random_symbol(numpl_array * array)
  * @param array ナンプレ盤面配列
  * @param mode 反転モード
  */
-static void reverse_change(numpl_array * array, int mode)
+void reverse_change(numpl_array * array, int mode)
 {
     numpl_array work;
     for (int i = 0; i < ARRAY_SIZE; i++) {
@@ -90,7 +87,7 @@ static void reverse_change(numpl_array * array, int mode)
  * @param array ナンプレ盤面配列
  * @param mode 反転モード
  */
-static void block_reverse(numpl_array * array, int mode)
+void block_reverse(numpl_array * array, int mode)
 {
     int RightLeft_TopButtom[2][3][2] = {
 	{{0, 2}, {3, 5}, {6, 8}},
@@ -109,7 +106,7 @@ static void block_reverse(numpl_array * array, int mode)
  * @param array ナンプレ盤面配列
  * @param mode 行、列の指定
  */
-static void line_change(numpl_array * array, int mode)
+void line_change(numpl_array * array, int mode)
 {
     if (mode == 0) {
 	vl_change(array, cols[0], cols[2]);

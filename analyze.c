@@ -30,7 +30,7 @@ static analyzer_t analyzers[] = {
  * @return 1:解けた
  * @return 0:解けない
  */
-int analyze(numpl_array * array, solve_info * info)
+double analyze(numpl_array * array, solve_info * info)
 {
 #if defined(DEBUG)
     printf("IN ANALYZE\n");
@@ -68,7 +68,7 @@ int analyze(numpl_array * array, solve_info * info)
 #if defined(DEBUG)
     printf("OUT ANALYZE solved = %d\n", info->solved);
 #endif
-    return info->solved;
+    return get_analyze_value(info);
 }
 
 /**
@@ -179,8 +179,8 @@ int main(int argc, char * argv[])
 	output(&work);
     }
     solve_info info;
-    r = analyze(&work, &info);
-    if (!quiet || r < 0) {
+    analyze(&work, &info);
+    if (!quiet || !info.solved) {
 	if (info.solved) {
 	    printf("\nsolved\n");
 	    output(&work);

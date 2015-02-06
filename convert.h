@@ -8,6 +8,9 @@ extern "C" {
 #endif
 
     int random_convert(numpl_array * array);
+    void block_reverse(numpl_array * array, int mode);
+    void line_change(numpl_array * array, int mode);
+    void reverse_change(numpl_array * array, int mode);
 
 #if defined(__cplusplus)
 }
