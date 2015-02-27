@@ -22,6 +22,7 @@ extern "C" {
     void shuffle_int(int array[], int size);
     uint16_t random_one_symbol(uint16_t symbols);
     int get_counter_pos(int pos, int mode);
+    void fill_array(numpl_array * array, uint16_t full);
 
 #if defined(__cplusplus)
 }

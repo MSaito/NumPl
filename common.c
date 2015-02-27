@@ -42,7 +42,7 @@ void fixed_only(numpl_array * array, uint16_t full)
     int count = 0;
     for (int i = 0; i < ARRAY_SIZE; i++) {
 	if (!array->ar[i].fixed) {
-	    //array->ar[i].single = 0;
+	    reset_single_flag(array->ar[i]);
 	    array->ar[i].symbol = full;
 	} else {
 	    count++;
@@ -266,5 +266,19 @@ int get_counter_pos(int pos, int mode)
 	return rows[r][LINE_SIZE - 1 - c];
     } else {
 	return cols[c][LINE_SIZE - 1 - r];
+    }
+}
+
+/**
+ * ナンプレ盤面配列を特定の数（通常は全部の数）で満たす。
+ * @param array ナンプレ盤面配列
+ * @param full この数で満たす
+ */
+void fill_array(numpl_array * array, uint16_t full)
+{
+    for (int i = 0; i < ARRAY_SIZE; i++) {
+	array->ar[i].symbol = full;
+	array->ar[i].fixed = 0;
+	reset_single_flag(array->ar[i]);
     }
 }

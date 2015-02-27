@@ -60,6 +60,14 @@ extern "C" {
     }
 
     /**
+     * シングルフラグをリセットする
+     * @param cell ナンプレのマス
+     */
+    static inline void reset_single_flag(cell_t cell)
+    {
+    }
+
+    /**
      * ナンプレ盤面配列の中央を原点として点対称となるインデックスを返す
      * @param index ナンプレ盤面配列のインデックス
      * @param ナンプレ盤面配列で index と対称となる点のインデックス
