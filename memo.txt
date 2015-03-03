@@ -1,0 +1,7 @@
+#DSINGLE = -DSINGLE_FLAG=1
+./generate -tfy -s 3671 -c 10  16.56s user 0.01s system 99% cpu 16.570 total
+./generate -tfy -s 3671 -c 10  16.57s user 0.00s system 99% cpu 16.582 total
+
+DSINGLE = -DSINGLE_FLAG=1
+./generate -tfy -s 3671 -c 10  40.74s user 0.01s system 99% cpu 40.756 total
+./generate -tfy -s 3671 -c 10  40.72s user 0.02s system 99% cpu 40.739 total
