@@ -1,10 +1,11 @@
 #for GNU make
 
 #DDEBUG = -O0 -g -ggdb -DDEBUG=1
-DDEBUG = -DDEBUG=1
+#DDEBUG = -DDEBUG=1
+#DSINGLE = -DSINGLE_FLAG=1
 
 CC = gcc -I. -Wall -Wextra -Wno-unused-parameter -O3 -std=c99 \
--Wmissing-prototypes $(DDEBUG)
+-Wmissing-prototypes $(DDEBUG) $(DSINGLE)
 KILLER_OBJ = kill_single.o kill_hidden_single.o locked_candidate.o \
 	tuple.o fish.o xywing.o
 
@@ -26,14 +27,15 @@ digging_hole: digging_hole.c ${KILLER_OBJ} solve.o constants.o common.o \
 	${CC} -DMAIN -o $@ digging_hole.c solve.o constants.o ${KILLER_OBJ} \
 		common.o xsadd.o analyze.o
 
-convert: convert.c constants.o  common.o xsadd.o ${KILLER_OBJ} solve.o analyze.o
+convert: convert.c constants.o common.o xsadd.o ${KILLER_OBJ} \
+	solve.o analyze.o
 	${CC} -DMAIN -o $@ convert.c constants.o  common.o xsadd.o \
 	${KILLER_OBJ} solve.o analyze.o
 
-generate: generate.c analyze.o solve.o constants.o ${KILLER_OBJ} common.o \
-	multi-solve.o xsadd.o
-	${CC} -DMAIN -o $@ generate.c analyze.o solve.o constants.o \
+generate: generate.c normalize.o analyze.o solve.o convert.o constants.o \
 	${KILLER_OBJ} common.o multi-solve.o xsadd.o
+	${CC} -DMAIN -o $@ generate.c normalize.o analyze.o solve.o convert.o \
+	constants.o ${KILLER_OBJ} common.o multi-solve.o xsadd.o
 
 constants.o: constants.h numpl.h
 

@@ -18,6 +18,9 @@ extern "C" {
     typedef struct {
 	unsigned symbol : 9;
 	unsigned fixed : 1;
+#if defined(SINGLE_FLAG)
+	unsigned single : 1;
+#endif
     } cell_t;
 
     typedef struct {

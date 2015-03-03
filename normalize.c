@@ -82,6 +82,7 @@ static void normalize_symbol(numpl_array * array)
  */
 int lazy_normalize(numpl_array * array, solve_info * info)
 {
+    memset(info, 0, sizeof(solve_info));
     numpl_array best_array = *array;
     numpl_array save = *array;
     int best_value = get_normalize_value(array);
@@ -208,7 +209,6 @@ int main(int argc, char * argv[])
     }
     fixed_only(&work, FULL_SYMBOL);
     solve_info info;
-    memset(&info, 0, sizeof(info));
     r = lazy_normalize(&work, &info);
     printf("\"");
     print_solve_info(&info, 0);

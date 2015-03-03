@@ -11,6 +11,9 @@ static int rs(numpl_array *array, int depth);
 /**
  * ランダム解法
  * 一意でない解のあるナンプレ配列を受け取り、ランダムに解を得る。
+ *
+ * recursion_solve と同様のことをしているが、解が複数あるかチェックしない
+ * 点とランダムに選ぶ点が違う。
  * @param ナンプレ盤面配列
  * @return 1 解けた
  * @return 0 解けない

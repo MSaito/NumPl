@@ -6,7 +6,14 @@
 extern "C" {
 #endif
 
-static int generate(numpl_array * array);
+    typedef struct {
+	unsigned hidden_single : 1;
+	unsigned locked_candidate : 1;
+	unsigned tuple : 1;
+	unsigned fish : 1;
+	unsigned xy : 1;
+    } generate_type;
+    int generate(numpl_array * array, generate_type * type);
 
 #if defined(__cplusplus)
 }

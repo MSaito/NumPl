@@ -10,6 +10,7 @@
 #include "common.h"
 #include "constants.h"
 #include "generate.h"
+#include "normalize.h"
 #include <time.h>
 #include <stdlib.h>
 #include <limits.h>
@@ -29,8 +30,9 @@ static int phase2A(numpl_array * array);
 static int phase2B(numpl_array * array);
 static int phase2sub(numpl_array * array, int size1, const int blono[],
 		     int size2, const int cross[], const int b_cross[][2]);
-static int phase3(numpl_array * array);
-static int p3(numpl_array * array, int start);
+inline static int info_value(solve_info * info);
+static int phase3(numpl_array * array, generate_type * type);
+static int p3(numpl_array * array, int start, generate_type * type);
 static int phase4(numpl_array * array);
 static int phase5(numpl_array * array);
 
@@ -403,12 +405,20 @@ static int phase2sub(numpl_array * array, int size1, const int blono[],
     solve_info info;
     int r = solve(array, &info);
 #if defined(DEBUG)
-    printf("phase2 step 1 solve r = %d\n", r);
+    printf("phase2 step 1 solve r = %d fixed = %d\n", r, count_fixed(array));
 #endif
     if (r <= 0) {
 	return r;
     }
+#if defined(DEBUG)
+    printf("before fill_array fixed = %d\n", count_fixed(array));
+#endif
+    fixed_only(array, FULL_SYMBOL);
+#if defined(DEBUG)
+    printf("after fill_array fixed = %d\n", count_fixed(array));
+#endif
     numpl_array save = *array;
+    int save_r = r;
     // 四隅から十字にあるシンボルを取り除く
     //int cross[4] = {1, 3, 5, 7};
     //int b_cross[4][2] = {{0, 2}, {0, 6}, {2, 8}, {6, 8}};
@@ -423,61 +433,89 @@ static int phase2sub(numpl_array * array, int size1, const int blono[],
 	}
 //	sym = get_one_symbol(sym);
 	sym = random_one_symbol(sym);
+#if defined(DEBUG)
+	printf("sym = %x\n", sym);
+#endif
 	for (int j = 0; j < 2; j++) {
 	    int bno = b_cross[p][j];
 	    for (int k = 0; k < LINE_SIZE; k++) {
-		int idx1 = blocks[bno][j];
+		int idx1 = blocks[bno][k];
 		if (array->ar[idx1].symbol & sym) {
 		    int idx2 = get_counter(idx1);
 		    array->ar[idx1].symbol = FULL_SYMBOL;
 		    array->ar[idx1].fixed = 0;
 		    array->ar[idx2].symbol = FULL_SYMBOL;
 		    array->ar[idx2].fixed = 0;
+#if defined(DEBUG)
+		    printf("idx1, idx2 = %d,%d\n", idx1, idx2);
+#endif
 		}
 	    }
 	}
+#if defined(DEBUG)
+	printf("fixed = %d\n", count_fixed(array));
+#endif
+	fixed_only(array, FULL_SYMBOL);
 	r = solve(array, &info);
 #if defined(DEBUG)
-	printf("phase2 st 2 r = %d\n", r);
+	printf("phase2 st 2 r = %d, fixed = %d\n", r, count_fixed(array));
 #endif
 	if (r <= 0) {
 	    *array = save;
 	    break;
 	}
 	save = *array;
+	save_r = r;
     }
 #if defined(DEBUG)
-    printf("phase2 step 2 solve r = %d\n", r);
+    printf("phase2 step 2 solve r = %d\n", save_r);
 #endif
-    return r;
+    return save_r;
 }
 
 /**
  * ナンプレ問題生成 第三段階（全件検索）
  * fixを外しながら再帰的に全件検索を行う
  */
-static int phase3(numpl_array * array)
+static int phase3(numpl_array * array, generate_type * type)
 {
-    return p3(array, 0);
+    fixed_only(array, FULL_SYMBOL);
+    return p3(array, 0, type);
 }
 
+inline static int info_value(solve_info * info)
+{
+    return info->kh_count + info->kl_count * 100 + info->kt_count * 1000
+	+ info->sf_count * 10000 + info->xy_count * 100000;
+}
 /**
  * ナンプレ問題生成 第三段階の再帰部分
  */
-static int p3(numpl_array * array, int start)
+static int p3(numpl_array * array, int start, generate_type * type)
 {
 #if defined(DEBUG)
-    printf("in phase3\n");
+    printf("in phase3 start = %d\n", start);
 #endif
     solve_info info;
     numpl_array save;
     fixed_only(array, FULL_SYMBOL);
     int r = solve(array, &info);
     if (r <= 0) {
+#if defined(DEBUG)
+	printf("in phase3 solve returns %d\n", r);
+#endif
 	return r;
     }
-    if (info.kt_count > 0) {
-	return info.kt_count + info.sf_count * 100;
+    if (type->hidden_single && (info.kh_count > 0)) {
+	return info_value(&info);
+    } else if (type->locked_candidate && (info.kl_count > 0)) {
+	return info_value(&info);
+    } else if (type->tuple && (info.kt_count > 0)) {
+	return info_value(&info);
+    } else if (type->fish && (info.sf_count > 0)) {
+	return info_value(&info);
+    } else if (type->xy && (info.xy_count > 0)) {
+	return info_value(&info);
     }
     save = *array;
     int max = 0;
@@ -494,7 +532,7 @@ static int p3(numpl_array * array, int start)
 	array->ar[idx2].fixed = 0;
 	reset_single_flag(array->ar[idx1]);
 	array->ar[idx2].symbol = FULL_SYMBOL;
-	r = p3(array, i + 1);
+	r = p3(array, i + 1, type);
 	if (r > max) {
 	    max = r;
 	    best = *array;
@@ -513,6 +551,7 @@ static int p3(numpl_array * array, int start)
    =============================== */
 static int phase4(numpl_array * array)
 {
+    fixed_only(array, FULL_SYMBOL);
     numpl_array save = *array;
     solve_info info;
     int count = 0;
@@ -533,9 +572,11 @@ static int phase4(numpl_array * array)
 	    *array = save;
 	} else {
 	    count++;
+	    fixed_only(array, FULL_SYMBOL);
 	    save = *array;
 	}
     }
+    *array = save;
     return count;
 }
 
@@ -561,8 +602,9 @@ static int phase5(numpl_array * array)
 	    *array = save;
 	    continue;
 	}
-	if (max < info.kt_count) {
-	    max = info.kt_count;
+	int v = info_value(&info);
+	if (max < v) {
+	    max = v;
 	    best = *array;
 	}
 	save = *array;
@@ -571,15 +613,15 @@ static int phase5(numpl_array * array)
     return max;
 }
 
-int generate(numpl_array * array)
+int generate(numpl_array * array, generate_type * type)
 {
 #if defined(DEBUG)
     printf("in generate\n");
     output_detail(array);
     printf("\n");
 #endif
-    //int phase = get_random(2);
-    int phase = 0;
+    int phase = get_random(2);
+    //int phase = 1;
     numpl_array save = *array;
     int r;
     for (int i = 0; i < 100; i++) {
@@ -598,7 +640,7 @@ int generate(numpl_array * array)
     output_detail(array);
 #endif
     if (r < 0) {
-	//printf("#after phase1A r = %d\n", r);
+	printf("#after phase1A r = %d\n", r);
 	return r;
     }
     fixed_only(array, FULL_SYMBOL);
@@ -628,7 +670,7 @@ int generate(numpl_array * array)
 #endif
     if (r <= 0) {
 	//printf("#after random_solve r = %d\n", r);
-	return r - 1;
+	return r;
     }
     fixed_only(array, FULL_SYMBOL);
     save = *array;
@@ -648,17 +690,22 @@ int generate(numpl_array * array)
 	    r = phase2B(array);
 	}
 	if (r > 0) {
+#if defined(DEBUG)
+	    printf("after phase2 r = %d\n", r);
+	    output_detail(array);
+#endif
 	    break;
 	}
 	*array = save;
     }
-    fixed_only(array, 0);
 #if defined(DEBUG)
+    //fixed_only(array, 0);
     printf("after phase2 r = %d\n", r);
     output_detail(array);
+    fixed_only(array, FULL_SYMBOL);
 #endif
     if (r < 0) {
-	//printf("#after phase2 r = %d\n", r);
+	printf("#after phase2 r = %d\n", r);
 	return r;
     }
 #if defined(DEBUG) && 0
@@ -667,29 +714,55 @@ int generate(numpl_array * array)
    /* =========
       PHASE III
       ========= */
-    r = phase3(array);
-    fixed_only(array, 0);
+    r = phase3(array, type);
+    //fixed_only(array, 0);
 #if defined(DEBUG)
     printf("after phase3 r = %d\n", r);
     output_detail(array);
+    //fixed_only(array, FULL_SYMBOL);
 #endif
     if (r <= 0) {
+	//if (r < 0) {
 	//printf("#after phase3 r = %d\n", r);
-	return r - 1;
+	//return r - 1;
+	return r;
     }
    /* ========
       PHASE IV
       ======== */
+    fixed_only(array, FULL_SYMBOL);
     save = *array;
-    r = phase4(array);
-    fixed_only(array, 0);
 #if defined(DEBUG)
+    printf("before phase4 fixed = %d\n", count_fixed(array));
+    solve(array, &info);
+    printf("before phase4 value = %d\n", info_value(&info));
+    print_solve_info(&info, 0);
+    printf(":");
+    fixed_only(array, 0);
+    print_array(array);
+    printf("\n");
+    fixed_only(array, FULL_SYMBOL);
+#endif
+    r = phase4(array);
+#if defined(DEBUG)
+    printf("after phase4 fixed = %d\n", count_fixed(array));
+    solve(array, &info);
+    printf("after phase4 value = %d\n", info_value(&info));
+    print_solve_info(&info, 0);
+    printf(":");
+    fixed_only(array, 0);
+    print_array(array);
+    printf("\n");
+    fixed_only(array, FULL_SYMBOL);
+#endif
+#if defined(DEBUG)
+    fixed_only(array, 0);
     printf("after phase4 r = %d\n", r);
     output_detail(array);
 #endif
     fixed_only(array, FULL_SYMBOL);
     if (r < 0) {
-	//printf("#after phase4 r = %d\n", r);
+	printf("#after phase4 r = %d\n", r);
 	return r;
     }
    /* ========
@@ -698,15 +771,17 @@ int generate(numpl_array * array)
     r = phase5(array);
 #if defined(DEBUG)
     printf("after phase5 r = %d\n", r);
+    fixed_only(array, FULL_SYMBOL);
+    solve(array, &info);
+    printf("after phase5 value = %d\n", info_value(&info));
     fixed_only(array, 0);
     output_detail(array);
 #endif
-    fixed_only(array, FULL_SYMBOL);
     if (r < 0) {
-	//printf("#after phase5 r = %d\n", r);
+	printf("#after phase5 r = %d\n", r);
 	return r;
     }
-    return 0;
+    return r + 1;
 }
 
 #if defined(MAIN)
@@ -715,6 +790,7 @@ int generate(numpl_array * array)
 static int verbose = 0;
 static int number = 1;
 static uint32_t seed = 0;
+static generate_type g_type;
 static int parse_opt(int argc, char * argv[]);
 static int parse_opt(int argc, char * argv[])
 {
@@ -722,6 +798,11 @@ static int parse_opt(int argc, char * argv[])
         {"seed", required_argument, NULL, 's'},
         {"verbose", no_argument, NULL, 'v'},
 	{"count", required_argument, NULL, 'c'},
+        {"hidden", no_argument, NULL, 'h'},
+        {"locked", no_argument, NULL, 'l'},
+        {"tuple", no_argument, NULL, 't'},
+        {"fish", no_argument, NULL, 'f'},
+        {"xywing", no_argument, NULL, 'y'},
         {NULL, 0, NULL, 0}};
     verbose = 0;
     seed = (uint32_t)clock();
@@ -733,7 +814,7 @@ static int parse_opt(int argc, char * argv[])
         if (error) {
             break;
         }
-        c = getopt_long(argc, argv, "vs:c:", longopts, NULL);
+        c = getopt_long(argc, argv, "vhltfys:c:", longopts, NULL);
 	if (c < 0) {
 	    break;
 	}
@@ -746,6 +827,21 @@ static int parse_opt(int argc, char * argv[])
 	    break;
 	case 'v':
 	    verbose = 1;
+	    break;
+	case 'h':
+	    g_type.hidden_single = 1;
+	    break;
+	case 'l':
+	    g_type.locked_candidate = 1;
+	    break;
+	case 't':
+	    g_type.tuple = 1;
+	    break;
+	case 'f':
+	    g_type.fish = 1;
+	    break;
+	case 'y':
+	    g_type.xy = 1;
 	    break;
 	case 'c':
 	    number = (uint32_t)strtoull(optarg, NULL, 10);
@@ -776,7 +872,7 @@ int main(int argc, char * argv[])
     if (r < 0) {
 	return r;
     }
-    printf("generate start seed = %u\n", seed);
+    printf("generate start seed = %u number = %d\n", seed, number);
     xsadd_init(&xsadd, seed);
     if (verbose && number > 1) {
 	printf("In verbose mode, generating number is set to 1.\n");
@@ -792,16 +888,24 @@ int main(int argc, char * argv[])
     printf("\n");
 #endif
     while (number > 0) {
-	int r = generate(&work);
+#if defined(DEBUG)
+	printf("number = %d\n", number);
+#endif
+	int r = generate(&work, &g_type);
 	if (r < 0) {
+	    printf("r = %d\n", r);
 	    break;
+	} else if (r == 0) {
+	    work = save;
+	    continue;
 	}
 	number--;
 	fixed_only(&work, FULL_SYMBOL);
 	solve_info info;
-	solve(&work, &info);
+	//solve(&work, &info);
+	r = lazy_normalize(&work, &info);
 	if (verbose) {
-	    printf("\"");
+	    printf("number = %d\n", number);
 	    print_solve_info(&info, 1);
 	    fixed_only(&work, 0);
 	    output_detail(&work);

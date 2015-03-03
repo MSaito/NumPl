@@ -48,7 +48,11 @@ extern "C" {
      */
     static inline int is_single(const cell_t cell)
     {
+#if defined(SINGLE_FLAG)
+	return cell.single;
+#else
 	return ones16(cell.symbol) == 1;
+#endif
     }
 
     /**
@@ -57,6 +61,9 @@ extern "C" {
      */
     static inline void set_single_flag(cell_t cell)
     {
+#if defined(SINGLE_FLAG)
+	cell.single = 1;
+#endif
     }
 
     /**
@@ -65,6 +72,9 @@ extern "C" {
      */
     static inline void reset_single_flag(cell_t cell)
     {
+#if defined(SINGLE_FLAG)
+	cell.single = 0;
+#endif
     }
 
     /**
