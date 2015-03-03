@@ -12,6 +12,7 @@ extern "C" {
 	unsigned tuple : 1;
 	unsigned fish : 1;
 	unsigned xy : 1;
+	unsigned symmetric : 1;
     } generate_type;
     int generate(numpl_array * array, generate_type * type);
 

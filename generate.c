@@ -770,6 +770,9 @@ int generate(numpl_array * array, generate_type * type)
 	printf("#after phase4 r = %d\n", r);
 	return r;
     }
+    if (type->symmetric) {
+	return r + 1;
+    }
    /* ========
       PHASE V
       ======== */
@@ -808,18 +811,20 @@ static int parse_opt(int argc, char * argv[])
         {"tuple", no_argument, NULL, 't'},
         {"fish", no_argument, NULL, 'f'},
         {"xywing", no_argument, NULL, 'y'},
+        {"symmetric", no_argument, NULL, 'S'},
         {NULL, 0, NULL, 0}};
     verbose = 0;
     seed = (uint32_t)clock();
     const char * pgm = argv[0];
     int c;
     int error = 0;
+    g_type.symmetric = 0;
     errno = 0;
     for (;;) {
         if (error) {
             break;
         }
-        c = getopt_long(argc, argv, "vhltfys:c:", longopts, NULL);
+        c = getopt_long(argc, argv, "vhltfySs:c:", longopts, NULL);
 	if (c < 0) {
 	    break;
 	}
@@ -829,6 +834,9 @@ static int parse_opt(int argc, char * argv[])
 	    if (errno) {
 		error = 1;
 	    }
+	    break;
+	case 'S':
+	    g_type.symmetric = 1;
 	    break;
 	case 'v':
 	    verbose = 1;
@@ -867,6 +875,12 @@ static int parse_opt(int argc, char * argv[])
     if (error) {
 	printf("%s [-v] [-s seed] [-c number]\n", pgm);
 	return -1;
+    }
+    if (g_type.hidden_single == 0 && g_type.locked_candidate == 0 &&
+	g_type.tuple == 0 && g_type.fish == 0 && g_type.xy == 0) {
+	g_type.tuple = 1;
+	g_type.fish = 1;
+	g_type.xy = 1;
     }
     return 0;
 }

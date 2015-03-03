@@ -33,6 +33,7 @@ extern "C" {
     int simple_solve(numpl_array * array);
     int equal(const numpl_array * a, const numpl_array * b);
     int recursion_solve(numpl_array * array);
+    int random_solve(numpl_array *array);
     void print_solve_info(solve_info * info, int verbose);
     void output_detail(numpl_array * array);
     void output(numpl_array * array);

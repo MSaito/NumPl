@@ -33,9 +33,9 @@ convert: convert.c constants.o common.o xsadd.o ${KILLER_OBJ} \
 	${KILLER_OBJ} solve.o analyze.o
 
 generate: generate.c normalize.o analyze.o solve.o convert.o constants.o \
-	${KILLER_OBJ} common.o multi-solve.o xsadd.o
+	${KILLER_OBJ} common.o xsadd.o
 	${CC} -DMAIN -o $@ generate.c normalize.o analyze.o solve.o convert.o \
-	constants.o ${KILLER_OBJ} common.o multi-solve.o xsadd.o
+	constants.o ${KILLER_OBJ} common.o xsadd.o
 
 constants.o: constants.h numpl.h
 
