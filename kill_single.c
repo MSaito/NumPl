@@ -95,7 +95,7 @@ static int kill_line(const int line[], cell_t * ar)
     uint16_t syms = 0;
     for (int i = 0; i < LINE_SIZE; i++) {
 	int idx = line[i];
-	if (is_single(ar[idx])) {
+	if (ones16(ar[idx].symbol) == 1) {
 	    syms |= ar[idx].symbol;
 	    count++;
 	}
@@ -106,7 +106,7 @@ static int kill_line(const int line[], cell_t * ar)
     count = 0;
     for (int i = 0; i < LINE_SIZE; i++) {
 	int idx = line[i];
-	if (is_single(ar[idx])) {
+	if (ones16(ar[idx].symbol) == 1) {
 	    continue;
 	}
 	if (ar[idx].symbol & syms) {
@@ -130,7 +130,11 @@ static int check_array(numpl_array * array)
 	if (ar[i].symbol == 0) {
 	    return -1;
 	}
-	set_single_flag(ar[i]);
+#if defined(SINGLE_FLAG)
+	if (ones16(ar[i].symbol) == 1) {
+	    set_single_flag(ar[i]);
+	}
+#endif
     }
     return 0;
 }

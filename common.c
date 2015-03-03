@@ -44,7 +44,9 @@ void fixed_only(numpl_array * array, uint16_t full)
 	if (!array->ar[i].fixed) {
 	    reset_single_flag(array->ar[i]);
 	    array->ar[i].symbol = full;
+	    reset_single_flag(array->ar[i]);
 	} else {
+	    set_single_flag(array->ar[i]);
 	    count++;
 	}
     }
@@ -76,6 +78,7 @@ int input(numpl_array * array, char * text)
 	    array->ar[p].symbol = 1 << sh;
 	    //array->ar[p].single = 1;
 	    array->ar[p].fixed = 1;
+	    set_single_flag(array->ar[i]);
 	    p++;
 	} else {
 	    continue;
