@@ -1,3 +1,8 @@
+#pragma once
+/**
+ * @file killer.h
+ * 解法アルゴリズム関数ヘッダー
+ */
 #ifndef KILLER_H
 #define KILLER_H
 #include "numpl.h"

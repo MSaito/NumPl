@@ -1,5 +1,4 @@
-#ifndef CONSTANTS_H
-#define CONSTANTS_H
+#pragma once
 /**
  * @file constants.h
  * このファイルではナンプレ用の定数を宣言する。
@@ -11,6 +10,8 @@
  * やりたいことは、constant.c だけを変更すれば、あるいはリンクすれば
  * 9x9 以外の盤面にも対応できるようにすること。だが今の私の実力では無理のようだ。
  */
+#ifndef CONSTANTS_H
+#define CONSTANTS_H
 #include "numpl.h"
 #if defined(__cplusplus)
 extern "C" {

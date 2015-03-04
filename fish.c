@@ -1,4 +1,5 @@
 /**
+ * @file fish.c
  * X-Wing, SwordFish, ... といった解法アルゴリズム
  * 現時点では finned, sashimi には対応していない。
  */
@@ -56,6 +57,7 @@ int kill_fish(numpl_array * array)
  * fish 系解析メインプログラム
  * X-Wing から検索する
  * @param array ナンプレ盤面配列
+ * @param info 解情報
  * @return 0: この解法が適用できない
  * @return 1: この解法で候補が削除できた
  */

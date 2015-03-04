@@ -1,6 +1,6 @@
 /**
- * convert によっても変わらないような解法の種類を求める。
- *
+ * @file analyze.c
+ * やや詳細な解法の種類を求める。
  */
 #include "numpl.h"
 #include "solve.h"
@@ -73,7 +73,8 @@ double analyze(numpl_array * array, solve_info * info)
 
 /**
  * 難易度を仮に評価する。
- *
+ * @param info
+ * @return 仮の評価血
  */
 double get_analyze_value(solve_info * info)
 {

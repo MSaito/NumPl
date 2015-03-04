@@ -1,3 +1,8 @@
+/**
+ * @file convert.c
+ * 対称形を維持したままブロックや行、列を入れ換えて問題の見た目を変更する
+ *
+ */
 #include "numpl.h"
 #include "convert.h"
 #include "inline_functions.h"
@@ -163,7 +168,7 @@ static int parse_opt(int argc, char * argv[])
         if (error) {
             break;
         }
-        c = getopt_long(argc, argv, "s:", longopts, NULL);
+        c = getopt_long(argc, argv, "vs:", longopts, NULL);
 	if (c < 0) {
 	    break;
 	}
@@ -187,7 +192,7 @@ static int parse_opt(int argc, char * argv[])
     printf("argc = %d\n", argc);
 #endif
     if (error) {
-	printf("%s [-s seed] [mondai_string]\n", pgm);
+	printf("%s [-v] [-s seed] [puzzle_string]\n", pgm);
 	return -1;
     }
     if (argc > 0) {
@@ -221,7 +226,11 @@ int main(int argc, char * argv[])
     fixed_only(&work, FULL_SYMBOL);
     solve_info info;
     solve(&work, &info);
-    print_solve_info(&info, 0);
+    if (verbose) {
+	printf("\"");
+	print_solve_info(&info, 0);
+	printf("\":");
+    }
     fixed_only(&work, 0);
     print_array(&work);
     printf("\n");

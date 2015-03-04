@@ -74,6 +74,7 @@ int analyze_tuple(numpl_array * array, solve_info * info)
  * @param naked naked/hidden の区別
  * @param tuple_num 組の数(2:Naked Pair, 3:Naked Triple)
  * @param array ナンプレ盤面配列（実際の配列）
+ * @param info 解情報
  * @return 1:この解法によって数字をけせた 0:この解法によって数字を消せなかった
  */
 static int analyze_tuple_sub(int naked, int tuple_num, numpl_array * array,

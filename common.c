@@ -16,7 +16,7 @@ xsadd_t xsadd;
 /**
  * 固定されたマスの数を数える。
  * 固定されたマスとは、出題時に数字が入っていて、利用者が変更することのできないマスである。
- * @param numpl_array ナンプレの盤面を表す配列
+ * @param array ナンプレの盤面を表す配列
  * @return 固定されたマスの数
  */
 int count_fixed(const numpl_array *array)
@@ -34,7 +34,7 @@ int count_fixed(const numpl_array *array)
  * 固定されたマス以外にすべてfullで指定された数字群を入れる。
  * この関数には、プログラムで問題を解き始めるときに空白のマスに候補を全て入れるためと、
  * 問題を作成し終わったときに、固定されたマス以外を空白にするという二つの用途がある。
- * @param numpl_array ナンプレ盤面配列
+ * @param array ナンプレ盤面配列
  * @param full 固定されたマス以外にセットする数字候補
  */
 void fixed_only(numpl_array * array, uint16_t full)
@@ -58,7 +58,7 @@ void fixed_only(numpl_array * array, uint16_t full)
 /**
  * 入力文字列から盤面配列を作成する
  * 空白と数字以外は無視する。（改行は無視される）
- * @param numpl_array ナンプレ盤面配列
+ * @param array ナンプレ盤面配列
  * @param text 入力テキスト
  * @return -1 入力テキストに問題あり
  * @return 0 正常
@@ -210,8 +210,8 @@ void get_random_number_size(uint16_t numbers[], int size)
 
 /**
  * 0 から size - 1までの数をランダムに生成する。
- * get_random_number_size と同じだが配列の型が違う
- * @param numbers 0 からsize -1 までの数が重複なくセットされる。
+ * get_random_number_size() と同じだが配列の型が違う
+ * @param array 0 からsize -1 までの数が重複なくセットされる。
  * @param size numbers 配列の大きさ
  */
 void shuffle_int(int array[], int size)
@@ -226,7 +226,7 @@ void shuffle_int(int array[], int size)
 
 /**
  * ビットパターンからランダムにひとつのビットを選ぶ
- * @param ビットパターン
+ * @param symbols ビットパターン
  * @return 選ばれたビット
  */
 uint16_t random_one_symbol(uint16_t symbols)

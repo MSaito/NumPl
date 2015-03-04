@@ -1,3 +1,9 @@
+#pragma once
+/**
+ * @file convert.h
+ * 対称形を維持したままブロックや行、列を入れ換えて問題の見た目を変更するヘッダー
+ *
+ */
 #ifndef CONVERT_H
 #define CONVERT_H
 

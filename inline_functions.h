@@ -1,3 +1,9 @@
+#pragma once
+/**
+ * @file inline_functions.h
+ * 共通インライン関数
+ *
+ */
 #ifndef INLINE_FUNCTIONS_H
 #define INLINE_FUNCTIONS_H
 
@@ -80,7 +86,7 @@ extern "C" {
     /**
      * ナンプレ盤面配列の中央を原点として点対称となるインデックスを返す
      * @param index ナンプレ盤面配列のインデックス
-     * @param ナンプレ盤面配列で index と対称となる点のインデックス
+     * @return ナンプレ盤面配列で index と対称となる点のインデックス
      */
     static inline int get_counter(int index) {
 	return ARRAY_SIZE - 1 - index;
@@ -88,7 +94,7 @@ extern "C" {
 
     /**
      * 盤面配列内の位置から行番号を求める
-     * @pram idx 盤面配列内の位置
+     * @param idx 盤面配列内の位置
      * @return 行番号
      */
     static inline int torow(int idx)
@@ -98,7 +104,7 @@ extern "C" {
 
     /**
      * 盤面配列内の位置から列番号を求める
-     * @pram idx 盤面配列内の位置
+     * @param idx 盤面配列内の位置
      * @return 列番号
      */
     static inline int tocol(int idx)
@@ -108,7 +114,7 @@ extern "C" {
 
     /**
      * 盤面配列内の位置からブロック番号を求める
-     * @pram idx 盤面配列内の位置
+     * @param idx 盤面配列内の位置
      * @return ブロック番号
      */
     static inline int toblk(int idx)

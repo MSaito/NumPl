@@ -127,6 +127,7 @@ static void search_yz(numpl_array * array, const int line[],
 /**
  * ブロックと行または列の共通部分に対象があれば消す
  * @param array ナンプレ盤面配列
+ * @param pos 起点の位置
  * @param line1 行または列
  * @param line2 ブロック
  * @param sym 起点の候補

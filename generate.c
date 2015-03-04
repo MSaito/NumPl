@@ -1,11 +1,11 @@
 /**
+ * @file generate.c
  * ナンプレの問題を生成する
  *
  * 直観と経験と試行錯誤の結果としてのヒューリスティックアルゴリズムによる。
  */
 #include "numpl.h"
 #include "killer.h"
-#include "multi-solve.h"
 #include "inline_functions.h"
 #include "common.h"
 #include "constants.h"

@@ -4,19 +4,23 @@
  * Number Place Generator はナンバープレースの問題を生成するコマンドラインプログラムである。
  *
  * 使用法方：
- * - generate [-v] [-c number] [-s seed] [-hltfy]
- *   - --verbose, -v 冗長モード、このモードでは1問しか問題を作成しない。
- *   - --count, -c 出力する問題の数
- *   - --seed, -s 使用する疑似乱数の初期化数字
- *   - --hidden, -h hidden_singe の解法を含む問題を出力する。
- *   - --locked, -l locked_candidates の解法を含む問題を出力する。
- *   - --tuple, -t naked pair, hidden pair などの解法を含む問題を出力する。
- *   - --fish, -f x-wing, swordfishなどの解法を含む問題を出力する。
- *   - --xywing, -y xy-wingの解法を含む問題を出力する。
- *   - 複数の解法を指定すると、少なくともひとつの解法を含む問題を出力する。
+ * <ul>
+ * <li> generate [-v] [-S] [-c number] [-s seed] [-hltfy]
+ *   <ul>
+ *   <li> --verbose, -v 冗長モード、このモードでは1問しか問題を作成しない。
+ *   <li> --symmetric, -S 点対称の問題を作成する。
+ *   <li> --count, -c 出力する問題の数
+ *   <li> --seed, -s 使用する疑似乱数の初期化数字
+ *   <li> --hidden, -h hidden_singe の解法を含む問題を出力する。
+ *   <li> --locked, -l locked_candidates の解法を含む問題を出力する。
+ *   <li> --tuple, -t naked pair, hidden pair などの解法を含む問題を出力する。
+ *   <li> --fish, -f x-wing, swordfishなどの解法を含む問題を出力する。
+ *   <li> --xywing, -y xy-wingの解法を含む問題を出力する。
+ *   <li> 複数の解法を指定すると、少なくともひとつの解法を含む問題を出力する。
+ *   </ul>
  *   そんなに精度が高くないので、数万から数十万の問題を生成してその中か
  * ら良いものを選ぶようにするとよいと思います。
- *
+ * </ul>
  *
  * @author Mutsuo Saito(saito@manieth.com) Manieth Corp.
  * @date 2015-3-3

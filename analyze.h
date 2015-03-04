@@ -1,3 +1,8 @@
+#pragma once
+/**
+ * @file analyze.h
+ * やや詳細に解法の種類を求める。
+ */
 #ifndef ANALYZE_H
 #define ANALYZE_H
 #include "numpl.h"

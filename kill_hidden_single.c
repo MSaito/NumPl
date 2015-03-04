@@ -15,7 +15,7 @@ static int kill_hidden_line(const int line[], cell_t * ar);
 
 /**
  * Hidden Single メインプログラム
- * @array ナンプレ盤面配列
+ * @param array ナンプレ盤面配列
  * @return 数字を消した行の数
  */
 int kill_hidden_single(numpl_array * array)

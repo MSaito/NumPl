@@ -11,8 +11,8 @@ KILLER_OBJ = kill_single.o kill_hidden_single.o locked_candidate.o \
 
 all:solve digging_hole convert analyze normalize generate
 
-solve: solve.c constants.o ${KILLER_OBJ} common.o analyze.o
-	${CC} -DMAIN -o $@ solve.c constants.o ${KILLER_OBJ} common.o analyze.o
+#solve: solve.c constants.o ${KILLER_OBJ} common.o analyze.o
+#	${CC} -DMAIN -o $@ solve.c constants.o ${KILLER_OBJ} common.o analyze.o
 
 analyze: analyze.c solve.o constants.o ${KILLER_OBJ} common.o
 	${CC} -DMAIN -o $@ analyze.c solve.o constants.o ${KILLER_OBJ} common.o
@@ -36,6 +36,9 @@ generate: generate.c normalize.o analyze.o solve.o convert.o constants.o \
 	${KILLER_OBJ} common.o xsadd.o
 	${CC} -DMAIN -o $@ generate.c normalize.o analyze.o solve.o convert.o \
 	constants.o ${KILLER_OBJ} common.o xsadd.o
+
+doc:
+	doxygen doxygen.cfg
 
 constants.o: constants.h numpl.h
 

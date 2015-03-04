@@ -1,3 +1,9 @@
+/**
+ * @file normalize.c
+ * ナンプレの標準形を求める
+ *
+ * なお、かなりの手抜きなので本来の意味の標準形ではない。
+ */
 #include "numpl.h"
 #include "convert.h"
 #include "inline_functions.h"

@@ -47,6 +47,7 @@ static int prepare_array(numpl_array * array)
  * 点対称な問題を作成する。
  * 人間的解法で解ける盤面を生成する。
  * @param array ナンプレ盤面（入出力）
+ * @param symmetric 対称形に生成するフラグ
  * @return 1: 作成できた
  * @return それ以外: 作成できなかった
  */
@@ -101,9 +102,12 @@ static int digging_hole(numpl_array * array, int symmetric)
 
 /**
  * digging hole アルゴリズムを再帰的に使い問題を作成する
- * 点対称な問題を作成する。
+ * symmetric が真なら点対称な問題を作成する。
  * 人間的解法で解ける盤面を生成する。
  * @param array ナンプレ盤面（入出力）
+ * @param pos 盤面配列内の開始位置
+ * @param info 解情報
+ * @param symmetric 真なら点対称の問題を作成する
  * @return 1: 作成できた
  * @return それ以外: 作成できなかった
  */

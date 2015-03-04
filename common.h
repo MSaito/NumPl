@@ -1,3 +1,8 @@
+#pragma once
+/**
+ * 共通関数
+ * このファイルには inline_functions.h に定義されたもの以外の共通関数のヘッダー
+ */
 #ifndef COMMON_H
 #define COMMON_H
 

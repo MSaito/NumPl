@@ -1,3 +1,7 @@
+/**
+ * @file solve.c
+ * ナンプレ問題を解くための関数
+ */
 #include "numpl.h"
 #include "killer.h"
 #include "solve.h"
@@ -356,7 +360,7 @@ static int recursion_solve_sub(numpl_array * array, recursion_solve_t *data)
  *
  * recursion_solve と同様のことをしているが、解が複数あるかチェックしない
  * 点とランダムに選ぶ点が違う。
- * @param ナンプレ盤面配列
+ * @param array ナンプレ盤面配列
  * @return 1 解けた
  * @return 0 解けない
  */
@@ -368,7 +372,7 @@ int random_solve(numpl_array *array)
 /**
  * ランダム解法再帰部分
  * 一意でない解のあるナンプレ配列を受け取り、ランダムに解を得る。
- * @param ナンプレ盤面配列
+ * @param array ナンプレ盤面配列
  * @param depth 再帰の深さ
  * @return 1 解けた
  * @return 0 解けない
