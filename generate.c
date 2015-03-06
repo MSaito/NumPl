@@ -824,7 +824,7 @@ static int parse_opt(int argc, char * argv[])
         if (error) {
             break;
         }
-        c = getopt_long(argc, argv, "vhltfySs:c:", longopts, NULL);
+        c = getopt_long(argc, argv, "?vhltfySs:c:", longopts, NULL);
 	if (c < 0) {
 	    break;
 	}
@@ -873,7 +873,17 @@ static int parse_opt(int argc, char * argv[])
     printf("argc = %d\n", argc);
 #endif
     if (error) {
-	printf("%s [-v] [-s seed] [-c number]\n", pgm);
+	printf("%s [-v] [-S] [-c number] [-s seed] [-hltfy]\n", pgm);
+        printf("\t--verbose, -v 冗長モード、このモードでは1問しか問題を作成しない。\n"
+	       "\t--symmetric, -S 点対称の問題を作成する。\n"
+	       "\t--count, -c 出力する問題の数\n"
+	       "\t--seed, -s 使用する疑似乱数の初期化数字\n"
+	       "\t--hidden, -h hidden_singe の解法を含む問題を出力する。\n"
+	       "\t--locked, -l locked_candidates の解法を含む問題を出力する。\n"
+	       "\t--tuple, -t naked pair, hidden pair"
+	       "などの解法を含む問題を出力する。\n"
+	       "\t--fish, -f x-wing, swordfishなどの解法を含む問題を出力する。\n"
+	       "\t--xywing, -y xy-wingの解法を含む問題を出力する。\n");
 	return -1;
     }
     if (g_type.hidden_single == 0 && g_type.locked_candidate == 0 &&

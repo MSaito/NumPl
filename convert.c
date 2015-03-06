@@ -168,7 +168,7 @@ static int parse_opt(int argc, char * argv[])
         if (error) {
             break;
         }
-        c = getopt_long(argc, argv, "vs:", longopts, NULL);
+        c = getopt_long(argc, argv, "v?s:", longopts, NULL);
 	if (c < 0) {
 	    break;
 	}
@@ -193,6 +193,10 @@ static int parse_opt(int argc, char * argv[])
 #endif
     if (error) {
 	printf("%s [-v] [-s seed] [puzzle_string]\n", pgm);
+	printf("\t--verbose, -v 解法についての情報付きで出力する。\n"
+	       "\t--seed, -s 疑似乱数の初期化数値\n"
+	       "\tpuzzle_string 変換する問題の文字列、"
+	       "コマンドラインで指定されなければ、\n\t標準入力から読み込む。\n");
 	return -1;
     }
     if (argc > 0) {

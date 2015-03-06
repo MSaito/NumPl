@@ -104,17 +104,14 @@ double get_analyze_value(solve_info * info)
 #if defined(MAIN)
 #include <getopt.h>
 static int quiet = 0;
-static int recursion_flag = 0;
 static char * mondai_p = NULL;
 static int parse_opt(int argc, char * argv[]);
 static int parse_opt(int argc, char * argv[])
 {
     static struct option longopts[] = {
-        {"short", no_argument, NULL, 's'},
-        {"reduce", no_argument, NULL, 'r'},
+        {"silent", no_argument, NULL, 's'},
         {NULL, 0, NULL, 0}};
     quiet = 0;
-    recursion_flag = 0;
     const char * pgm = argv[0];
     int c;
     int error = 0;
@@ -122,16 +119,13 @@ static int parse_opt(int argc, char * argv[])
         if (error) {
             break;
         }
-        c = getopt_long(argc, argv, "sr", longopts, NULL);
+        c = getopt_long(argc, argv, "?s", longopts, NULL);
 	if (c < 0) {
 	    break;
 	}
 	switch (c) {
 	case 's':
 	    quiet = 1;
-	    break;
-	case 'r':
-	    recursion_flag = 1;
 	    break;
 	case '?':
 	default:
@@ -147,7 +141,10 @@ static int parse_opt(int argc, char * argv[])
     printf("argc = %d\n", argc);
 #endif
     if (error) {
-	printf("%s [-sr] [mondai_string]\n", pgm);
+	printf("%s [-s] [puzzle_string]\n", pgm);
+	printf("\t--silent -s 余分な情報を出力しない。\n"
+               "\tpuzzle_string 変換する問題の文字列、コマンドラインで指定されなければ、"
+	       "\n\t標準入力から読み込む。\n");
 	return -1;
     }
     if (argc > 0) {
