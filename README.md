@@ -22,8 +22,8 @@ generate 問題を生成する
  *	--tuple, -t naked pair, hidden pair などの解法を含む問題を出力する。
  * 	--fish, -f x-wing, swordfishなどの解法を含む問題を出力する。
  *	--xywing, -y xy-wingの解法を含む問題を出力する。
- *generate の出力の前半は解の情報、後半はナンプレの問題、ただし（なんちゃって）正規化されている
-ので、convert によってランダム化した方がよい。
+* generate の出力の前半は解の情報、後半はナンプレの問題、
+ただし（なんちゃって）正規化されているので、convert によってランダム化した方がよい。
 
 convert 行や列、数字を入れ換え問題の見た目を変更する
 
