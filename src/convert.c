@@ -27,11 +27,11 @@ static void random_symbol(numpl_array * array);
 static void vl_change(numpl_array * array, const int vl1[], const int vl2[])
 {
     for (int i = 0; i < LINE_SIZE; i++) {
-	int idx1 = vl1[i];
-	int idx2 = vl2[i];
-	cell_t tmp = array->ar[idx1];
-	array->ar[idx1] = array->ar[idx2];
-	array->ar[idx2] = tmp;
+        int idx1 = vl1[i];
+        int idx2 = vl2[i];
+        cell_t tmp = array->ar[idx1];
+        array->ar[idx1] = array->ar[idx2];
+        array->ar[idx2] = tmp;
     }
 }
 
@@ -45,10 +45,10 @@ static uint16_t symbol_change(uint16_t sym, uint16_t symtbl[LINE_SIZE])
 {
     int cnt = 0;
     for (uint16_t mask = 1; mask < FULL_SYMBOL; mask = mask << 1) {
-	if (mask == sym) {
-	    return symtbl[cnt];
-	}
-	cnt++;
+        if (mask == sym) {
+            return symtbl[cnt];
+        }
+        cnt++;
     }
     return 0;
 }
@@ -62,9 +62,9 @@ static void random_symbol(numpl_array * array)
     uint16_t rsyms[LINE_SIZE];
     get_random_symbol(rsyms);
     for (int i = 0; i < ARRAY_SIZE; i++) {
-	if (array->ar[i].fixed) {
-	    array->ar[i].symbol = symbol_change(array->ar[i].symbol, rsyms);
-	}
+        if (array->ar[i].fixed) {
+            array->ar[i].symbol = symbol_change(array->ar[i].symbol, rsyms);
+        }
     }
 }
 
@@ -80,7 +80,7 @@ void reverse_change(numpl_array * array, int mode)
 {
     numpl_array work;
     for (int i = 0; i < ARRAY_SIZE; i++) {
-	work.ar[i] = array->ar[get_counter_pos(i, mode)];
+        work.ar[i] = array->ar[get_counter_pos(i, mode)];
     }
     *array = work;
 }
@@ -95,12 +95,12 @@ void reverse_change(numpl_array * array, int mode)
 void block_reverse(numpl_array * array, int mode)
 {
     int RightLeft_TopButtom[2][3][2] = {
-	{{0, 2}, {3, 5}, {6, 8}},
-	{{0, 6}, {1, 7}, {2, 8}}};
+        {{0, 2}, {3, 5}, {6, 8}},
+        {{0, 6}, {1, 7}, {2, 8}}};
     for (int i = 0; i < 3; i++) {
-	int b1 = RightLeft_TopButtom[mode][i][0];
-	int b2 = RightLeft_TopButtom[mode][i][1];
-	vl_change(array, blocks[b1], blocks[b2]);
+        int b1 = RightLeft_TopButtom[mode][i][0];
+        int b2 = RightLeft_TopButtom[mode][i][1];
+        vl_change(array, blocks[b1], blocks[b2]);
     }
 }
 
@@ -114,11 +114,11 @@ void block_reverse(numpl_array * array, int mode)
 void line_change(numpl_array * array, int mode)
 {
     if (mode == 0) {
-	vl_change(array, cols[0], cols[2]);
-	vl_change(array, cols[6], cols[8]);
+        vl_change(array, cols[0], cols[2]);
+        vl_change(array, cols[6], cols[8]);
     } else {
-	vl_change(array, rows[0], rows[2]);
-	vl_change(array, rows[6], rows[8]);
+        vl_change(array, rows[0], rows[2]);
+        vl_change(array, rows[6], rows[8]);
     }
 }
 
@@ -134,110 +134,16 @@ int random_convert(numpl_array * array)
     random_symbol(array);
     int r = get_random(4);
     if (r != 3) {
-	reverse_change(array, r);
+        reverse_change(array, r);
     }
     r = get_random(3);
     if (r != 2) {
-	block_reverse(array, r);
+        block_reverse(array, r);
     }
     r = get_random(3);
     if (r != 2) {
-	line_change(array, r);
+        line_change(array, r);
     }
     return 0;
 }
 
-#if defined(MAIN)
-#include <getopt.h>
-static int verbose = 0;
-static uint32_t seed = 0;
-static char * mondai_p = NULL;
-static int parse_opt(int argc, char * argv[]);
-static int parse_opt(int argc, char * argv[])
-{
-    static struct option longopts[] = {
-        {"seed", required_argument, NULL, 's'},
-        {"verbose", no_argument, NULL, 'v'},
-        {NULL, 0, NULL, 0}};
-    verbose = 0;
-    seed = (uint32_t)clock();
-    const char * pgm = argv[0];
-    int c;
-    int error = 0;
-    for (;;) {
-        if (error) {
-            break;
-        }
-        c = getopt_long(argc, argv, "v?s:", longopts, NULL);
-	if (c < 0) {
-	    break;
-	}
-	switch (c) {
-	case 's':
-	    seed = (uint32_t)strtoull(optarg, NULL, 10);
-	    break;
-	case 'v':
-	    verbose = 1;
-	    break;
-	case '?':
-	default:
-	    error = 1;
-	    break;
-	}
-    }
-    argc -= optind;
-    argv += optind;
-#if defined(DEBUG)
-    printf("seed = %d\n", seed);
-    printf("argc = %d\n", argc);
-#endif
-    if (error) {
-	printf("%s [-v] [-s seed] [puzzle_string]\n", pgm);
-	printf("\t--verbose, -v 解法についての情報付きで出力する。\n"
-	       "\t--seed, -s 疑似乱数の初期化数値\n"
-	       "\tpuzzle_string 変換する問題の文字列、"
-	       "コマンドラインで指定されなければ、\n\t標準入力から読み込む。\n");
-	return -1;
-    }
-    if (argc > 0) {
-	mondai_p = argv[0];
-    }
-    return 0;
-}
-
-int main(int argc, char * argv[])
-{
-    numpl_array work;
-    int r;
-    r = parse_opt(argc, argv);
-    if (r < 0) {
-	return r;
-    }
-    xsadd_init(&xsadd, seed);
-    if (mondai_p == NULL) {
-	char mondai[200];
-	read_mondai(mondai, stdin);
-	r = input(&work, mondai);
-    } else {
-	r = input(&work, mondai_p);
-    }
-    if (r != 0) {
-	printf("input string is wrong\n");
-	return -1;
-    }
-    fixed_only(&work, 0);
-    random_convert(&work);
-    fixed_only(&work, FULL_SYMBOL);
-    solve_info info;
-    solve(&work, &info);
-    if (verbose) {
-	printf("\"");
-	print_solve_info(&info, 0);
-	printf("\":");
-    }
-    fixed_only(&work, 0);
-    print_array(&work);
-    printf("\n");
-    return 0;
-}
-#endif

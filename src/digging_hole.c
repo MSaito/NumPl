@@ -158,9 +158,9 @@ static int digging_hole_recursion(numpl_array * array, int pos,
     }
 }
 
-#if defined(MAIN)
 #include <stdio.h>
 #include <time.h>
+
 int main(int argc, char * argv[])
 {
     uint32_t seed = (uint32_t)clock();
@@ -209,4 +209,3 @@ int main(int argc, char * argv[])
     }
     return 0;
 }
-#endif

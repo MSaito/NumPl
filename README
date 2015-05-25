@@ -1,0 +1,8 @@
+NumPl
+=====
+Number Place Problem Generator
+
+./configure
+make
+
+see README.md for Japanese documentation.

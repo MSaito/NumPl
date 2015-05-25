@@ -17,19 +17,19 @@
 #include <string.h>
 
 static int tuple_vl(numpl_array * array,
-		    const int vl[LINE_SIZE],
-		    uint16_t syms1,
-		    uint16_t syms2);
+                    const int vl[LINE_SIZE],
+                    uint16_t syms1,
+                    uint16_t syms2);
 static void copy_corner(numpl_array * array, const numpl_array * solved);
 static void copy_cross(numpl_array * array, const numpl_array * solved);
 static void copy_blocks(numpl_array * array,
-			const numpl_array * solved, int blono);
+                        const numpl_array * solved, int blono);
 static int phase1A(numpl_array * array);
 static int phase1B(numpl_array * array);
 static int phase2A(numpl_array * array);
 static int phase2B(numpl_array * array);
 static int phase2sub(numpl_array * array, int size1, const int blono[],
-		     int size2, const int cross[], const int b_cross[][2]);
+                     int size2, const int cross[], const int b_cross[][2]);
 inline static int info_value(solve_info * info);
 static int phase3(numpl_array * array, generate_type * type);
 static int p3(numpl_array * array, int start, generate_type * type);
@@ -56,31 +56,31 @@ static int simple_kill(numpl_array * array, const int vl[LINE_SIZE]);
  * @return -1 そうでない場合
  */
 static int tuple_vl(numpl_array * array,
-		    const int vl[LINE_SIZE],
-		    uint16_t syms1,
-		    uint16_t syms2)
+                    const int vl[LINE_SIZE],
+                    uint16_t syms1,
+                    uint16_t syms2)
 {
     const uint16_t fixed = 1;
     uint16_t order[LINE_SIZE];
     get_random_number(order);
     int count = ones16(syms1);
     for (int i = 0; i < LINE_SIZE && count > 0; i++) {
-	int idx1 = vl[order[i]];
-	int idx2 = get_counter(idx1);
-	if (array->ar[idx1].fixed == 1) {
-	    continue;
-	}
-	if (!(array->ar[idx1].symbol & syms1) ||
-	    !(array->ar[idx2].symbol & syms2)) {
-	    continue;
-	}
-	array->ar[idx1].fixed = fixed;
-	set_single_flag(array->ar[idx1]);
-	array->ar[idx1].symbol &= syms1;
-	array->ar[idx2].fixed = fixed;
-	set_single_flag(array->ar[idx2]);
-	array->ar[idx2].symbol &= syms2;
-	count--;
+        int idx1 = vl[order[i]];
+        int idx2 = get_counter(idx1);
+        if (array->ar[idx1].fixed == 1) {
+            continue;
+        }
+        if (!(array->ar[idx1].symbol & syms1) ||
+            !(array->ar[idx2].symbol & syms2)) {
+            continue;
+        }
+        array->ar[idx1].fixed = fixed;
+        set_single_flag(array->ar[idx1]);
+        array->ar[idx1].symbol &= syms1;
+        array->ar[idx2].fixed = fixed;
+        set_single_flag(array->ar[idx2]);
+        array->ar[idx2].symbol &= syms2;
+        count--;
     }
     return -count;
 }
@@ -116,20 +116,20 @@ static int phase1A(numpl_array *array)
     int r;
     // step 1 十字型に fixed を配置する
     for (;;) {
-	tuple_vl(array, blocks[1], 1, 2);
-	tuple_vl(array, blocks[1], 4, 8);
-	tuple_vl(array, blocks[3], 16, 32);
-	tuple_vl(array, blocks[3], 64, 128);
-	r = solve(array, &info);
+        tuple_vl(array, blocks[1], 1, 2);
+        tuple_vl(array, blocks[1], 4, 8);
+        tuple_vl(array, blocks[3], 16, 32);
+        tuple_vl(array, blocks[3], 64, 128);
+        r = solve(array, &info);
 #if defined(DEBUG)
-	printf("r = %d\n", r);
+        printf("r = %d\n", r);
 #endif
-	if (r >= 0) {
-	    break;
-	} else {
-	    return r;
-	    //array = save;
-	}
+        if (r >= 0) {
+            break;
+        } else {
+            return r;
+            //array = save;
+        }
     }
     save = *array;
 #if defined(DEBUG)
@@ -140,19 +140,19 @@ static int phase1A(numpl_array *array)
     get_random_symbol(ransyms);
     // step 2 中央に2個 fixed を配置する。数字はランダム
     for (int i = 0; i < 100; i++) {
-	uint16_t s1 = ransyms[i % LINE_SIZE];
-	uint16_t s2 = ransyms[(i + 1) % LINE_SIZE];
-	r = tuple_vl(array, blocks[4], s1, s2);
-	if (r < 0) {
-	    *array = save;
-	    continue;
-	}
-	r = solve(array, &info);
-	if (r >= 0) {
-	    break;
-	} else {
-	    *array = save;
-	}
+        uint16_t s1 = ransyms[i % LINE_SIZE];
+        uint16_t s2 = ransyms[(i + 1) % LINE_SIZE];
+        r = tuple_vl(array, blocks[4], s1, s2);
+        if (r < 0) {
+            *array = save;
+            continue;
+        }
+        r = solve(array, &info);
+        if (r >= 0) {
+            break;
+        } else {
+            *array = save;
+        }
     }
     save = *array;
 #if defined(DEBUG)
@@ -162,20 +162,20 @@ static int phase1A(numpl_array *array)
     // step 3 十字型を 3 個ずつにする。数字はランダム
     get_random_symbol(ransyms);
     for (int i = 0; i < 100; i++) {
-	uint16_t s1 = ransyms[i % LINE_SIZE];
-	uint16_t s2 = ransyms[(i + 1) % LINE_SIZE];
-	r = tuple_vl(array, blocks[1], s1, s2);
-	r = tuple_vl(array, blocks[3], s1, s2);
-	if (r < 0) {
-	    *array = save;
-	    continue;
-	}
-	r = solve(array, &info);
-	if (r >= 0) {
-	    break;
-	} else {
-	    *array = save;
-	}
+        uint16_t s1 = ransyms[i % LINE_SIZE];
+        uint16_t s2 = ransyms[(i + 1) % LINE_SIZE];
+        r = tuple_vl(array, blocks[1], s1, s2);
+        r = tuple_vl(array, blocks[3], s1, s2);
+        if (r < 0) {
+            *array = save;
+            continue;
+        }
+        r = solve(array, &info);
+        if (r >= 0) {
+            break;
+        } else {
+            *array = save;
+        }
     }
     //save = *array;
 #if defined(DEBUG)
@@ -215,20 +215,20 @@ static int phase1B(numpl_array *array)
     int r;
     // step 1 四隅に fixed を配置する
     for (;;) {
-	tuple_vl(array, blocks[0], 1, 2);
-	tuple_vl(array, blocks[0], 4, 8);
-	tuple_vl(array, blocks[8], 16, 32);
-	tuple_vl(array, blocks[8], 64, 128);
-	r = solve(array, &info);
+        tuple_vl(array, blocks[0], 1, 2);
+        tuple_vl(array, blocks[0], 4, 8);
+        tuple_vl(array, blocks[8], 16, 32);
+        tuple_vl(array, blocks[8], 64, 128);
+        r = solve(array, &info);
 #if defined(DEBUG)
-	printf("r = %d\n", r);
+        printf("r = %d\n", r);
 #endif
-	if (r >= 0) {
-	    break;
-	} else {
-	    return r;
-	    //array = save;
-	}
+        if (r >= 0) {
+            break;
+        } else {
+            return r;
+            //array = save;
+        }
     }
     save = *array;
 #if defined(DEBUG)
@@ -240,19 +240,19 @@ static int phase1B(numpl_array *array)
     get_random_symbol(ransyms);
     // step 2 中央に2個 fixed を配置する。数字はランダム
     for (int i = 0; i < 100; i++) {
-	uint16_t s1 = ransyms[i % LINE_SIZE];
-	uint16_t s2 = ransyms[(i + 1) % LINE_SIZE];
-	r = tuple_vl(array, blocks[4], s1, s2);
-	if (r < 0) {
-	    *array = save;
-	    continue;
-	}
-	r = solve(array, &info);
-	if (r >= 0) {
-	    break;
-	} else {
-	    *array = save;
-	}
+        uint16_t s1 = ransyms[i % LINE_SIZE];
+        uint16_t s2 = ransyms[(i + 1) % LINE_SIZE];
+        r = tuple_vl(array, blocks[4], s1, s2);
+        if (r < 0) {
+            *array = save;
+            continue;
+        }
+        r = solve(array, &info);
+        if (r >= 0) {
+            break;
+        } else {
+            *array = save;
+        }
     }
     save = *array;
 #if defined(DEBUG)
@@ -263,20 +263,20 @@ static int phase1B(numpl_array *array)
     // step 3 四隅を 3 個ずつにする。数字はランダム
     get_random_symbol(ransyms);
     for (int i = 0; i < 100; i++) {
-	uint16_t s1 = ransyms[i % LINE_SIZE];
-	uint16_t s2 = ransyms[(i + 1) % LINE_SIZE];
-	r = tuple_vl(array, blocks[0], s1, s2);
-	r = tuple_vl(array, blocks[8], s1, s2);
-	if (r < 0) {
-	    *array = save;
-	    continue;
-	}
-	r = solve(array, &info);
-	if (r >= 0) {
-	    break;
-	} else {
-	    *array = save;
-	}
+        uint16_t s1 = ransyms[i % LINE_SIZE];
+        uint16_t s2 = ransyms[(i + 1) % LINE_SIZE];
+        r = tuple_vl(array, blocks[0], s1, s2);
+        r = tuple_vl(array, blocks[8], s1, s2);
+        if (r < 0) {
+            *array = save;
+            continue;
+        }
+        r = solve(array, &info);
+        if (r >= 0) {
+            break;
+        } else {
+            *array = save;
+        }
     }
     //save = *array;
 #if defined(DEBUG)
@@ -303,7 +303,7 @@ static void copy_corner(numpl_array * array, const numpl_array * solved)
     // 四隅をsolvedからコピー
     const int blono[4] = {0, 2, 6, 8};
     for (int i = 0; i < 4; i++) {
-	copy_blocks(array, solved, blono[i]);
+        copy_blocks(array, solved, blono[i]);
     }
 }
 
@@ -322,7 +322,7 @@ static void copy_cross(numpl_array * array, const numpl_array * solved)
     // 中央をsolvedからコピー
     const int blono[5] = {1, 3, 4, 5, 7};
     for (int i = 0; i < 5; i++) {
-	copy_blocks(array, solved, blono[i]);
+        copy_blocks(array, solved, blono[i]);
     }
 }
 
@@ -334,13 +334,13 @@ static void copy_cross(numpl_array * array, const numpl_array * solved)
  * @param blono コピーするブロック
  */
 static void copy_blocks(numpl_array * dist,
-			const numpl_array * source, int blono)
+                        const numpl_array * source, int blono)
 {
     for (int i = 0; i < LINE_SIZE; i++) {
-	int idx = blocks[blono][i];
-	dist->ar[idx].symbol = source->ar[idx].symbol;
-	dist->ar[idx].fixed = 1;
-	set_single_flag(dist->ar[idx]);
+        int idx = blocks[blono][i];
+        dist->ar[idx].symbol = source->ar[idx].symbol;
+        dist->ar[idx].fixed = 1;
+        set_single_flag(dist->ar[idx]);
     }
 }
 
@@ -373,7 +373,7 @@ static int phase2B(numpl_array * array)
  *
  */
 static int phase2sub(numpl_array * array, int size1, const int blono[],
-		     int size2, const int cross[], const int b_cross[][2])
+                     int size2, const int cross[], const int b_cross[][2])
 {
 #if defined(DEBUG)
     printf("in phase2\n");
@@ -381,28 +381,28 @@ static int phase2sub(numpl_array * array, int size1, const int blono[],
     // const int blono[4] = {0, 2, 6, 8};
     // 2個ずつ穴を開ける。四隅ブロック4個穴が開く
     for (int i = 0; i < 4; i++) {
-	int bno = blono[i];
-	uint16_t syms[LINE_SIZE];
-	get_random_symbol(syms);
-	uint16_t sym = syms[0] | syms[1];
-	for (int j = 0; j < LINE_SIZE; j++) {
-	    int idx = blocks[bno][j];
-	    if (!array->ar[idx].fixed) {
-		continue;
-	    }
-	    if (!(array->ar[idx].symbol & sym)) {
-		continue;
-	    }
-	    int idx2 = get_counter(idx);
-	    array->ar[idx].symbol = FULL_SYMBOL;
-	    reset_single_flag(array->ar[idx]);
-	    array->ar[idx].fixed = 0;
-	    reset_single_flag(array->ar[idx]);
-	    array->ar[idx2].symbol = FULL_SYMBOL;
-	    reset_single_flag(array->ar[idx2]);
-	    array->ar[idx2].fixed = 0;
-	    reset_single_flag(array->ar[idx2]);
-	}
+        int bno = blono[i];
+        uint16_t syms[LINE_SIZE];
+        get_random_symbol(syms);
+        uint16_t sym = syms[0] | syms[1];
+        for (int j = 0; j < LINE_SIZE; j++) {
+            int idx = blocks[bno][j];
+            if (!array->ar[idx].fixed) {
+                continue;
+            }
+            if (!(array->ar[idx].symbol & sym)) {
+                continue;
+            }
+            int idx2 = get_counter(idx);
+            array->ar[idx].symbol = FULL_SYMBOL;
+            reset_single_flag(array->ar[idx]);
+            array->ar[idx].fixed = 0;
+            reset_single_flag(array->ar[idx]);
+            array->ar[idx2].symbol = FULL_SYMBOL;
+            reset_single_flag(array->ar[idx2]);
+            array->ar[idx2].fixed = 0;
+            reset_single_flag(array->ar[idx2]);
+        }
     }
     // solve してみる 解けなければあきらめる
     solve_info info;
@@ -411,7 +411,7 @@ static int phase2sub(numpl_array * array, int size1, const int blono[],
     printf("phase2 step 1 solve r = %d fixed = %d\n", r, count_fixed(array));
 #endif
     if (r <= 0) {
-	return r;
+        return r;
     }
 #if defined(DEBUG)
     printf("before fill_array fixed = %d\n", count_fixed(array));
@@ -426,51 +426,51 @@ static int phase2sub(numpl_array * array, int size1, const int blono[],
     //int cross[4] = {1, 3, 5, 7};
     //int b_cross[4][2] = {{0, 2}, {0, 6}, {2, 8}, {6, 8}};
     for (int i = 0; i < size1; i++) {
-	int p = get_random(size2);
-	uint16_t sym = 0;
-	int cno = cross[p];
-	for (int j = 0; j < LINE_SIZE; j++) {
-	    if (array->ar[blocks[cno][j]].fixed) {
-		sym |= array->ar[blocks[cno][j]].symbol;
-	    }
-	}
-//	sym = get_one_symbol(sym);
-	sym = random_one_symbol(sym);
+        int p = get_random(size2);
+        uint16_t sym = 0;
+        int cno = cross[p];
+        for (int j = 0; j < LINE_SIZE; j++) {
+            if (array->ar[blocks[cno][j]].fixed) {
+                sym |= array->ar[blocks[cno][j]].symbol;
+            }
+        }
+//      sym = get_one_symbol(sym);
+        sym = random_one_symbol(sym);
 #if defined(DEBUG)
-	printf("sym = %x\n", sym);
+        printf("sym = %x\n", sym);
 #endif
-	for (int j = 0; j < 2; j++) {
-	    int bno = b_cross[p][j];
-	    for (int k = 0; k < LINE_SIZE; k++) {
-		int idx1 = blocks[bno][k];
-		if (array->ar[idx1].symbol & sym) {
-		    int idx2 = get_counter(idx1);
-		    array->ar[idx1].symbol = FULL_SYMBOL;
-		    array->ar[idx1].fixed = 0;
-		    reset_single_flag(array->ar[idx1]);
-		    array->ar[idx2].symbol = FULL_SYMBOL;
-		    array->ar[idx2].fixed = 0;
-		    reset_single_flag(array->ar[idx2]);
+        for (int j = 0; j < 2; j++) {
+            int bno = b_cross[p][j];
+            for (int k = 0; k < LINE_SIZE; k++) {
+                int idx1 = blocks[bno][k];
+                if (array->ar[idx1].symbol & sym) {
+                    int idx2 = get_counter(idx1);
+                    array->ar[idx1].symbol = FULL_SYMBOL;
+                    array->ar[idx1].fixed = 0;
+                    reset_single_flag(array->ar[idx1]);
+                    array->ar[idx2].symbol = FULL_SYMBOL;
+                    array->ar[idx2].fixed = 0;
+                    reset_single_flag(array->ar[idx2]);
 #if defined(DEBUG)
-		    printf("idx1, idx2 = %d,%d\n", idx1, idx2);
+                    printf("idx1, idx2 = %d,%d\n", idx1, idx2);
 #endif
-		}
-	    }
-	}
+                }
+            }
+        }
 #if defined(DEBUG)
-	printf("fixed = %d\n", count_fixed(array));
+        printf("fixed = %d\n", count_fixed(array));
 #endif
-	fixed_only(array, FULL_SYMBOL);
-	r = solve(array, &info);
+        fixed_only(array, FULL_SYMBOL);
+        r = solve(array, &info);
 #if defined(DEBUG)
-	printf("phase2 st 2 r = %d, fixed = %d\n", r, count_fixed(array));
+        printf("phase2 st 2 r = %d, fixed = %d\n", r, count_fixed(array));
 #endif
-	if (r <= 0) {
-	    *array = save;
-	    break;
-	}
-	save = *array;
-	save_r = r;
+        if (r <= 0) {
+            *array = save;
+            break;
+        }
+        save = *array;
+        save_r = r;
     }
 #if defined(DEBUG)
     printf("phase2 step 2 solve r = %d\n", save_r);
@@ -491,7 +491,7 @@ static int phase3(numpl_array * array, generate_type * type)
 inline static int info_value(solve_info * info)
 {
     return info->kh_count + info->kl_count * 100 + info->kt_count * 1000
-	+ info->sf_count * 10000 + info->xy_count * 100000;
+        + info->sf_count * 10000 + info->xy_count * 100000;
 }
 /**
  * ナンプレ問題生成 第三段階の再帰部分
@@ -507,46 +507,46 @@ static int p3(numpl_array * array, int start, generate_type * type)
     int r = solve(array, &info);
     if (r <= 0) {
 #if defined(DEBUG)
-	printf("in phase3 solve returns %d\n", r);
+        printf("in phase3 solve returns %d\n", r);
 #endif
-	return r;
+        return r;
     }
     if (type->hidden_single && (info.kh_count > 0)) {
-	return info_value(&info);
+        return info_value(&info);
     } else if (type->locked_candidate && (info.kl_count > 0)) {
-	return info_value(&info);
+        return info_value(&info);
     } else if (type->tuple && (info.kt_count > 0)) {
-	return info_value(&info);
+        return info_value(&info);
     } else if (type->fish && (info.sf_count > 0)) {
-	return info_value(&info);
+        return info_value(&info);
     } else if (type->xy && (info.xy_count > 0)) {
-	return info_value(&info);
+        return info_value(&info);
     }
     save = *array;
     int max = 0;
     numpl_array best = *array;
     for (int i = start; i < ARRAY_SIZE / 2; i++) {
-	if (!array->ar[i].fixed) {
-	    continue;
-	}
-	int idx1 = i;
-	int idx2 = get_counter(idx1);
-	array->ar[idx1].fixed = 0;
-	reset_single_flag(array->ar[idx1]);
-	array->ar[idx1].symbol = FULL_SYMBOL;
-	array->ar[idx2].fixed = 0;
-	reset_single_flag(array->ar[idx2]);
-	array->ar[idx2].symbol = FULL_SYMBOL;
-	r = p3(array, i + 1, type);
-	if (r > max) {
-	    max = r;
-	    best = *array;
-	}
-	*array = save;
+        if (!array->ar[i].fixed) {
+            continue;
+        }
+        int idx1 = i;
+        int idx2 = get_counter(idx1);
+        array->ar[idx1].fixed = 0;
+        reset_single_flag(array->ar[idx1]);
+        array->ar[idx1].symbol = FULL_SYMBOL;
+        array->ar[idx2].fixed = 0;
+        reset_single_flag(array->ar[idx2]);
+        array->ar[idx2].symbol = FULL_SYMBOL;
+        r = p3(array, i + 1, type);
+        if (r > max) {
+            max = r;
+            best = *array;
+        }
+        *array = save;
     }
     if (max > 0) {
-	*array = best;
-	return max;
+        *array = best;
+        return max;
     }
     return 0;
 }
@@ -561,25 +561,25 @@ static int phase4(numpl_array * array)
     solve_info info;
     int count = 0;
     for (int i = 0; i < ARRAY_SIZE / 2; i++) {
-	if (!array->ar[i].fixed) {
-	    continue;
-	}
-	int idx1 = i;
-	int idx2 = get_counter(idx1);
-	array->ar[idx1].fixed = 0;
-	reset_single_flag(array->ar[idx1]);
-	array->ar[idx1].symbol = FULL_SYMBOL;
-	array->ar[idx2].fixed = 0;
-	reset_single_flag(array->ar[idx2]);
-	array->ar[idx2].symbol = FULL_SYMBOL;
-	int r = solve(array, &info);
-	if (r <= 0) {
-	    *array = save;
-	} else {
-	    count++;
-	    fixed_only(array, FULL_SYMBOL);
-	    save = *array;
-	}
+        if (!array->ar[i].fixed) {
+            continue;
+        }
+        int idx1 = i;
+        int idx2 = get_counter(idx1);
+        array->ar[idx1].fixed = 0;
+        reset_single_flag(array->ar[idx1]);
+        array->ar[idx1].symbol = FULL_SYMBOL;
+        array->ar[idx2].fixed = 0;
+        reset_single_flag(array->ar[idx2]);
+        array->ar[idx2].symbol = FULL_SYMBOL;
+        int r = solve(array, &info);
+        if (r <= 0) {
+            *array = save;
+        } else {
+            count++;
+            fixed_only(array, FULL_SYMBOL);
+            save = *array;
+        }
     }
     *array = save;
     return count;
@@ -595,24 +595,24 @@ static int phase5(numpl_array * array)
     int max = 0;
     solve_info info;
     for (int i = 0; i < ARRAY_SIZE; i++) {
-	if (!array->ar[i].fixed) {
-	    continue;
-	}
-	int idx1 = i;
-	array->ar[idx1].fixed = 0;
-	reset_single_flag(array->ar[idx1]);
-	array->ar[idx1].symbol = FULL_SYMBOL;
-	int r = solve(array, &info);
-	if (r <= 0) {
-	    *array = save;
-	    continue;
-	}
-	int v = info_value(&info);
-	if (max < v) {
-	    max = v;
-	    best = *array;
-	}
-	save = *array;
+        if (!array->ar[i].fixed) {
+            continue;
+        }
+        int idx1 = i;
+        array->ar[idx1].fixed = 0;
+        reset_single_flag(array->ar[idx1]);
+        array->ar[idx1].symbol = FULL_SYMBOL;
+        int r = solve(array, &info);
+        if (r <= 0) {
+            *array = save;
+            continue;
+        }
+        int v = info_value(&info);
+        if (max < v) {
+            max = v;
+            best = *array;
+        }
+        save = *array;
     }
     *array = best;
     return max;
@@ -630,52 +630,52 @@ int generate(numpl_array * array, generate_type * type)
     numpl_array save = *array;
     int r;
     for (int i = 0; i < 100; i++) {
-	if (phase == 0) {
-	    r = phase1A(array);
-	} else {
-	    r = phase1B(array);
-	}
-	if (r >= 0) {
-	    break;
-	}
-	*array = save;
+        if (phase == 0) {
+            r = phase1A(array);
+        } else {
+            r = phase1B(array);
+        }
+        if (r >= 0) {
+            break;
+        }
+        *array = save;
     }
 #if defined(DEBUG)
     printf("after phase1 r = %d\n", r);
     output_detail(array);
 #endif
     if (r < 0) {
-	printf("#after phase1A r = %d\n", r);
-	return r;
+        printf("#after phase1A r = %d\n", r);
+        return r;
     }
     fixed_only(array, FULL_SYMBOL);
     save = *array;
     numpl_array solved = *array;
     solve_info info;
     for (int i = 0; i < 100; i++) {
-	r = random_solve(&solved);
-	if (r < 0) {
-	    solved = save;
-	    continue;
-	}
-	if (phase == 0) {
-	    copy_corner(array, &solved);
-	} else {
-	    copy_cross(array, &solved);
-	}
-	r = solve(array, &info);
-	if (r > 0) {
-	    break;
-	}
-	*array = save;
-	solved = save;
+        r = random_solve(&solved);
+        if (r < 0) {
+            solved = save;
+            continue;
+        }
+        if (phase == 0) {
+            copy_corner(array, &solved);
+        } else {
+            copy_cross(array, &solved);
+        }
+        r = solve(array, &info);
+        if (r > 0) {
+            break;
+        }
+        *array = save;
+        solved = save;
     }
 #if defined(DEBUG)
     printf("after random_solve r = %d\n", r);
 #endif
     if (r <= 0) {
-	//printf("#after random_solve r = %d\n", r);
-	return r;
+        //printf("#after random_solve r = %d\n", r);
+        return r;
     }
     fixed_only(array, FULL_SYMBOL);
     save = *array;
@@ -689,19 +689,19 @@ int generate(numpl_array * array, generate_type * type)
       PHASE II
       ======== */
     for (int i = 0; i < 100; i++) {
-	if (phase == 0) {
-	    r = phase2A(array);
-	} else {
-	    r = phase2B(array);
-	}
-	if (r > 0) {
+        if (phase == 0) {
+            r = phase2A(array);
+        } else {
+            r = phase2B(array);
+        }
+        if (r > 0) {
 #if defined(DEBUG)
-	    printf("after phase2 r = %d\n", r);
-	    output_detail(array);
+            printf("after phase2 r = %d\n", r);
+            output_detail(array);
 #endif
-	    break;
-	}
-	*array = save;
+            break;
+        }
+        *array = save;
     }
 #if defined(DEBUG)
     //fixed_only(array, 0);
@@ -710,8 +710,8 @@ int generate(numpl_array * array, generate_type * type)
     fixed_only(array, FULL_SYMBOL);
 #endif
     if (r < 0) {
-	printf("#after phase2 r = %d\n", r);
-	return r;
+        printf("#after phase2 r = %d\n", r);
+        return r;
     }
 #if defined(DEBUG) && 0
     debug_simple_kill(array);
@@ -727,10 +727,10 @@ int generate(numpl_array * array, generate_type * type)
     //fixed_only(array, FULL_SYMBOL);
 #endif
     if (r <= 0) {
-	//if (r < 0) {
-	//printf("#after phase3 r = %d\n", r);
-	//return r - 1;
-	return r;
+        //if (r < 0) {
+        //printf("#after phase3 r = %d\n", r);
+        //return r - 1;
+        return r;
     }
    /* ========
       PHASE IV
@@ -767,11 +767,11 @@ int generate(numpl_array * array, generate_type * type)
 #endif
     fixed_only(array, FULL_SYMBOL);
     if (r < 0) {
-	printf("#after phase4 r = %d\n", r);
-	return r;
+        printf("#after phase4 r = %d\n", r);
+        return r;
     }
     if (type->symmetric) {
-	return r + 1;
+        return r + 1;
     }
    /* ========
       PHASE V
@@ -786,13 +786,13 @@ int generate(numpl_array * array, generate_type * type)
     output_detail(array);
 #endif
     if (r < 0) {
-	printf("#after phase5 r = %d\n", r);
-	return r;
+        printf("#after phase5 r = %d\n", r);
+        return r;
     }
     return r + 1;
 }
 
-#if defined(MAIN)
+//#if defined(MAIN)
 #include <getopt.h>
 #include <errno.h>
 static int verbose = 0;
@@ -805,7 +805,7 @@ static int parse_opt(int argc, char * argv[])
     static struct option longopts[] = {
         {"seed", required_argument, NULL, 's'},
         {"verbose", no_argument, NULL, 'v'},
-	{"count", required_argument, NULL, 'c'},
+        {"count", required_argument, NULL, 'c'},
         {"hidden", no_argument, NULL, 'h'},
         {"locked", no_argument, NULL, 'l'},
         {"tuple", no_argument, NULL, 't'},
@@ -825,72 +825,72 @@ static int parse_opt(int argc, char * argv[])
             break;
         }
         c = getopt_long(argc, argv, "?vhltfySs:c:", longopts, NULL);
-	if (c < 0) {
-	    break;
-	}
-	switch (c) {
-	case 's':
-	    seed = (uint32_t)strtoull(optarg, NULL, 10);
-	    if (errno) {
-		error = 1;
-	    }
-	    break;
-	case 'S':
-	    g_type.symmetric = 1;
-	    break;
-	case 'v':
-	    verbose = 1;
-	    break;
-	case 'h':
-	    g_type.hidden_single = 1;
-	    break;
-	case 'l':
-	    g_type.locked_candidate = 1;
-	    break;
-	case 't':
-	    g_type.tuple = 1;
-	    break;
-	case 'f':
-	    g_type.fish = 1;
-	    break;
-	case 'y':
-	    g_type.xy = 1;
-	    break;
-	case 'c':
-	    number = (uint32_t)strtoull(optarg, NULL, 10);
-	    if (errno) {
-		error = 1;
-	    }
-	    break;
-	case '?':
-	default:
-	    error = 1;
-	    break;
-	}
+        if (c < 0) {
+            break;
+        }
+        switch (c) {
+        case 's':
+            seed = (uint32_t)strtoull(optarg, NULL, 10);
+            if (errno) {
+                error = 1;
+            }
+            break;
+        case 'S':
+            g_type.symmetric = 1;
+            break;
+        case 'v':
+            verbose = 1;
+            break;
+        case 'h':
+            g_type.hidden_single = 1;
+            break;
+        case 'l':
+            g_type.locked_candidate = 1;
+            break;
+        case 't':
+            g_type.tuple = 1;
+            break;
+        case 'f':
+            g_type.fish = 1;
+            break;
+        case 'y':
+            g_type.xy = 1;
+            break;
+        case 'c':
+            number = (uint32_t)strtoull(optarg, NULL, 10);
+            if (errno) {
+                error = 1;
+            }
+            break;
+        case '?':
+        default:
+            error = 1;
+            break;
+        }
     }
 #if defined(DEBUG)
     printf("seed = %d\n", seed);
     printf("argc = %d\n", argc);
 #endif
     if (error) {
-	printf("%s [-v] [-S] [-c number] [-s seed] [-hltfy]\n", pgm);
+        printf("%s [-v] [-S] [-c number] [-s seed] [-hltfy]\n", pgm);
         printf("\t--verbose, -v 冗長モード、このモードでは1問しか問題を作成しない。\n"
-	       "\t--symmetric, -S 点対称の問題を作成する。\n"
-	       "\t--count, -c 出力する問題の数\n"
-	       "\t--seed, -s 使用する疑似乱数の初期化数字\n"
-	       "\t--hidden, -h hidden_singe の解法を含む問題を出力する。\n"
-	       "\t--locked, -l locked_candidates の解法を含む問題を出力する。\n"
-	       "\t--tuple, -t naked pair, hidden pair"
-	       "などの解法を含む問題を出力する。\n"
-	       "\t--fish, -f x-wing, swordfishなどの解法を含む問題を出力する。\n"
-	       "\t--xywing, -y xy-wingの解法を含む問題を出力する。\n");
-	return -1;
+               "\t--symmetric, -S 点対称の問題を作成する。\n"
+               "\t--count, -c 出力する問題の数\n"
+               "\t--seed, -s 使用する疑似乱数の初期化数字\n"
+               "\t--hidden, -h hidden_singe の解法を含む問題を出力する。\n"
+               "\t--locked, -l locked_candidates の解法を含む問題を出力する。\n"
+               "\t--tuple, -t naked pair, hidden pair"
+               "などの解法を含む問題を出力する。\n"
+               "\t--fish, -f x-wing, swordfishなどの解法を含む問題を出力する。\n"
+               "\t--xywing, -y xy-wingの解法を含む問題を出力する。\n");
+        return -1;
     }
     if (g_type.hidden_single == 0 && g_type.locked_candidate == 0 &&
-	g_type.tuple == 0 && g_type.fish == 0 && g_type.xy == 0) {
-	g_type.tuple = 1;
-	g_type.fish = 1;
-	g_type.xy = 1;
+        g_type.tuple == 0 && g_type.fish == 0 && g_type.xy == 0) {
+        g_type.tuple = 1;
+        g_type.fish = 1;
+        g_type.xy = 1;
     }
     return 0;
 }
@@ -899,13 +899,13 @@ int main(int argc, char * argv[])
     int r;
     r = parse_opt(argc, argv);
     if (r < 0) {
-	return r;
+        return r;
     }
     printf("generate start seed = %u number = %d\n", seed, number);
     xsadd_init(&xsadd, seed);
     if (verbose && number > 1) {
-	printf("In verbose mode, generating number is set to 1.\n");
-	number = 1;
+        printf("In verbose mode, generating number is set to 1.\n");
+        number = 1;
     }
     numpl_array work;
     numpl_array save;
@@ -918,37 +918,37 @@ int main(int argc, char * argv[])
 #endif
     while (number > 0) {
 #if defined(DEBUG)
-	printf("number = %d\n", number);
+        printf("number = %d\n", number);
 #endif
-	int r = generate(&work, &g_type);
-	if (r < 0) {
-	    printf("r = %d\n", r);
-	    break;
-	} else if (r == 0) {
-	    work = save;
-	    continue;
-	}
-	number--;
-	fixed_only(&work, FULL_SYMBOL);
-	solve_info info;
-	//solve(&work, &info);
-	r = lazy_normalize(&work, &info);
-	if (verbose) {
-	    printf("number = %d\n", number);
-	    print_solve_info(&info, 1);
-	    fixed_only(&work, 0);
-	    output_detail(&work);
-	} else {
-	    printf("\"");
-	    print_solve_info(&info, 0);
-	    printf("\":");
-	    fixed_only(&work, 0);
-	    print_array(&work);
-	    printf("\n");
-	}
-	work = save;
+        int r = generate(&work, &g_type);
+        if (r < 0) {
+            printf("r = %d\n", r);
+            break;
+        } else if (r == 0) {
+            work = save;
+            continue;
+        }
+        number--;
+        fixed_only(&work, FULL_SYMBOL);
+        solve_info info;
+        //solve(&work, &info);
+        r = lazy_normalize(&work, &info);
+        if (verbose) {
+            printf("number = %d\n", number);
+            print_solve_info(&info, 1);
+            fixed_only(&work, 0);
+            output_detail(&work);
+        } else {
+            printf("\"");
+            print_solve_info(&info, 0);
+            printf("\":");
+            fixed_only(&work, 0);
+            print_array(&work);
+            printf("\n");
+        }
+        work = save;
     }
     return 0;
 }
 
-#endif // MAIN
+//#endif // MAIN

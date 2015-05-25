@@ -36,8 +36,8 @@
 #include <stdint.h>
 #include <inttypes.h>
 
-#define XSADD_FLOAT_MUL (1.0f / 4294967296.0f)
-#define XSADD_DOUBLE_MUL (1.0 / 18446744073709551616.0)
+#define XSADD_FLOAT_MUL (1.0f / 16777216.0f)
+#define XSADD_DOUBLE_MUL (1.0 / 9007199254740992.0)
 
 #ifdef __cplusplus
 extern "C" {
@@ -95,7 +95,7 @@ extern "C" {
      */
     static inline uint32_t xsadd_uint32(xsadd_t * xsadd)
     {
-	xsadd_next_state(xsadd);
+        xsadd_next_state(xsadd);
         return xsadd->state[3] + xsadd->state[2];
     }
 
@@ -108,7 +108,7 @@ extern "C" {
      * @return floating point number r (0.0 <= r < 1.0)
      */
     inline static float xsadd_float(xsadd_t * xsadd) {
-	return xsadd_uint32(xsadd) * XSADD_FLOAT_MUL;
+        return (xsadd_uint32(xsadd) >> 8) * XSADD_FLOAT_MUL;
     }
 
     /**
@@ -118,8 +118,8 @@ extern "C" {
      * @return floating point number r (0.0 < r <= 1.0)
      */
     inline static float xsadd_floatOC(xsadd_t * xsadd) {
-	xsadd_next_state(xsadd);
-	return 1.0f - xsadd_float(xsadd);
+        xsadd_next_state(xsadd);
+        return 1.0f - xsadd_float(xsadd);
     }
 
     /**
@@ -130,10 +130,10 @@ extern "C" {
      */
     inline static double xsadd_double(xsadd_t * xsadd)
     {
-	uint64_t a = xsadd_uint32(xsadd) & UINT32_C(0xffffffe0);
-	uint64_t b = xsadd_uint32(xsadd);
-	a = (a << 32) | (b << 5);
-	return a * XSADD_DOUBLE_MUL;
+        uint64_t a = xsadd_uint32(xsadd);
+        uint64_t b = xsadd_uint32(xsadd);
+        a = (a << 21) | (b >> 11);
+        return a * XSADD_DOUBLE_MUL;
     }
 
     /* =============
@@ -175,8 +175,8 @@ extern "C" {
      * @param[in] base_step hexadecimal string of jump base.
      */
     void xsadd_calculate_jump_polynomial(char * jump_str,
-					 uint32_t mul_step,
-					 const char * base_step);
+                                         uint32_t mul_step,
+                                         const char * base_step);
 
 
 #ifdef __cplusplus

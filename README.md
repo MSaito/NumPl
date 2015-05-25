@@ -40,4 +40,4 @@ analyze　手持ちの解法で解けるか調べる
  *	puzzle_string 変換する問題の文字列、コマンドラインで指定されなければ、
 	標準入力から読み込む。
 
-make doc でdoxygen によるドキュメントが作成されます。
+make doxygen-doc でdoxygen によるドキュメントが作成されます。

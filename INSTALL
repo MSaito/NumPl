@@ -1,0 +1,3 @@
+./configure --prefix=$HOME/some_directory
+make
+make install
