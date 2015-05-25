@@ -5,7 +5,7 @@
  *
  * 使用法方：
  * <ul>
- * <li> generate [-v] [-S] [-c number] [-s seed] [-hltfy]
+ * <li> numberplace_generate [-v] [-S] [-c number] [-s seed] [-hltfy]
  *   <ul>
  *   <li> --verbose, -v 冗長モード、このモードでは1問しか問題を作成しない。
  *   <li> --symmetric, -S 点対称の問題を作成する。
@@ -27,5 +27,5 @@
  * Copyright (C) 2014 Mutsuo Saito and Manieth corp.
  * All rights reserved.
  * TheMIT License is applied to this software.
- * \verbinclude ./LICENSE
+ * \verbinclude ./COPYING
  */
