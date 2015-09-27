@@ -35,7 +35,7 @@ double analyze(numpl_array * array, solve_info * info)
 #if defined(DEBUG)
     printf("IN ANALYZE\n");
 #endif
-    memset(info, 0, sizeof(info));
+    memset(info, 0, sizeof(solve_info));
     int c = 0;
     do {
 #if defined(DEBUG)

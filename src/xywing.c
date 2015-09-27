@@ -14,11 +14,11 @@
 enum LINE_KIND {BLOCK, COL, ROW};
 static int xywing_sub(numpl_array * array, int pos, uint16_t sym);
 static void search_yz(numpl_array * array, const int line[],
-		      int result[], int pos, uint16_t sym);
+                      int result[], int pos, uint16_t sym);
 static int kill_zblock(numpl_array * array, int pos, const int line1[],
-		       const int line2[], uint16_t sym);
+                       const int line2[], uint16_t sym);
 static int kill_common(numpl_array * array, int pos, int p1, int p2,
-		       const int vl1[], const int vl2[], uint16_t sym);
+                       const int vl1[], const int vl2[], uint16_t sym);
 static const int * getVL(enum LINE_KIND kind, int pos);
 /**
  * XY Wing メイン関数
@@ -29,12 +29,16 @@ int kill_xywing(numpl_array * array)
 {
     int count = 0;
     for (int i = 0; i < ARRAY_SIZE; i++) {
-	uint16_t sym = array->ar[i].symbol;
-	if (ones16(sym) == 2) {
-	    count = xywing_sub(array, i, sym);
-	}
+        uint16_t sym = array->ar[i].symbol;
+        if (ones16(sym) == 2) {
+            count += xywing_sub(array, i, sym);
+        }
     }
-    return 0;
+    if (count > 0) {
+        return 1;
+    } else {
+        return 0;
+    }
 }
 
 /**
@@ -84,15 +88,15 @@ static int xywing_sub(numpl_array * array, int pos, uint16_t sym)
     int count;
     count = kill_zblock(array, pos, r, b, sym);
     if (count > 0) {
-	return 1;
+        return 1;
     }
     count = kill_zblock(array, pos, c, b, sym);
     if (count > 0) {
-	return 1;
+        return 1;
     }
     count = kill_zblock(array, pos, r, c, sym);
     if (count > 0) {
-	return 1;
+        return 1;
     }
     return 0;
 }
@@ -106,21 +110,21 @@ static int xywing_sub(numpl_array * array, int pos, uint16_t sym)
  * @param sym 起点の候補 xy
  */
 static void search_yz(numpl_array * array, const int line[],
-		      int result[], int pos, uint16_t sym)
+                      int result[], int pos, uint16_t sym)
 {
     memset(result, 0, sizeof(int) * LINE_SIZE);
     int idx = 0;
     result[idx] = -1;
     for (int i = 0; i < LINE_SIZE; i++) {
-	int p = line[i];
-	if (p == pos) {
-	    continue;
-	}
-	uint16_t s = array->ar[p].symbol;
-	if (ones16(s) == 2 && ones16(s & sym) == 1) {
-	    result[idx++] = p;
-	    result[idx] = -1;
-	}
+        int p = line[i];
+        if (p == pos) {
+            continue;
+        }
+        uint16_t s = array->ar[p].symbol;
+        if (ones16(s) == 2 && ones16(s & sym) == 1) {
+            result[idx++] = p;
+            result[idx] = -1;
+        }
     }
 }
 
@@ -134,41 +138,41 @@ static void search_yz(numpl_array * array, const int line[],
  * @return 候補を消したセルの数
  */
 static int kill_zblock(numpl_array * array, int pos, const int line1[],
-		       const int line2[], uint16_t sym)
+                       const int line2[], uint16_t sym)
 {
     enum LINE_KIND allKind[] = {BLOCK, COL, ROW};
     for (int i = 0; line1[i] >= 0; i++) {
-	int p1 = line1[i];
-	for (int j = 0; line2[j] >= 0; j++) {
-	    int p2 = line2[j];
-	    uint16_t s1 = array->ar[p1].symbol;
-	    uint16_t s2 = array->ar[p2].symbol;
-	    if (ones16(s1 & s2) != 1) {
-		continue;
-	    }
-	    if (ones16(sym | s1 | s2) != 3) {
-		continue;
-	    }
-	    int count = 0;
-	    for (int k = 0; k < 3; k++) {
-		enum LINE_KIND k1 = allKind[k];
-		const int * vl1 = getVL(k1, p1);
-		for (int m = 0; m < 3; m++) {
-		    enum LINE_KIND k2 = allKind[m];
-		    if (k1 == k2) {
-			continue;
-		    }
-		    const int * vl2 = getVL(k2, p2);
-		    if (kill_common(array, pos, p1, p2, vl1, vl2, s1 & s2)
-			> 0) {
-			count++;
-		    }
-		}
-	    }
-	    if (count > 0) {
-		return 1;
-	    }
-	}
+        int p1 = line1[i];
+        for (int j = 0; line2[j] >= 0; j++) {
+            int p2 = line2[j];
+            uint16_t s1 = array->ar[p1].symbol;
+            uint16_t s2 = array->ar[p2].symbol;
+            if (ones16(s1 & s2) != 1) {
+                continue;
+            }
+            if (ones16(sym | s1 | s2) != 3) {
+                continue;
+            }
+            int count = 0;
+            for (int k = 0; k < 3; k++) {
+                enum LINE_KIND k1 = allKind[k];
+                const int * vl1 = getVL(k1, p1);
+                for (int m = 0; m < 3; m++) {
+                    enum LINE_KIND k2 = allKind[m];
+                    if (k1 == k2) {
+                        continue;
+                    }
+                    const int * vl2 = getVL(k2, p2);
+                    if (kill_common(array, pos, p1, p2, vl1, vl2, s1 & s2)
+                        > 0) {
+                        count++;
+                    }
+                }
+            }
+            if (count > 0) {
+                return 1;
+            }
+        }
     }
     return 0;
 }
@@ -204,33 +208,33 @@ static const int * getVL(enum LINE_KIND kind, int pos)
  * @return 数字を消したセルの数
  */
 static int kill_common(numpl_array * array, int pos, int p1, int p2,
-		       const int vl1[], const int vl2[], uint16_t sym)
+                       const int vl1[], const int vl2[], uint16_t sym)
 {
     int common[LINE_SIZE];
     int p = 0;
     common[p] = -1;
     for (int i = 0; i < LINE_SIZE; i++) {
-	if (vl1[i] == pos || vl1[i] == p1 || vl1[i] == p2) {
-	    continue;
-	}
-	for (int j = 0; j < LINE_SIZE; j++) {
+        if (vl1[i] == pos || vl1[i] == p1 || vl1[i] == p2) {
+            continue;
+        }
+        for (int j = 0; j < LINE_SIZE; j++) {
             if (vl2[j] == pos || vl2[j] == p1 || vl2[j] == p2) {
                 continue;
             }
-	    if (vl1[i] == vl2[j]) {
-		common[p++] = vl1[i];
-		common[p] = -1;
-		break;
-	    }
-	}
+            if (vl1[i] == vl2[j]) {
+                common[p++] = vl1[i];
+                common[p] = -1;
+                break;
+            }
+        }
     }
     int count = 0;
     for (int i = 0; i < LINE_SIZE && common[i] >= 0; i++) {
-	int pos = common[i];
-	if ((array->ar[pos].symbol & sym) != 0) {
-	    array->ar[pos].symbol &= ~sym;
-	    count++;
-	}
+        int pos = common[i];
+        if ((array->ar[pos].symbol & sym) != 0) {
+            array->ar[pos].symbol &= ~sym;
+            count++;
+        }
     }
     return count;
 }

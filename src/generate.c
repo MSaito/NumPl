@@ -674,7 +674,9 @@ int generate(numpl_array * array, generate_type * type)
     printf("after random_solve r = %d\n", r);
 #endif
     if (r <= 0) {
-        //printf("#after random_solve r = %d\n", r);
+        if (r < 0) {
+            printf("#after random_solve r = %d\n", r);
+        }
         return r;
     }
     fixed_only(array, FULL_SYMBOL);
@@ -727,8 +729,9 @@ int generate(numpl_array * array, generate_type * type)
     //fixed_only(array, FULL_SYMBOL);
 #endif
     if (r <= 0) {
-        //if (r < 0) {
-        //printf("#after phase3 r = %d\n", r);
+        if (r < 0) {
+            printf("#after phase3 r = %d\n", r);
+        }
         //return r - 1;
         return r;
     }
@@ -922,8 +925,10 @@ int main(int argc, char * argv[])
 #endif
         int r = generate(&work, &g_type);
         if (r < 0) {
-            printf("r = %d\n", r);
-            break;
+            printf("#r = %d\n", r);
+            //break;
+            work = save;
+            continue;
         } else if (r == 0) {
             work = save;
             continue;
