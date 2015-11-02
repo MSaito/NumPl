@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.69])
-AC_INIT([NumberPlaceGenerator], [1.0.1], [saito@manieth.com])
+AC_INIT([NumberPlaceGenerator], [1.1], [saito@manieth.com])
 AC_CONFIG_SRCDIR([src/analyze.c])
 AC_CONFIG_HEADERS([src/config.h])
 AC_CONFIG_MACRO_DIRS([m4])
@@ -39,6 +39,8 @@ AC_TYPE_UINT64_T
 
 # Checks for library functions.
 AC_CHECK_FUNCS([memset strtoul strtoull])
+# Checks for builtin functions.
+AX_GCC_BUILTIN(__builtin_popcount)
 
-AC_CONFIG_FILES([Makefile src/Makefile])
+AC_CONFIG_FILES([Makefile src/Makefile src/6x6/Makefile])
 AC_OUTPUT

@@ -1,4 +1,4 @@
-#include "numpl.h"
+#include "numpl6x6.h"
 #include "common.h"
 #include "constants.h"
 #include "killer.h"
@@ -415,10 +415,12 @@ int generate6x6(numpl_array * array)
     return 0;
 }
 
-#if defined(MAIN)
+
 #include "analyze.h"
 #include <getopt.h>
+#include <errno.h>
 static int verbose = 0;
+static int number = 1;
 static uint32_t seed = 0;
 static int parse_opt(int argc, char * argv[]);
 static int parse_opt(int argc, char * argv[])
@@ -426,6 +428,7 @@ static int parse_opt(int argc, char * argv[])
     static struct option longopts[] = {
         {"seed", required_argument, NULL, 's'},
         {"verbose", no_argument, NULL, 'v'},
+        {"count", required_argument, NULL, 'c'},
         {"hidden", no_argument, NULL, 'h'},
         {NULL, 0, NULL, 0}};
     verbose = 0;
@@ -433,11 +436,12 @@ static int parse_opt(int argc, char * argv[])
     const char * pgm = argv[0];
     int c;
     int error = 0;
+    errno = 0;
     for (;;) {
         if (error) {
             break;
         }
-        c = getopt_long(argc, argv, "hvs:", longopts, NULL);
+        c = getopt_long(argc, argv, "hvltfys:c:", longopts, NULL);
         if (c < 0) {
             break;
         }
@@ -450,6 +454,9 @@ static int parse_opt(int argc, char * argv[])
             break;
         case 'h':
             allow_hidden_single = 1;
+            break;
+        case 'c':
+            number = strtoul(optarg, NULL, 10);
             break;
         case '?':
         default:
@@ -475,7 +482,7 @@ int main(int argc, char * argv[])
     if (r < 0) {
         return r;
     }
-    printf("generate start seed = %u\n", seed);
+    printf("#generate start seed = %u\n", seed);
     xsadd_init(&xsadd, seed);
     numpl_array work;
     numpl_array save;
@@ -486,18 +493,20 @@ int main(int argc, char * argv[])
     output_detail(&work);
     printf("\n");
 #endif
-    for (int i = 0; i < 1000; i++) {
+    int count = 0;
+    while (count < number) {
         int r = generate6x6(&work);
         if (r < 0) {
             work = save;
             continue;
         }
+        count++;
         fixed_only(&work, FULL_SYMBOL);
         solve_info info;
         //solve(&work, &info);
         r = lazy_normalize6x6(&work, &info);
         if (verbose) {
-            printf("number = %d\n", i);
+            printf("number = %d\n", count);
             print_solve_info(&info, 1);
             fixed_only(&work, 0);
             output_detail(&work);
@@ -514,4 +523,4 @@ int main(int argc, char * argv[])
     return 0;
 }
 
-#endif // MAIN
+

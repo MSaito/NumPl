@@ -1,4 +1,4 @@
-#include "numpl.h"
+#include "numpl6x6.h"
 #include "convert.h"
 #include "common.h"
 #include "convert6x6.h"

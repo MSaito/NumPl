@@ -117,7 +117,8 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 subdir = .
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
-am__aclocal_m4_deps = $(top_srcdir)/m4/m4_ax_prog_doxygen.m4 \
+am__aclocal_m4_deps = $(top_srcdir)/m4/m4_ax_gcc_builtin.m4 \
+	$(top_srcdir)/m4/m4_ax_prog_doxygen.m4 \
 	$(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
@@ -236,7 +237,7 @@ AM_DEFAULT_VERBOSITY = 1
 AUTOCONF = ${SHELL} /Users/saito/git/NumPl/missing autoconf
 AUTOHEADER = ${SHELL} /Users/saito/git/NumPl/missing autoheader
 AUTOMAKE = ${SHELL} /Users/saito/git/NumPl/missing automake-1.15
-AWK = awk
+AWK = gawk
 CC = gcc
 CCDEPMODE = depmode=gcc3
 CFLAGS = -g -O2
@@ -252,7 +253,7 @@ DX_DOT =
 DX_DOXYGEN = /opt/local/bin/doxygen
 DX_DVIPS = 
 DX_EGREP = 
-DX_ENV =  SRCDIR='.' PROJECT='NumberPlaceGenerator' DOCDIR='doxygen-doc' VERSION='1.0.1' PERL_PATH='/opt/local/bin/perl' HAVE_DOT='NO' GENERATE_MAN='NO' GENERATE_RTF='NO' GENERATE_XML='NO' GENERATE_HTMLHELP='NO' GENERATE_CHI='NO' GENERATE_HTML='YES' GENERATE_LATEX='NO'
+DX_ENV =  SRCDIR='.' PROJECT='NumberPlaceGenerator' DOCDIR='doxygen-doc' VERSION='1.1' PERL_PATH='/opt/local/bin/perl' HAVE_DOT='NO' GENERATE_MAN='NO' GENERATE_RTF='NO' GENERATE_XML='NO' GENERATE_HTMLHELP='NO' GENERATE_CHI='NO' GENERATE_HTML='YES' GENERATE_LATEX='NO'
 DX_FLAG_chi = 0
 DX_FLAG_chm = 0
 DX_FLAG_doc = 1
@@ -290,15 +291,15 @@ OBJEXT = o
 PACKAGE = numberplacegenerator
 PACKAGE_BUGREPORT = saito@manieth.com
 PACKAGE_NAME = NumberPlaceGenerator
-PACKAGE_STRING = NumberPlaceGenerator 1.0.1
+PACKAGE_STRING = NumberPlaceGenerator 1.1
 PACKAGE_TARNAME = numberplacegenerator
 PACKAGE_URL = 
-PACKAGE_VERSION = 1.0.1
+PACKAGE_VERSION = 1.1
 PATH_SEPARATOR = :
 SET_MAKE = 
 SHELL = /bin/sh
 STRIP = 
-VERSION = 1.0.1
+VERSION = 1.1
 abs_builddir = /Users/saito/git/NumPl
 abs_srcdir = /Users/saito/git/NumPl
 abs_top_builddir = /Users/saito/git/NumPl

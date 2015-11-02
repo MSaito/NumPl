@@ -1,7 +1,7 @@
 #ifndef NORMALIZE6X6_H
 #define NORMALIZE6X6_H
 
-#include "numpl.h"
+#include "numpl6x6.h"
 #include "analyze.h"
 
 #if defined(__cplusplus)

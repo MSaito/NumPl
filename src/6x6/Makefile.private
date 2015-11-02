@@ -2,87 +2,41 @@
 
 #DDEBUG = -O0 -g -ggdb -DDEBUG=1
 #DDEBUG = -DDEBUG=1
-DDEBUG = -O1 -g -ggdb
-SANITIZER = -fsanitize=address -fno-omit-frame-pointer \
--fno-optimize-sibling-calls
+#DDEBUG = -O1 -g -ggdb
+#SANITIZER = -fsanitize=address -fno-omit-frame-pointer \
+#-fno-optimize-sibling-calls
 
 CC = clang -I../ -Wall -O3 -std=c99 -Wmissing-prototypes $(DDEBUG) ${SANITIZER}
-KILLERS = kill_hidden_single.o tuple.o locked_candidate.o fish.o \
-xywing.o kill_single.o
+KILLERS = kill_hidden_single6x6.o tuple6x6.o locked_candidate6x6.o fish6x6.o \
+xywing6x6.o kill_single6x6.o
 
-all: numberplace_analyze6x6 numberplace_generate6x6 numberplace_convert6x6 numberplace_normalize6x6
+all: numberplace_generate6x6 numberplace_convert6x6 numberplace_normalize6x6
 
-numberplace_analyze6x6: ../analyze_main.c ../analyze.c ../numpl.h \
-			solve.o constants6x6.o common.o ${KILLERS}
-	${CC} -DMINI_SUDOKU -o $@ ../analyze_main.c ../analyze.c \
-	solve.o constants6x6.o common.o ${KILLERS}
+numberplace_generate6x6: generate6x6.c ../numpl.h solve6x6.o \
+	common6x6.o xsadd6x6.o constants6x6.o analyze6x6.o normalize6x6.o \
+	convert6x6.o convert_common.o ${KILLERS}
+	${CC} -o $@ generate6x6.c \
+	 solve6x6.o common6x6.o xsadd6x6.o constants6x6.o analyze6x6.o \
+	 normalize6x6.o convert6x6.o convert_common.o ${KILLERS}
 
-numberplace_generate6x6: generate6x6.c ../numpl.h solve.o \
-	common.o ../xsadd.o constants6x6.o analyze.o normalize6x6.o \
-	convert6x6.o convert.o ${KILLERS}
-	${CC} -DMAIN -DMINI_SUDOKU -o $@ generate6x6.c \
-	 solve.o common.o ../xsadd.o constants6x6.o analyze.o \
-	 normalize6x6.o convert6x6.o convert.o ${KILLERS}
+numberplace_convert6x6: convert6x6_main.c ../numpl.h solve6x6.o constants6x6.o \
+	common6x6.o ../xsadd.o  ${KILLERS} convert6x6.o convert_common.o \
+	analyze6x6.o normalize6x6.o
+	${CC} -o $@ convert6x6_main.c convert6x6.o \
+	solve6x6.o \
+	constants6x6.o common6x6.o xsadd6x6.o  ${KILLERS} \
+	convert_common.o analyze6x6.o normalize6x6.o
 
-numberplace_convert6x6: convert6x6.c ../numpl.h solve.o constants6x6.o \
-	common.o ../xsadd.o  ${KILLERS} convert.o \
-	analyze.o normalize6x6.o
-	${CC} -DMAIN -DMINI_SUDOKU -o $@ convert6x6.c solve.o \
-	constants6x6.o common.o ../xsadd.o  ${KILLERS} \
-	convert.o analyze.o normalize6x6.o
-
-numberplace_normalize6x6: normalize6x6.c convert6x6.o ../numpl.h \
-	constants6x6.o \
-	common.o ../xsadd.o solve.o ${KILLERS} convert.o \
-	analyze.o
-	${CC} -DMAIN -DMINI_SUDOKU -o $@ normalize6x6.c convert6x6.o \
-	constants6x6.o common.o ../xsadd.o solve.o ${KILLERS} \
-	convert.o analyze.o
-
-normalize6x6.o: normalize6x6.c normalize6x6.h
-	${CC} -DMINI_SUDOKU -c $<
-
-kill_hidden_single.o: ../kill_hidden_single.c
-	${CC} -DMINI_SUDOKU -c $<
-
-kill_single.o: ../kill_single.c
-	${CC} -DMINI_SUDOKU -c $<
-
-fish.o: ../fish.c
-	${CC} -DMINI_SUDOKU -c $<
-
-xywing.o: ../xywing.c
-	${CC} -DMINI_SUDOKU -c $<
-
-solve.o: ../solve.c
-	${CC} -DMINI_SUDOKU -c $<
-
-tuple.o: ../tuple.c
-	${CC} -DMINI_SUDOKU -c $<
-
-locked_candidate.o: ../locked_candidate.c
-	${CC} -DMINI_SUDOKU -c $<
-
-common.o: ../common.c
-	${CC} -DMINI_SUDOKU -c $<
-
-multi-solve.o: ../multi-solve.c
-	${CC} -DMINI_SUDOKU -c $<
-
-convert.o: ../convert.c
-	${CC} -DMINI_SUDOKU -c $<
-
-convert6x6.o: convert6x6.c
-	${CC} -DMINI_SUDOKU -c $<
-
-analyze.o: ../analyze.c
-	${CC} -DMINI_SUDOKU -c $<
-
-../xsadd.o: ../xsadd.c
-	make -C ../ xsadd.o
+numberplace_normalize6x6: normalize6x6_main.c normalize6x6.o ../numpl.h \
+	constants6x6.o convert6x6.o \
+	common6x6.o xsadd6x6.o solve6x6.o ${KILLERS} convert_common.o \
+	analyze6x6.o
+	${CC} -o $@ normalize6x6_main.c normalize6x6.o convert6x6.o \
+	constants6x6.o common6x6.o xsadd6x6.o solve6x6.o ${KILLERS} \
+	convert_common.o analyze6x6.o
 
 .c.o:
-	${CC} -DMINI_SUDOKU -c $<
+	${CC} -c $<
 
 clean:
 	rm -rf *.o *~ *.dSYM html

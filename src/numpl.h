@@ -1,4 +1,5 @@
 #pragma once
+// -*- coding:utf-8 -*-
 /**
  * @file numpl.h
  * ナンプレ問題作成共通ヘッダファイル
@@ -6,6 +7,7 @@
 #ifndef NUMPL_H
 #define NUMPL_H
 
+#include "config.h"
 #include <stdint.h>
 
 #if defined(__cplusplus)

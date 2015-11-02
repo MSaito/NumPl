@@ -1,5 +1,8 @@
+#pragma once
 #ifndef CONVERT6x6_H
 #define CONVERT6x6_H
+
+#include "numpl6x6.h"
 
 #if defined(__cplusplus)
 extern "C" {

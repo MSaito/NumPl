@@ -1,3 +1,4 @@
+SUBDIRS = 6x6
 bin_PROGRAMS = numberplace_generate numberplace_digging_hole \
 	numberplace_convert numberplace_analyze numberplace_normalize
 numberplace_generate_SOURCES = generate.c normalize.c analyze.c constants.c \
