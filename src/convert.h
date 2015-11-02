@@ -17,6 +17,7 @@ extern "C" {
     void block_reverse(numpl_array * array, int mode);
     void line_change(numpl_array * array, int mode);
     void reverse_change(numpl_array * array, int mode);
+    void random_symbol(numpl_array * array);
 
 #if defined(__cplusplus)
 }

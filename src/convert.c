@@ -15,7 +15,6 @@
 
 static void vl_change(numpl_array * array, const int vl1[], const int vl2[]);
 static uint16_t symbol_change(uint16_t sym, uint16_t symtbl[LINE_SIZE]);
-static void random_symbol(numpl_array * array);
 
 /**
  * Virtual Line 交換
@@ -57,7 +56,7 @@ static uint16_t symbol_change(uint16_t sym, uint16_t symtbl[LINE_SIZE])
  * ランダムに変換テーブルを作り、盤面全体に渡って数字を別の数字に変換する
  * @param array ナンプレ盤面配列
  */
-static void random_symbol(numpl_array * array)
+void random_symbol(numpl_array * array)
 {
     uint16_t rsyms[LINE_SIZE];
     get_random_symbol(rsyms);
@@ -104,6 +103,7 @@ void block_reverse(numpl_array * array, int mode)
     }
 }
 
+#if !defined(MINI_SUDOKU)
 /**
  * 行または列の交換
  * mode 0 列
@@ -121,7 +121,11 @@ void line_change(numpl_array * array, int mode)
         vl_change(array, rows[6], rows[8]);
     }
 }
-
+#else
+void line_change(numpl_array * array, int mode)
+{
+}
+#endif
 /**
  * いくつかの変換を組み合わせて盤面全体を変換する。
  * このとき、X-Wing や Sword Fish などの解法はそのまま適用できるようにする。

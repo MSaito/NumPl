@@ -10,14 +10,14 @@
 #include <inttypes.h>
 
 static int kill_locked_lines(int common_size, const int index1[],
-			     const int index2[], cell_t array[]);
+                             const int index2[], cell_t array[]);
 static void search_common(int idx[], const int max, const int index1[],
-			  const int index2[]);
+                          const int index2[]);
 static int count_diff(uint16_t mask, const int idx[], int common_size,
-		      const int index[], cell_t array[]);
+                      const int index[], cell_t array[]);
 static int is_in(const int idx[], int common_size, int num);
 static int kill_diff(uint16_t mask, const int common[], int common_size,
-		     const int index[], cell_t array[]);
+                     const int index[], cell_t array[]);
 
 /**
  * Locked Candidate メイン関数
@@ -28,20 +28,20 @@ int kill_locked_candidate(numpl_array * array)
 {
     int count = 0;
     for (int i = 0; i < LINE_SIZE; i++) {
-	for (int j = 0; j < BLOCK_ROWS; j++) {
-	    count = kill_locked_lines(BLOCK_ROWS, blocks[i],
-				      rows[locked_rows[i][j]], array->ar);
-	    if (count > 0) {
-		return 1;
-	    }
-	}
-	for (int j = 0; j < BLOCK_COLS; j++) {
-	    count = kill_locked_lines(BLOCK_COLS, blocks[i],
-				       cols[locked_cols[i][j]], array->ar);
-	    if (count > 0) {
-		return 1;
-	    }
-	}
+        for (int j = 0; j < BLOCK_ROWS; j++) {
+            count = kill_locked_lines(BLOCK_ROWS, blocks[i],
+                                      rows[locked_rows[i][j]], array->ar);
+            if (count > 0) {
+                return 1;
+            }
+        }
+        for (int j = 0; j < BLOCK_COLS; j++) {
+            count = kill_locked_lines(BLOCK_COLS, blocks[i],
+                                       cols[locked_cols[i][j]], array->ar);
+            if (count > 0) {
+                return 1;
+            }
+        }
     }
     return count;
 }
@@ -56,22 +56,22 @@ int analyze_locked_candidate(numpl_array * array, solve_info * info)
 {
     int count = 0;
     for (int i = 0; i < LINE_SIZE; i++) {
-	for (int j = 0; j < BLOCK_ROWS; j++) {
-	    count = kill_locked_lines(BLOCK_ROWS, blocks[i],
-				      rows[locked_rows[i][j]], array->ar);
-	    if (count > 0) {
-		info->kl_count++;
-		return 1;
-	    }
-	}
-	for (int j = 0; j < BLOCK_COLS; j++) {
-	    count = kill_locked_lines(BLOCK_COLS, blocks[i],
-				       cols[locked_cols[i][j]], array->ar);
-	    if (count > 0) {
-		info->kl_count++;
-		return 1;
-	    }
-	}
+        for (int j = 0; j < BLOCK_ROWS; j++) {
+            count = kill_locked_lines(BLOCK_ROWS, blocks[i],
+                                      rows[locked_rows[i][j]], array->ar);
+            if (count > 0) {
+                info->kl_count++;
+                return 1;
+            }
+        }
+        for (int j = 0; j < BLOCK_COLS; j++) {
+            count = kill_locked_lines(BLOCK_COLS, blocks[i],
+                                       cols[locked_cols[i][j]], array->ar);
+            if (count > 0) {
+                info->kl_count++;
+                return 1;
+            }
+        }
     }
     return 0;
 }
@@ -85,39 +85,42 @@ int analyze_locked_candidate(numpl_array * array, solve_info * info)
  * @return 数字を消したマスの数
  */
 static int kill_locked_lines(int common_size, const int index1[],
-			     const int index2[], cell_t array[])
+                             const int index2[], cell_t array[])
 {
     int result = 0;
     int common[common_size];
     search_common(common, common_size, index1, index2);
     if (common[0] == -1) {
-	return 0;
+        return 0;
     }
     for (uint16_t mask = 1; mask <= 0x100; mask = mask << 1) {
-	int count = 0;
-	// 共通部分に数字があるか
-	for (int i = 0; i < common_size; i++) {
-	    if (array[common[i]].symbol & mask) {
-		count++;
-	    }
-	}
-	if (count) {
-	    // 他の部分に数字があるか
-	    int diff = count_diff(mask, common, common_size, index1, array);
-	    if (diff == 0) {
-		result = kill_diff(mask, common, common_size, index2, array);
-		if (result > 0) {
-		    return 1;
-		}
-	    }
-	    diff = count_diff(mask, common, common_size, index2, array);
-	    if (diff == 0) {
-		result = kill_diff(mask, common, common_size, index1, array);
-		if (result > 0) {
-		    return 1;
-		}
-	    }
-	}
+        int count = 0;
+        // 共通部分に数字があるか
+        for (int i = 0; i < common_size; i++) {
+            if (common[i] < 0) {
+                break;
+            }
+            if (array[common[i]].symbol & mask) {
+                count++;
+            }
+        }
+        if (count) {
+            // 他の部分に数字があるか
+            int diff = count_diff(mask, common, common_size, index1, array);
+            if (diff == 0) {
+                result = kill_diff(mask, common, common_size, index2, array);
+                if (result > 0) {
+                    return 1;
+                }
+            }
+            diff = count_diff(mask, common, common_size, index2, array);
+            if (diff == 0) {
+                result = kill_diff(mask, common, common_size, index1, array);
+                if (result > 0) {
+                    return 1;
+                }
+            }
+        }
     }
     return 0;
 }
@@ -130,18 +133,21 @@ static int kill_locked_lines(int common_size, const int index1[],
  * @param index2 仮想行2
  */
 static void search_common(int idx[], int common_size, const int index1[],
-			  const int index2[])
+                          const int index2[])
 {
     int p = 0;
     for (int i = 0; i < common_size; i++) {
-	idx[i] = -1;
+        idx[i] = -1;
     }
     for (int i = 0; i < LINE_SIZE; i++) {
-	for (int j = 0; j < LINE_SIZE; j++) {
-	    if (index1[i] == index2[j]) {
-		idx[p++] = index1[i];
-	    }
-	}
+        for (int j = 0; j < LINE_SIZE; j++) {
+            if (index1[i] == index2[j]) {
+                if (p >= common_size) {
+                    return;
+                }
+                idx[p++] = index1[i];
+            }
+        }
     }
 }
 
@@ -155,9 +161,9 @@ static void search_common(int idx[], int common_size, const int index1[],
 static int is_in(const int idx[], int size, int num)
 {
     for (int i = 0; i < size; i++) {
-	if (idx[i] == num) {
-	    return 1;
-	}
+        if (idx[i] == num) {
+            return 1;
+        }
     }
     return 0;
 }
@@ -172,16 +178,16 @@ static int is_in(const int idx[], int size, int num)
  * @return idx になくてindexにある数字の個数
  */
 static int count_diff(uint16_t mask, const int idx[], int size,
-		      const int index[], cell_t array[])
+                      const int index[], cell_t array[])
 {
     int count = 0;
     for (int i = 0; i < LINE_SIZE; i++) {
-	if (is_in(idx, size, index[i])) {
-	    continue;
-	}
-	if (array[index[i]].symbol & mask) {
-	    count++;
-	}
+        if (is_in(idx, size, index[i])) {
+            continue;
+        }
+        if (array[index[i]].symbol & mask) {
+            count++;
+        }
     }
     return count;
 }
@@ -196,17 +202,17 @@ static int count_diff(uint16_t mask, const int idx[], int size,
  * @return 数字を消したマスの数
  */
 static int kill_diff(uint16_t mask, const int common[],
-		     int size, const int index[], cell_t array[]) {
+                     int size, const int index[], cell_t array[]) {
     uint16_t kill_mask = (~mask) & FULL_SYMBOL;
     int count = 0;
     for (int i = 0; i < LINE_SIZE; i++) {
-	if (is_in(common, size, index[i])) {
-	    continue;
-	}
-	if (array[index[i]].symbol & mask) {
-	    array[index[i]].symbol &= kill_mask;
-	    count++;
-	}
+        if (is_in(common, size, index[i])) {
+            continue;
+        }
+        if (array[index[i]].symbol & mask) {
+            array[index[i]].symbol &= kill_mask;
+            count++;
+        }
     }
     return count;
 }

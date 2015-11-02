@@ -23,9 +23,9 @@ int count_fixed(const numpl_array *array)
 {
     int count = 0;
     for (int i = 0; i < ARRAY_SIZE; i++) {
-	if (array->ar[i].fixed) {
-	    count++;
-	}
+        if (array->ar[i].fixed) {
+            count++;
+        }
     }
     return count;
 }
@@ -41,17 +41,17 @@ void fixed_only(numpl_array * array, uint16_t full)
 {
     int count = 0;
     for (int i = 0; i < ARRAY_SIZE; i++) {
-	if (!array->ar[i].fixed) {
-	    reset_single_flag(array->ar[i]);
-	    array->ar[i].symbol = full;
-	    reset_single_flag(array->ar[i]);
-	} else {
-	    set_single_flag(array->ar[i]);
-	    count++;
-	}
+        if (!array->ar[i].fixed) {
+            reset_single_flag(array->ar[i]);
+            array->ar[i].symbol = full;
+            reset_single_flag(array->ar[i]);
+        } else {
+            set_single_flag(array->ar[i]);
+            count++;
+        }
     }
     if (count == 0) {
-	printf("fixed_only no fixed point\n");
+        printf("fixed_only no fixed point\n");
     }
 }
 
@@ -67,28 +67,28 @@ int input(numpl_array * array, char * text)
 {
     int p = 0;
     for (int i = 0; text[i] != '\0' && p < ARRAY_SIZE; i++) {
-	char c = text[i];
-	if (c == ' ') {
-	    array->ar[p].symbol = FULL_SYMBOL;
-	    //array->ar[p].single = 0;
-	    array->ar[p].fixed = 0;
-	    p++;
-	} else if (isdigit(c)) {
-	    int sh = c - '1';
-	    array->ar[p].symbol = 1 << sh;
-	    //array->ar[p].single = 1;
-	    array->ar[p].fixed = 1;
-	    set_single_flag(array->ar[i]);
-	    p++;
-	} else {
-	    continue;
-	}
+        char c = text[i];
+        if (c == ' ') {
+            array->ar[p].symbol = FULL_SYMBOL;
+            //array->ar[p].single = 0;
+            array->ar[p].fixed = 0;
+            p++;
+        } else if (isdigit(c)) {
+            int sh = c - '1';
+            array->ar[p].symbol = 1 << sh;
+            //array->ar[p].single = 1;
+            array->ar[p].fixed = 1;
+            set_single_flag(array->ar[i]);
+            p++;
+        } else {
+            continue;
+        }
     }
     if (p != ARRAY_SIZE) {
-	printf("counter = %d\n", p);
-	return -1;
+        printf("counter = %d\n", p);
+        return -1;
     } else {
-	return 0;
+        return 0;
     }
 }
 
@@ -102,22 +102,22 @@ void print_array(numpl_array * array)
 {
     printf("\"");
     for (int i = 0; i < ARRAY_SIZE; i++) {
-	cell_t sym = array->ar[i];
-	if (sym.fixed) {
-	    uint16_t mask = 1;
-	    for (int j = 1; j <= LINE_SIZE; j++) {
-		if (mask & sym.symbol) {
-		    printf("%d", j);
-		    break;
-		}
-		mask = mask << 1;
-	    }
-	    if (mask > FULL_SYMBOL) {
-		printf("?");
-	    }
-	} else {
-	    printf(" ");
-	}
+        cell_t sym = array->ar[i];
+        if (sym.fixed) {
+            uint16_t mask = 1;
+            for (int j = 1; j <= LINE_SIZE; j++) {
+                if (mask & sym.symbol) {
+                    printf("%d", j);
+                    break;
+                }
+                mask = mask << 1;
+            }
+            if (mask > FULL_SYMBOL) {
+                printf("?");
+            }
+        } else {
+            printf(" ");
+        }
     }
     printf("\"");
 }
@@ -134,19 +134,19 @@ void read_mondai(char mondai[], FILE * fp)
     char line[100];
     int p = 0;
     while (!feof(fp)) {
-	memset(line, 0, 100);
-	fgets(line, 100, fp);
-	int len = strlen(line);
-	if (line[len - 1] == '\n') {
-	    line[len - 1] = '\0';
-	    len--;
-	}
-	if (len < LINE_SIZE) {
-	    strcat(line, "         ");
-	}
-	strncpy(&mondai[p], line, LINE_SIZE);
-	p += LINE_SIZE;
-	mondai[p] = '\0';
+        memset(line, 0, 100);
+        fgets(line, 100, fp);
+        int len = strlen(line);
+        if (line[len - 1] == '\n') {
+            line[len - 1] = '\0';
+            len--;
+        }
+        if (len < LINE_SIZE) {
+            strcat(line, "         ");
+        }
+        strncpy(&mondai[p], line, LINE_SIZE);
+        p += LINE_SIZE;
+        mondai[p] = '\0';
     }
 }
 
@@ -168,14 +168,14 @@ void get_random_symbol(uint16_t symbols[LINE_SIZE])
 {
     uint16_t mask = 1;
     for (int i = 0; i < LINE_SIZE; i++) {
-	symbols[i] = mask;
-	mask = mask << 1;
+        symbols[i] = mask;
+        mask = mask << 1;
     }
     for (int i = 0; i < LINE_SIZE; i++) {
-	int r = get_random(LINE_SIZE);
-	uint16_t tmp = symbols[i];
-	symbols[i] = symbols[r];
-	symbols[r] = tmp;
+        int r = get_random(LINE_SIZE);
+        uint16_t tmp = symbols[i];
+        symbols[i] = symbols[r];
+        symbols[r] = tmp;
     }
 
 }
@@ -197,13 +197,13 @@ void get_random_number(uint16_t numbers[LINE_SIZE])
 void get_random_number_size(uint16_t numbers[], int size)
 {
     for (int i = 0; i < size; i++) {
-	numbers[i] = i;
+        numbers[i] = i;
     }
     for (int i = 0; i < size; i++) {
-	int r = get_random(size);
-	uint16_t tmp = numbers[i];
-	numbers[i] = numbers[r];
-	numbers[r] = tmp;
+        int r = get_random(size);
+        uint16_t tmp = numbers[i];
+        numbers[i] = numbers[r];
+        numbers[r] = tmp;
     }
 
 }
@@ -217,10 +217,10 @@ void get_random_number_size(uint16_t numbers[], int size)
 void shuffle_int(int array[], int size)
 {
     for (int i = 0; i < size; i++) {
-	int r = get_random(size);
-	int tmp = array[i];
-	array[i] = array[r];
-	array[r] = tmp;
+        int r = get_random(size);
+        int tmp = array[i];
+        array[i] = array[r];
+        array[r] = tmp;
     }
 }
 
@@ -232,19 +232,19 @@ void shuffle_int(int array[], int size)
 uint16_t random_one_symbol(uint16_t symbols)
 {
     if (symbols == 0) {
-	return 0;
+        return 0;
     }
     uint16_t size = ones16(FULL_SYMBOL);
     int pos = get_random(size);
     int count = 0;
     for (int i = 0; i < size; i++) {
-	uint16_t mask = 1 << i;
-	if (count == pos) {
-	    return mask;
-	}
-	if (mask & symbols) {
-	    count++;
-	}
+        uint16_t mask = 1 << i;
+        if (count == pos) {
+            return mask;
+        }
+        if (mask & symbols) {
+            count++;
+        }
     }
     return 0;
 }
@@ -261,14 +261,14 @@ uint16_t random_one_symbol(uint16_t symbols)
 int get_counter_pos(int pos, int mode)
 {
     if (mode == 2) {
-	return ARRAY_SIZE - 1 - pos;
+        return ARRAY_SIZE - 1 - pos;
     }
     int r = torow(pos);
     int c = tocol(pos);
     if (mode == 0) {
-	return rows[r][LINE_SIZE - 1 - c];
+        return rows[r][LINE_SIZE - 1 - c];
     } else {
-	return cols[c][LINE_SIZE - 1 - r];
+        return cols[c][LINE_SIZE - 1 - r];
     }
 }
 
@@ -280,8 +280,8 @@ int get_counter_pos(int pos, int mode)
 void fill_array(numpl_array * array, uint16_t full)
 {
     for (int i = 0; i < ARRAY_SIZE; i++) {
-	array->ar[i].symbol = full;
-	array->ar[i].fixed = 0;
-	reset_single_flag(array->ar[i]);
+        array->ar[i].symbol = full;
+        array->ar[i].fixed = 0;
+        reset_single_flag(array->ar[i]);
     }
 }
