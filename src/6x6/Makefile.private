@@ -5,6 +5,7 @@
 #DDEBUG = -O1 -g -ggdb
 #SANITIZER = -fsanitize=address -fno-omit-frame-pointer \
 #-fno-optimize-sibling-calls
+#SANITIZER = -fsanitize=undefined
 
 CC = clang -I../ -Wall -O3 -std=c99 -Wmissing-prototypes $(DDEBUG) ${SANITIZER}
 KILLERS = kill_hidden_single6x6.o tuple6x6.o locked_candidate6x6.o fish6x6.o \
