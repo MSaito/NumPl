@@ -10,6 +10,7 @@
 #include <stdio.h>
 #include <limits.h>
 #include <string.h>
+#include <float.h>
 
 static int get_normalize_value(numpl_array * array);
 static void normalize_symbol(numpl_array * array);
@@ -62,18 +63,20 @@ static void normalize_symbol(numpl_array * array)
 
 int lazy_normalize6x6(numpl_array * array, solve_info * info)
 {
+    fixed_only(array, FULL_SYMBOL);
     numpl_array best_array = *array;
     numpl_array save = *array;
     int best_value = get_normalize_value(array);
     numpl_array tmp = *array;
-    double worst_info_value = analyze(&tmp, info);
+    double worst_info_value = DBL_MAX;
     solve_info worst_info = *info;
     double a;
     int v;
     int changed = 0;
 #if defined(DEBUG)
     printf("worst_info_value = %f\n", worst_info_value);
-    print_info_info(info);
+    print_solve_info(info, 0);
+    printf("\n");
 #endif
     for (int i = 1; i < 2047; i++) {
         for (int j = 0; j < 3; j++) {
@@ -88,6 +91,7 @@ int lazy_normalize6x6(numpl_array * array, solve_info * info)
         line_change6x6(array, mode);
         v = get_normalize_value(array);
         tmp = *array;
+        fixed_only(&tmp, FULL_SYMBOL);
         a = analyze(&tmp, info);
         if (v > best_value) {
             best_array = *array;
@@ -102,6 +106,12 @@ int lazy_normalize6x6(numpl_array * array, solve_info * info)
         if (a < worst_info_value) {
             worst_info = *info;
             worst_info_value = a;
+#if defined(DEBUG)
+            printf("worst_info_value = %f\n", worst_info_value);
+            print_solve_info(info, 0);
+            print_array(&tmp);
+            printf("\n");
+#endif
         }
     }
     *array = best_array;
@@ -111,7 +121,6 @@ int lazy_normalize6x6(numpl_array * array, solve_info * info)
 }
 
 #if defined(MAIN)
-#include "analyze.h"
 #include <getopt.h>
 static int verbose = 0;
 static uint32_t seed = 0;

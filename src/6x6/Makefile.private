@@ -17,8 +17,8 @@ numberplace_generate6x6: generate6x6.c ../numpl.h solve6x6.o \
 	common6x6.o xsadd6x6.o constants6x6.o analyze6x6.o normalize6x6.o \
 	convert6x6.o convert_common.o ${KILLERS}
 	${CC} -o $@ generate6x6.c \
-	 solve6x6.o common6x6.o xsadd6x6.o constants6x6.o analyze6x6.o \
-	 normalize6x6.o convert6x6.o convert_common.o ${KILLERS}
+	solve6x6.o common6x6.o xsadd6x6.o constants6x6.o analyze6x6.o \
+	normalize6x6.o convert6x6.o convert_common.o ${KILLERS}
 
 numberplace_convert6x6: convert6x6_main.c ../numpl.h solve6x6.o constants6x6.o \
 	common6x6.o ../xsadd.o  ${KILLERS} convert6x6.o convert_common.o \
@@ -35,6 +35,13 @@ numberplace_normalize6x6: normalize6x6_main.c normalize6x6.o ../numpl.h \
 	${CC} -o $@ normalize6x6_main.c normalize6x6.o convert6x6.o \
 	constants6x6.o common6x6.o xsadd6x6.o solve6x6.o ${KILLERS} \
 	convert_common.o analyze6x6.o
+
+numberplace_analyze6x6: analyze6x6_main.c ../numpl.h \
+	constants6x6.o common6x6.o xsadd6x6.o solve6x6.o ${KILLERS} \
+	analyze6x6.o
+	${CC} -o $@ analyze6x6_main.c \
+	constants6x6.o common6x6.o xsadd6x6.o solve6x6.o ${KILLERS} \
+	analyze6x6.o
 
 .c.o:
 	${CC} -c $<

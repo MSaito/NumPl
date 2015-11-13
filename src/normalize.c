@@ -15,6 +15,7 @@
 #include <stdio.h>
 #include <limits.h>
 #include <string.h>
+#include <float.h>
 
 static uint64_t get_normalize_value(numpl_array * array);
 static void normalize_symbol(numpl_array * array);
@@ -93,7 +94,7 @@ int lazy_normalize(numpl_array * array, solve_info * info)
     numpl_array save = *array;
     int best_value = get_normalize_value(array);
     numpl_array tmp = *array;
-    double worst_info_value = analyze(&tmp, info);
+    double worst_info_value = DBL_MAX;
     solve_info worst_info = *info;
     double a;
     int v;
@@ -118,6 +119,7 @@ int lazy_normalize(numpl_array * array, solve_info * info)
         }
         v = get_normalize_value(array);
         tmp = *array;
+        fixed_only(&tmp, FULL_SYMBOL);
         a = analyze(&tmp, info);
         if (v > best_value) {
             best_array = *array;
