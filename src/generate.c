@@ -75,10 +75,10 @@ static int tuple_vl(numpl_array * array,
             continue;
         }
         array->ar[idx1].fixed = fixed;
-        set_single_flag(array->ar[idx1]);
+        set_single_flag(&array->ar[idx1]);
         array->ar[idx1].symbol &= syms1;
         array->ar[idx2].fixed = fixed;
-        set_single_flag(array->ar[idx2]);
+        set_single_flag(&array->ar[idx2]);
         array->ar[idx2].symbol &= syms2;
         count--;
     }
@@ -340,7 +340,7 @@ static void copy_blocks(numpl_array * dist,
         int idx = blocks[blono][i];
         dist->ar[idx].symbol = source->ar[idx].symbol;
         dist->ar[idx].fixed = 1;
-        set_single_flag(dist->ar[idx]);
+        set_single_flag(&dist->ar[idx]);
     }
 }
 
@@ -395,13 +395,13 @@ static int phase2sub(numpl_array * array, int size1, const int blono[],
             }
             int idx2 = get_counter(idx);
             array->ar[idx].symbol = FULL_SYMBOL;
-            reset_single_flag(array->ar[idx]);
+            reset_single_flag(&array->ar[idx]);
             array->ar[idx].fixed = 0;
-            reset_single_flag(array->ar[idx]);
+            reset_single_flag(&array->ar[idx]);
             array->ar[idx2].symbol = FULL_SYMBOL;
-            reset_single_flag(array->ar[idx2]);
+            reset_single_flag(&array->ar[idx2]);
             array->ar[idx2].fixed = 0;
-            reset_single_flag(array->ar[idx2]);
+            reset_single_flag(&array->ar[idx2]);
         }
     }
     // solve してみる 解けなければあきらめる
@@ -447,10 +447,10 @@ static int phase2sub(numpl_array * array, int size1, const int blono[],
                     int idx2 = get_counter(idx1);
                     array->ar[idx1].symbol = FULL_SYMBOL;
                     array->ar[idx1].fixed = 0;
-                    reset_single_flag(array->ar[idx1]);
+                    reset_single_flag(&array->ar[idx1]);
                     array->ar[idx2].symbol = FULL_SYMBOL;
                     array->ar[idx2].fixed = 0;
-                    reset_single_flag(array->ar[idx2]);
+                    reset_single_flag(&array->ar[idx2]);
 #if defined(DEBUG)
                     printf("idx1, idx2 = %d,%d\n", idx1, idx2);
 #endif
@@ -532,10 +532,10 @@ static int p3(numpl_array * array, int start, generate_type * type)
         int idx1 = i;
         int idx2 = get_counter(idx1);
         array->ar[idx1].fixed = 0;
-        reset_single_flag(array->ar[idx1]);
+        reset_single_flag(&array->ar[idx1]);
         array->ar[idx1].symbol = FULL_SYMBOL;
         array->ar[idx2].fixed = 0;
-        reset_single_flag(array->ar[idx2]);
+        reset_single_flag(&array->ar[idx2]);
         array->ar[idx2].symbol = FULL_SYMBOL;
         r = p3(array, i + 1, type);
         if (r > max) {
@@ -567,10 +567,10 @@ static int phase4(numpl_array * array)
         int idx1 = i;
         int idx2 = get_counter(idx1);
         array->ar[idx1].fixed = 0;
-        reset_single_flag(array->ar[idx1]);
+        reset_single_flag(&array->ar[idx1]);
         array->ar[idx1].symbol = FULL_SYMBOL;
         array->ar[idx2].fixed = 0;
-        reset_single_flag(array->ar[idx2]);
+        reset_single_flag(&array->ar[idx2]);
         array->ar[idx2].symbol = FULL_SYMBOL;
         int r = solve(array, &info);
         if (r <= 0) {
@@ -600,7 +600,7 @@ static int phase5(numpl_array * array)
         }
         int idx1 = i;
         array->ar[idx1].fixed = 0;
-        reset_single_flag(array->ar[idx1]);
+        reset_single_flag(&array->ar[idx1]);
         array->ar[idx1].symbol = FULL_SYMBOL;
         int r = solve(array, &info);
         if (r <= 0) {

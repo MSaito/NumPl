@@ -69,10 +69,10 @@ extern "C" {
      * シングルフラグをセットする
      * @param cell ナンプレのマス
      */
-    static inline void set_single_flag(cell_t cell)
+    static inline void set_single_flag(cell_t *cell)
     {
 #if defined(SINGLE_FLAG)
-        cell.single = 1;
+        cell->single = 1;
 #endif
     }
 
@@ -80,10 +80,10 @@ extern "C" {
      * シングルフラグをリセットする
      * @param cell ナンプレのマス
      */
-    static inline void reset_single_flag(cell_t cell)
+    static inline void reset_single_flag(cell_t *cell)
     {
 #if defined(SINGLE_FLAG)
-        cell.single = 0;
+        cell->single = 0;
 #endif
     }
 

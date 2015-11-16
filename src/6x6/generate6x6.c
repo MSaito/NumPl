@@ -57,10 +57,10 @@ static int tuple_vl(numpl_array * array,
             continue;
         }
         array->ar[idx1].fixed = fixed;
-        reset_single_flag(array->ar[idx1]);
+        reset_single_flag(&array->ar[idx1]);
         array->ar[idx1].symbol &= syms1;
         array->ar[idx2].fixed = fixed;
-        reset_single_flag(array->ar[idx2]);
+        reset_single_flag(&array->ar[idx2]);
         array->ar[idx2].symbol &= syms2;
         count--;
     }
@@ -175,10 +175,10 @@ static int phase2(numpl_array * array)
             }
             int idx2 = get_counter(idx);
             array->ar[idx].symbol = FULL_SYMBOL;
-            reset_single_flag(array->ar[idx]);
+            reset_single_flag(&array->ar[idx]);
             array->ar[idx].fixed = 0;
             array->ar[idx2].symbol = FULL_SYMBOL;
-            reset_single_flag(array->ar[idx2]);
+            reset_single_flag(&array->ar[idx2]);
             array->ar[idx2].fixed = 0;
         }
     }
@@ -217,18 +217,29 @@ static int p3(numpl_array * array, uint16_t index_array[], int start)
     fixed_only(array, FULL_SYMBOL);
     int r = solve(array, &info);
     if (r <= 0) {
+#if defined(DEBUG)
+        printf("out phase3 r = %d\n", r);
+#endif
         return r;
     }
     if (allow_hidden_single) {
         if (info.kh_count > 0) {
-            return info.kh_count
+            r = info.kh_count
                 + info.kl_count * 10
                 + info.kt_count * 100
                 + info.sf_count * 1000;
+#if defined(DEBUG)
+            printf("out phase3 r = %d\n", r);
+#endif
+            return r;
         }
     } else {
         if (info.kt_count > 0 || info.kl_count > 0) {
-            return info.kl_count + info.kt_count * 10 + info.sf_count * 100;
+            r = info.kl_count + info.kt_count * 10 + info.sf_count * 100;
+#if defined(DEBUG)
+            printf("out phase3 r = %d\n", r);
+#endif
+            return r;
         }
     }
     save = *array;
@@ -240,7 +251,7 @@ static int p3(numpl_array * array, uint16_t index_array[], int start)
             continue;
         }
         array->ar[idx1].fixed = 0;
-        reset_single_flag(array->ar[idx1]);
+        reset_single_flag(&array->ar[idx1]);
         array->ar[idx1].symbol = FULL_SYMBOL;
         r = p3(array, index_array, i + 1);
         if (r > max) {
@@ -253,6 +264,9 @@ static int p3(numpl_array * array, uint16_t index_array[], int start)
         *array = best;
         return max;
     }
+#if defined(DEBUG)
+    printf("out phase3 r = %d\n", 0);
+#endif
     return 0;
 }
 
@@ -271,7 +285,7 @@ static int phase5(numpl_array * array)
         }
         int idx1 = i;
         array->ar[idx1].fixed = 0;
-        reset_single_flag(array->ar[idx1]);
+        reset_single_flag(&array->ar[idx1]);
         array->ar[idx1].symbol = FULL_SYMBOL;
         int r = solve(array, &info);
         if (r <= 0) {
@@ -333,6 +347,7 @@ int generate6x6(numpl_array * array)
     }
 #if defined(DEBUG)
     printf("after random_solve r = %d\n", r);
+    output_detail(array);
 #endif
     if (r <= 0) {
         //printf("#after random_solve r = %d\n", r);
@@ -483,6 +498,9 @@ int main(int argc, char * argv[])
         return r;
     }
     printf("#generate start seed = %u\n", seed);
+#if defined(DEBUG)
+    printf("allow_hidden_single = %d\n", allow_hidden_single);
+#endif
     xsadd_init(&xsadd, seed);
     numpl_array work;
     numpl_array save;

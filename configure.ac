@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.69])
-AC_INIT([NumberPlaceGenerator], [1.1], [saito@manieth.com])
+AC_INIT([NumberPlaceGenerator], [1.1.1], [saito@manieth.com])
 AC_CONFIG_SRCDIR([src/analyze.c])
 AC_CONFIG_HEADERS([src/config.h])
 AC_CONFIG_MACRO_DIRS([m4])

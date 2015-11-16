@@ -22,18 +22,18 @@ int kill_single(numpl_array * array)
 {
     int result = check_array(array);
     if (result < 0) {
-	return result;
+        return result;
     }
     result = 0;
     for (int i = 0; i < LINE_KINDS; i++) {
-	for (int j = 0; j < LINE_SIZE; j++) {
-	    int r = kill_line(all_lines[i][j], array->ar);
-	    if (r < 0) {
-		return r;
-	    } else if (r > 0) {
-		result++;
-	    }
-	}
+        for (int j = 0; j < LINE_SIZE; j++) {
+            int r = kill_line(all_lines[i][j], array->ar);
+            if (r < 0) {
+                return r;
+            } else if (r > 0) {
+                result++;
+            }
+        }
     }
     return result;
 }
@@ -49,31 +49,31 @@ int analyze_single(numpl_array * array, solve_info * info)
 {
     int r = check_array(array);
     if (r < 0) {
-	return r;
+        return r;
     }
     int changed = 1;
     int result = 0;
     while (changed) {
-	r = check_array(array);
-	if (r < 0) {
-	    return r;
-	}
-	changed = 0;
-	for (int i = 0; i < LINE_KINDS; i++) {
-	    for (int j = 0; j < LINE_SIZE; j++) {
-		r = kill_line(all_lines[i][j], array->ar);
-		if (r < 0) {
-		    return r;
-		} else if (r > 0) {
-		    changed = 1;
-		    info->ks_count++;
-		    result++;
-		}
-	    }
-	}
+        r = check_array(array);
+        if (r < 0) {
+            return r;
+        }
+        changed = 0;
+        for (int i = 0; i < LINE_KINDS; i++) {
+            for (int j = 0; j < LINE_SIZE; j++) {
+                r = kill_line(all_lines[i][j], array->ar);
+                if (r < 0) {
+                    return r;
+                } else if (r > 0) {
+                    changed = 1;
+                    info->ks_count++;
+                    result++;
+                }
+            }
+        }
     }
     if (is_solved(array)) {
-	info->solved = 1;
+        info->solved = 1;
     }
 #if defined(DEBUG)
     printf("analyze_single finish info:");
@@ -94,25 +94,25 @@ static int kill_line(const int line[], cell_t * ar)
     int count = 0;
     uint16_t syms = 0;
     for (int i = 0; i < LINE_SIZE; i++) {
-	int idx = line[i];
-	if (ones16(ar[idx].symbol) == 1) {
-	    syms |= ar[idx].symbol;
-	    count++;
-	}
+        int idx = line[i];
+        if (ones16(ar[idx].symbol) == 1) {
+            syms |= ar[idx].symbol;
+            count++;
+        }
     }
     if (count != ones16(syms)) {
-	return -1;
+        return -1;
     }
     count = 0;
     for (int i = 0; i < LINE_SIZE; i++) {
-	int idx = line[i];
-	if (ones16(ar[idx].symbol) == 1) {
-	    continue;
-	}
-	if (ar[idx].symbol & syms) {
-	    ar[idx].symbol &= ~syms;
-	    count++;
-	}
+        int idx = line[i];
+        if (ones16(ar[idx].symbol) == 1) {
+            continue;
+        }
+        if (ar[idx].symbol & syms) {
+            ar[idx].symbol &= ~syms;
+            count++;
+        }
     }
     return count;
 }
@@ -127,13 +127,13 @@ static int check_array(numpl_array * array)
 {
     cell_t *ar = array->ar;
     for (int i = 0; i < ARRAY_SIZE; i++) {
-	if (ar[i].symbol == 0) {
-	    return -1;
-	}
+        if (ar[i].symbol == 0) {
+            return -1;
+        }
 #if defined(SINGLE_FLAG)
-	if (ones16(ar[i].symbol) == 1) {
-	    set_single_flag(ar[i]);
-	}
+        if (ones16(ar[i].symbol) == 1) {
+            set_single_flag(&ar[i]);
+        }
 #endif
     }
     return 0;

@@ -42,11 +42,11 @@ void fixed_only(numpl_array * array, uint16_t full)
     int count = 0;
     for (int i = 0; i < ARRAY_SIZE; i++) {
         if (!array->ar[i].fixed) {
-            reset_single_flag(array->ar[i]);
+            reset_single_flag(&array->ar[i]);
             array->ar[i].symbol = full;
-            reset_single_flag(array->ar[i]);
+            reset_single_flag(&array->ar[i]);
         } else {
-            set_single_flag(array->ar[i]);
+            set_single_flag(&array->ar[i]);
             count++;
         }
     }
@@ -78,7 +78,7 @@ int input(numpl_array * array, char * text)
             array->ar[p].symbol = 1 << sh;
             //array->ar[p].single = 1;
             array->ar[p].fixed = 1;
-            set_single_flag(array->ar[i]);
+            set_single_flag(&array->ar[i]);
             p++;
         } else {
             continue;
@@ -282,6 +282,6 @@ void fill_array(numpl_array * array, uint16_t full)
     for (int i = 0; i < ARRAY_SIZE; i++) {
         array->ar[i].symbol = full;
         array->ar[i].fixed = 0;
-        reset_single_flag(array->ar[i]);
+        reset_single_flag(&array->ar[i]);
     }
 }
