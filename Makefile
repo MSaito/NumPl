@@ -253,7 +253,7 @@ DX_DOT =
 DX_DOXYGEN = /opt/local/bin/doxygen
 DX_DVIPS = 
 DX_EGREP = 
-DX_ENV =  SRCDIR='.' PROJECT='NumberPlaceGenerator' DOCDIR='doxygen-doc' VERSION='1.1.1' PERL_PATH='/opt/local/bin/perl' HAVE_DOT='NO' GENERATE_MAN='NO' GENERATE_RTF='NO' GENERATE_XML='NO' GENERATE_HTMLHELP='NO' GENERATE_CHI='NO' GENERATE_HTML='YES' GENERATE_LATEX='NO'
+DX_ENV =  SRCDIR='.' PROJECT='NumberPlaceGenerator' DOCDIR='doxygen-doc' VERSION='1.1.2' PERL_PATH='/opt/local/bin/perl' HAVE_DOT='NO' GENERATE_MAN='NO' GENERATE_RTF='NO' GENERATE_XML='NO' GENERATE_HTMLHELP='NO' GENERATE_CHI='NO' GENERATE_HTML='YES' GENERATE_LATEX='NO'
 DX_FLAG_chi = 0
 DX_FLAG_chm = 0
 DX_FLAG_doc = 1
@@ -291,15 +291,15 @@ OBJEXT = o
 PACKAGE = numberplacegenerator
 PACKAGE_BUGREPORT = saito@manieth.com
 PACKAGE_NAME = NumberPlaceGenerator
-PACKAGE_STRING = NumberPlaceGenerator 1.1.1
+PACKAGE_STRING = NumberPlaceGenerator 1.1.2
 PACKAGE_TARNAME = numberplacegenerator
 PACKAGE_URL = 
-PACKAGE_VERSION = 1.1.1
+PACKAGE_VERSION = 1.1.2
 PATH_SEPARATOR = :
 SET_MAKE = 
 SHELL = /bin/sh
 STRIP = 
-VERSION = 1.1.1
+VERSION = 1.1.2
 abs_builddir = /Users/saito/git/NumPl
 abs_srcdir = /Users/saito/git/NumPl
 abs_top_builddir = /Users/saito/git/NumPl
