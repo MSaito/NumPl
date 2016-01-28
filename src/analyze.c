@@ -80,6 +80,9 @@ double get_analyze_value(solve_info * info)
 {
     double v = info->fx_count;
     double s = 100;
+    if (info->solved != 1) {
+        return -100;
+    }
     v += s * info->ks_count;
     s *= 100;
     v += s * info->kh_count;
@@ -100,4 +103,3 @@ double get_analyze_value(solve_info * info)
     v += s * info->xy_count;
     return v;
 }
-

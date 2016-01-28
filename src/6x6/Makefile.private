@@ -21,7 +21,7 @@ numberplace_generate6x6: generate6x6.c ../numpl.h solve6x6.o \
 	normalize6x6.o convert6x6.o convert_common.o ${KILLERS}
 
 numberplace_convert6x6: convert6x6_main.c ../numpl.h solve6x6.o constants6x6.o \
-	common6x6.o ../xsadd.o  ${KILLERS} convert6x6.o convert_common.o \
+	common6x6.o xsadd6x6.o  ${KILLERS} convert6x6.o convert_common.o \
 	analyze6x6.o normalize6x6.o
 	${CC} -o $@ convert6x6_main.c convert6x6.o \
 	solve6x6.o \

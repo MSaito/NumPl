@@ -103,7 +103,7 @@ int lazy_normalize6x6(numpl_array * array, solve_info * info)
         } else {
             *array = save;
         }
-        if (a < worst_info_value) {
+        if (a >= 0 && a < worst_info_value) {
             worst_info = *info;
             worst_info_value = a;
 #if defined(DEBUG)
