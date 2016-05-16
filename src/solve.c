@@ -14,10 +14,6 @@
 /** 候補を減らす関数タイプ */
 typedef int (*solver_t)(numpl_array *);
 
-/** 関数の数 */
-static const int max_solvers = 7;
-static const int max_simple_solvers = 2;
-
 /** 関数 */
 static solver_t solvers[] = {
     kill_single,
@@ -200,10 +196,7 @@ int solve(numpl_array * array, solve_info * info)
     memset(info, 0, sizeof(solve_info));
     int c = 0;
     do {
-        for (int i = 0; i < max_solvers; i++) {
-            if (solvers[i] == NULL) {
-                break;
-            }
+        for (int i = 0; i < solvers[i] != NULL; i++) {
             c = solvers[i](array);
             if (c > 0) {
                 set_info(info, c, solvers[i]);
@@ -248,7 +241,7 @@ int simple_solve(numpl_array * array)
 {
     int r = 0;
     do {
-        for (int i = 0; i < max_simple_solvers && solvers[i] != NULL; i++) {
+        for (int i = 0; solvers[i] != NULL; i++) {
             r = simple_solvers[i](array);
             if (r < 0) {
                 return -1;

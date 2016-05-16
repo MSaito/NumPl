@@ -59,7 +59,7 @@ int analyze_xywing(numpl_array * array, solve_info *info)
             count = xywing_sub(array, i, sym);
         }
         if (count > 0) {
-            info->xyz_count++;
+            info->xy_count++;
             return 1;
         }
     }
