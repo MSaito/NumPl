@@ -11,19 +11,19 @@
 #include <math.h>
 
 static int fishsub(int fish_count, uint16_t mask,
-		 const int rows[LINE_SIZE][LINE_SIZE],
-		 numpl_array * array);
+                 const int rows[LINE_SIZE][LINE_SIZE],
+                 numpl_array * array);
 static void make_mat(uint16_t mask,
-		     uint16_t mat[LINE_SIZE],
-		     const int rows[LINE_SIZE][LINE_SIZE],
-		     numpl_array * array);
+                     uint16_t mat[LINE_SIZE],
+                     const int rows[LINE_SIZE][LINE_SIZE],
+                     numpl_array * array);
 static void adjust_patterns(int fish_count, uint16_t patterns[],
-			    int point, int size);
+                            int point, int size);
 static int kill_fish_cells(uint16_t mask,
-		     uint16_t pat,
-		     uint16_t mat[LINE_SIZE],
-		     const int rows[LINE_SIZE][LINE_SIZE],
-		     numpl_array * array);
+                     uint16_t pat,
+                     uint16_t mat[LINE_SIZE],
+                     const int rows[LINE_SIZE][LINE_SIZE],
+                     numpl_array * array);
 static int contains(uint16_t array[], int pos, uint16_t value);
 #if defined(DEBUG) && 0
 static void print_patterns(uint16_t pattern[], int size);
@@ -39,16 +39,16 @@ static void print_patterns(uint16_t pattern[], int size);
 int kill_fish(numpl_array * array)
 {
     for (int i = 2; i < LINE_SIZE - 1; i++) {
-	for (uint16_t mask = 1; mask <= MAX_SYMBOL; mask = mask << 1) {
-	    int count = fishsub(i, mask, rows, array);
-	    if (count > 0) {
-		return count;
-	    }
-	    count = fishsub(i, mask, cols, array);
-	    if (count > 0) {
-		return count;
-	    }
-	}
+        for (uint16_t mask = 1; mask <= MAX_SYMBOL; mask = mask << 1) {
+            int count = fishsub(i, mask, rows, array);
+            if (count > 0) {
+                return count;
+            }
+            count = fishsub(i, mask, cols, array);
+            if (count > 0) {
+                return count;
+            }
+        }
     }
     return 0;
 }
@@ -65,20 +65,23 @@ int analyze_fish(numpl_array * array, solve_info * info)
 {
     int count = 0;
     for (int i = 2; i < LINE_SIZE - 1; i++) {
-	for (uint16_t mask = 1; mask <= MAX_SYMBOL; mask = mask << 1) {
-	    count = fishsub(i, mask, rows, array);
-	    if (count <= 0) {
-		count = fishsub(i, mask, cols, array);
-	    }
-	    if (count < 0) {
-		return count;
-	    } else if (count == 0) {
-		continue;
-	    }
-	    info->sf_count++;
-	    info->fish[i - 2]++;
-	    return 1;
-	}
+        for (uint16_t mask = 1; mask <= MAX_SYMBOL; mask = mask << 1) {
+            count = fishsub(i, mask, rows, array);
+            if (count <= 0) {
+                count = fishsub(i, mask, cols, array);
+            }
+            if (count < 0) {
+                return count;
+            } else if (count == 0) {
+                continue;
+            }
+            info->sf_count++;
+            info->fish[i - 2]++;
+#if defined(DEBUG)
+            printf("fish found mask = %x\n", mask);
+#endif
+            return 1;
+        }
     }
     return 0;
 }
@@ -91,8 +94,8 @@ int analyze_fish(numpl_array * array, solve_info * info)
  * @param array ナンプレ盤面配列
  */
 static int fishsub(int fish_count, uint16_t mask,
-		 const int rows[LINE_SIZE][LINE_SIZE],
-		 numpl_array * array)
+                 const int rows[LINE_SIZE][LINE_SIZE],
+                 numpl_array * array)
 {
     uint16_t mat[LINE_SIZE];
     make_mat(mask, mat, rows, array);
@@ -101,46 +104,46 @@ static int fishsub(int fish_count, uint16_t mask,
     uint16_t patterns[LINE_SIZE * LINE_SIZE];
     int p = 0;
     for (int i = 0; i < LINE_SIZE; i++) {
-	int c1 = 0;
-	int c2 = 0;
-	for (int j = 0; j < LINE_SIZE; j++) {
-	    c1 += (mat[i] >> j) & 1;
-	    c2 += (mat[j] >> i) & 1;
-	}
-	if (c1 >= 2 && c1 <= fish_count) {
-	    count1++;
-	    patterns[p++] = mat[i];
-	}
-	if (c2 >= 2) {
-	    count2++;
-	}
+        int c1 = 0;
+        int c2 = 0;
+        for (int j = 0; j < LINE_SIZE; j++) {
+            c1 += (mat[i] >> j) & 1;
+            c2 += (mat[j] >> i) & 1;
+        }
+        if (c1 >= 2 && c1 <= fish_count) {
+            count1++;
+            patterns[p++] = mat[i];
+        }
+        if (c2 >= 2) {
+            count2++;
+        }
     }
     // 以下の二つのif文は明らかに条件が成立しない場合に検索を諦める
     if (count1 < fish_count) {
-	return 0;
+        return 0;
     }
     if (count2 < fish_count) {
-	return 0;
+        return 0;
     }
     adjust_patterns(fish_count, patterns, p, LINE_SIZE * LINE_SIZE);
     for (int i = 0; i < LINE_SIZE * LINE_SIZE; i++) {
-	uint16_t pat = patterns[i];
-	if (pat == UINT16_C(0xffff)) {
-	    continue;
-	}
-	int count = 0;
-	for (int j = 0; j < LINE_SIZE; j++) {
-	    if ((mat[j] | pat) == pat) {
-		count++;
-	    }
-	}
-	// ここで条件成立が確定
-	if (count == fish_count) {
-	    int result = kill_fish_cells(mask, pat, mat, rows, array);
-	    if (result > 0) {
-		return 1;
-	    }
-	}
+        uint16_t pat = patterns[i];
+        if (pat == UINT16_C(0xffff)) {
+            continue;
+        }
+        int count = 0;
+        for (int j = 0; j < LINE_SIZE; j++) {
+            if ((mat[j] | pat) == pat) {
+                count++;
+            }
+        }
+        // ここで条件成立が確定
+        if (count == fish_count) {
+            int result = kill_fish_cells(mask, pat, mat, rows, array);
+            if (result > 0) {
+                return 1;
+            }
+        }
     }
     return 0;
 }
@@ -149,16 +152,16 @@ static int fishsub(int fish_count, uint16_t mask,
 static void print_patterns(uint16_t pattern[], int size)
 {
     for (int i = 0; i < size; i++) {
-	uint32_t mask = 0x8000;
-	for (int j = 0; j < 16; j++) {
-	    if (pattern[i] & mask) {
-		printf("1");
-	    } else {
-		printf("0");
-	    }
-	    mask = mask >> 1;
-	}
-	printf("\n");
+        uint32_t mask = 0x8000;
+        for (int j = 0; j < 16; j++) {
+            if (pattern[i] & mask) {
+                printf("1");
+            } else {
+                printf("0");
+            }
+            mask = mask >> 1;
+        }
+        printf("\n");
     }
 }
 #endif
@@ -172,19 +175,19 @@ static void print_patterns(uint16_t pattern[], int size)
  * @param array ナンプレ盤面配列
  */
 static void make_mat(uint16_t mask,
-		     uint16_t mat[LINE_SIZE],
-		     const int rows[LINE_SIZE][LINE_SIZE],
-		     numpl_array * array)
+                     uint16_t mat[LINE_SIZE],
+                     const int rows[LINE_SIZE][LINE_SIZE],
+                     numpl_array * array)
 {
     for (int i = 0; i < LINE_SIZE; i++) {
-	mat[i] = 0;
-	uint16_t m = 1;
-	for (int j = 0; j < LINE_SIZE; j++) {
-	    if ((array->ar[rows[i][j]].symbol & mask) != 0) {
-		mat[i] |= m;
-	    }
-	    m = m << 1;
-	}
+        mat[i] = 0;
+        uint16_t m = 1;
+        for (int j = 0; j < LINE_SIZE; j++) {
+            if ((array->ar[rows[i][j]].symbol & mask) != 0) {
+                mat[i] |= m;
+            }
+            m = m << 1;
+        }
     }
 }
 
@@ -197,39 +200,39 @@ static void make_mat(uint16_t mask,
  * @param size pattern配列の宣言された大きさ
  */
 static void adjust_patterns(int fish_count, uint16_t patterns[],
-			    int point, int size)
+                            int point, int size)
 {
     uint16_t result[size];
     int result_pos = 0;
     for (int i = point; i < size; i++) {
-	patterns[i] = UINT16_C(0xffff);
+        patterns[i] = UINT16_C(0xffff);
     }
     // 同じパターンを一つだけにする
     for (int i = 0; i < point; i++) {
-	if (patterns[i] == UINT16_C(0xffff)) {
-	    continue;
-	}
-	if (ones16(patterns[i]) == fish_count) {
-	    if (!contains(result, result_pos, patterns[i])) {
-		result[result_pos++] = patterns[i];
-	    }
-	    continue;
-	}
-	// 部分パターンは組み合わせる
-	for (int j = i + 1; j < point; j++) {
-	    uint16_t p = patterns[i] | patterns[j];
-	    if (ones16(p) == fish_count) {
-		if (!contains(result, result_pos, p)) {
-		    result[result_pos++] = p;
-		}
-	    }
-	}
+        if (patterns[i] == UINT16_C(0xffff)) {
+            continue;
+        }
+        if (ones16(patterns[i]) == fish_count) {
+            if (!contains(result, result_pos, patterns[i])) {
+                result[result_pos++] = patterns[i];
+            }
+            continue;
+        }
+        // 部分パターンは組み合わせる
+        for (int j = i + 1; j < point; j++) {
+            uint16_t p = patterns[i] | patterns[j];
+            if (ones16(p) == fish_count) {
+                if (!contains(result, result_pos, p)) {
+                    result[result_pos++] = p;
+                }
+            }
+        }
     }
     for (int i = 0; i < result_pos; i++) {
-	patterns[i] = result[i];
+        patterns[i] = result[i];
     }
     for (int i = result_pos; i < size; i++) {
-	patterns[i] = UINT16_C(0xffff);
+        patterns[i] = UINT16_C(0xffff);
     }
 
 }
@@ -245,25 +248,25 @@ static void adjust_patterns(int fish_count, uint16_t patterns[],
  * @return 消した数字の個数
  */
 static int kill_fish_cells(uint16_t mask,
-			  uint16_t pat,
-			  uint16_t mat[LINE_SIZE],
-			  const int rows[LINE_SIZE][LINE_SIZE],
-			  numpl_array * array)
+                          uint16_t pat,
+                          uint16_t mat[LINE_SIZE],
+                          const int rows[LINE_SIZE][LINE_SIZE],
+                          numpl_array * array)
 {
     int count = 0;
     for (int i = 0; i < LINE_SIZE; i++) {
-	if ((mat[i] | pat) == pat) {
-	    continue;
-	}
-	uint16_t m = 1;
-	for (int j = 0; j < LINE_SIZE; j++) {
-	    if ((m | pat) == pat &&
-		array->ar[rows[i][j]].symbol & mask) {
-		count++;
-		array->ar[rows[i][j]].symbol &= ~mask;
-	    }
-	    m = m << 1;
-	}
+        if ((mat[i] | pat) == pat) {
+            continue;
+        }
+        uint16_t m = 1;
+        for (int j = 0; j < LINE_SIZE; j++) {
+            if ((m | pat) == pat &&
+                array->ar[rows[i][j]].symbol & mask) {
+                count++;
+                array->ar[rows[i][j]].symbol &= ~mask;
+            }
+            m = m << 1;
+        }
     }
     return count;
 }
@@ -278,9 +281,9 @@ static int kill_fish_cells(uint16_t mask,
 static int contains(uint16_t array[], int size, uint16_t value)
 {
     for (int i = 0; i < size; i++) {
-	if (array[i] == value) {
-	    return 1;
-	}
+        if (array[i] == value) {
+            return 1;
+        }
     }
     return 0;
 }

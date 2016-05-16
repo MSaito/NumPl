@@ -491,7 +491,8 @@ static int phase3(numpl_array * array, generate_type * type)
 inline static int info_value(solve_info * info)
 {
     return info->kh_count + info->kl_count * 100 + info->kt_count * 1000
-        + info->sf_count * 10000 + info->xy_count * 100000;
+        + info->sf_count * 10000 + info->xy_count * 100000
+        + info->xyz_count * 1000000;
 }
 /**
  * ナンプレ問題生成 第三段階の再帰部分
@@ -520,6 +521,8 @@ static int p3(numpl_array * array, int start, generate_type * type)
     } else if (type->fish && (info.sf_count > 0)) {
         return info_value(&info);
     } else if (type->xy && (info.xy_count > 0)) {
+        return info_value(&info);
+    } else if (type->xyz && (info.xyz_count > 0)) {
         return info_value(&info);
     }
     save = *array;
@@ -814,6 +817,7 @@ static int parse_opt(int argc, char * argv[])
         {"tuple", no_argument, NULL, 't'},
         {"fish", no_argument, NULL, 'f'},
         {"xywing", no_argument, NULL, 'y'},
+        {"xyzwing", no_argument, NULL, 'z'},
         {"symmetric", no_argument, NULL, 'S'},
         {NULL, 0, NULL, 0}};
     verbose = 0;
@@ -859,6 +863,9 @@ static int parse_opt(int argc, char * argv[])
         case 'y':
             g_type.xy = 1;
             break;
+        case 'z':
+            g_type.xyz = 1;
+            break;
         case 'c':
             number = (uint32_t)strtoull(optarg, NULL, 10);
             if (errno) {
@@ -886,14 +893,18 @@ static int parse_opt(int argc, char * argv[])
                "\t--tuple, -t naked pair, hidden pair"
                "などの解法を含む問題を出力する。\n"
                "\t--fish, -f x-wing, swordfishなどの解法を含む問題を出力する。\n"
-               "\t--xywing, -y xy-wingの解法を含む問題を出力する。\n");
+               "\t--xywing, -y xy-wingの解法を含む問題を出力する。\n"
+               "\t--xyzwing, -z xyz-wingの解法を含む問題を出力する。\n"
+            );
         return -1;
     }
     if (g_type.hidden_single == 0 && g_type.locked_candidate == 0 &&
-        g_type.tuple == 0 && g_type.fish == 0 && g_type.xy == 0) {
+        g_type.tuple == 0 && g_type.fish == 0 && g_type.xy == 0 &&
+        g_type.xyz == 0) {
         g_type.tuple = 1;
         g_type.fish = 1;
         g_type.xy = 1;
+        g_type.xyz = 1;
     }
     return 0;
 }

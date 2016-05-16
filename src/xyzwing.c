@@ -12,26 +12,26 @@
 #include <inttypes.h>
 
 enum LINE_KIND {BLOCK, COL, ROW};
-static int xywing_sub(numpl_array * array, int pos, uint16_t sym);
+static int xyzwing_sub(numpl_array * array, int pos, uint16_t sym);
 static void search_yz(numpl_array * array, const int line[],
                       int result[], int pos, uint16_t sym);
-static int kill_zblock(numpl_array * array, int pos, const int line1[],
-                       const int line2[], uint16_t sym);
+static int kill_xyzblock(numpl_array * array, int pos, const int line1[],
+                         const int line2[], uint16_t sym,
+                         const int vl[], const int vblk[]);
 static int kill_common(numpl_array * array, int pos, int p1, int p2,
                        const int vl1[], const int vl2[], uint16_t sym);
-static const int * getVL(enum LINE_KIND kind, int pos);
 /**
- * XY Wing メイン関数
+ * XYZ Wing メイン関数
  * @param array ナンプレ盤面配列
  * @return 1:この解法により数字を消した。0:消せなかった
  */
-int kill_xywing(numpl_array * array)
+int kill_xyzwing(numpl_array * array)
 {
     int count = 0;
     for (int i = 0; i < ARRAY_SIZE; i++) {
         uint16_t sym = array->ar[i].symbol;
-        if (ones16(sym) == 2) {
-            count += xywing_sub(array, i, sym);
+        if (ones16(sym) == 3) {
+            count += xyzwing_sub(array, i, sym);
         }
     }
     if (count > 0) {
@@ -47,16 +47,16 @@ int kill_xywing(numpl_array * array)
  * @param info 解情報
  * @return 1:この解法により数字を消した。0:消せなかった
  */
-int analyze_xywing(numpl_array * array, solve_info *info)
+int analyze_xyzwing(numpl_array * array, solve_info *info)
 {
 #if defined(DEBUG)
-    printf("in xywing_info\n");
+    printf("in analyze_xyzwing\n");
 #endif
     int count = 0;
     for (int i = 0; i < ARRAY_SIZE; i++) {
         uint16_t sym = array->ar[i].symbol;
-        if (ones16(sym) == 2) {
-            count = xywing_sub(array, i, sym);
+        if (ones16(sym) == 3) {
+            count = xyzwing_sub(array, i, sym);
         }
         if (count > 0) {
             info->xyz_count++;
@@ -67,14 +67,14 @@ int analyze_xywing(numpl_array * array, solve_info *info)
 }
 
 /**
- * XY Wing 下請け関数
+ * XYZ Wing 下請け関数
  * @param array ナンプレ盤面配列
  * @param pos 注目位置
  * @param sym 注目位置の候補
  * @return 1 この解法により数字を消した
  * @return 0 この解法に該当しなかった
  */
-static int xywing_sub(numpl_array * array, int pos, uint16_t sym)
+static int xyzwing_sub(numpl_array * array, int pos, uint16_t sym)
 {
     int rowpos = torow(pos);
     int colpos = tocol(pos);
@@ -86,15 +86,11 @@ static int xywing_sub(numpl_array * array, int pos, uint16_t sym)
     search_yz(array, cols[colpos], c, pos, sym);
     search_yz(array, blocks[blkpos], b, pos, sym);
     int count;
-    count = kill_zblock(array, pos, r, b, sym);
+    count = kill_xyzblock(array, pos, r, b, sym, rows[rowpos], blocks[blkpos]);
     if (count > 0) {
         return 1;
     }
-    count = kill_zblock(array, pos, c, b, sym);
-    if (count > 0) {
-        return 1;
-    }
-    count = kill_zblock(array, pos, r, c, sym);
+    count = kill_xyzblock(array, pos, c, b, sym, cols[colpos], blocks[blkpos]);
     if (count > 0) {
         return 1;
     }
@@ -107,7 +103,7 @@ static int xywing_sub(numpl_array * array, int pos, uint16_t sym)
  * @param line 仮想行
  * @param result 出力：該当セルのリスト
  * @param pos 起点の位置
- * @param sym 起点の候補 xy
+ * @param sym 起点の候補 xyz
  */
 static void search_yz(numpl_array * array, const int line[],
                       int result[], int pos, uint16_t sym)
@@ -121,7 +117,7 @@ static void search_yz(numpl_array * array, const int line[],
             continue;
         }
         uint16_t s = array->ar[p].symbol;
-        if (ones16(s) == 2 && ones16(s & sym) == 1) {
+        if (ones16(s) == 2 && (s | sym) == sym) {
             result[idx++] = p;
             result[idx] = -1;
         }
@@ -135,41 +131,27 @@ static void search_yz(numpl_array * array, const int line[],
  * @param line1 行または列
  * @param line2 ブロック
  * @param sym 起点の候補
+ * @param vl 仮想行 row または col
+ * @param vblk 仮想行 block
  * @return 候補を消したセルの数
  */
-static int kill_zblock(numpl_array * array, int pos, const int line1[],
-                       const int line2[], uint16_t sym)
+static int kill_xyzblock(numpl_array * array, int pos, const int line1[],
+                         const int line2[], uint16_t sym,
+                         const int vl[], const int vblk[])
 {
-    enum LINE_KIND allKind[] = {BLOCK, COL, ROW};
     for (int i = 0; line1[i] >= 0; i++) {
         int p1 = line1[i];
         for (int j = 0; line2[j] >= 0; j++) {
             int p2 = line2[j];
             uint16_t s1 = array->ar[p1].symbol;
             uint16_t s2 = array->ar[p2].symbol;
-            if (ones16(s1 & s2) != 1) {
+            if (ones16(sym & s1 & s2) != 1) {
                 continue;
             }
             if (ones16(sym | s1 | s2) != 3) {
                 continue;
             }
-            int count = 0;
-            for (int k = 0; k < 3; k++) {
-                enum LINE_KIND k1 = allKind[k];
-                const int * vl1 = getVL(k1, p1);
-                for (int m = 0; m < 3; m++) {
-                    enum LINE_KIND k2 = allKind[m];
-                    if (k1 == k2) {
-                        continue;
-                    }
-                    const int * vl2 = getVL(k2, p2);
-                    if (kill_common(array, pos, p1, p2, vl1, vl2, s1 & s2)
-                        > 0) {
-                        count++;
-                    }
-                }
-            }
-            if (count > 0) {
+            if (kill_common(array, pos, p1, p2, vl, vblk, sym & s1 & s2) > 0) {
                 return 1;
             }
         }
@@ -178,28 +160,9 @@ static int kill_zblock(numpl_array * array, int pos, const int line1[],
 }
 
 /**
- * ナンプレ盤面配列内の位置に対して、仮想行種別に応じた仮想行を返す。
- * @param kind 仮想行種別
- * @param pos ナンプレ盤面配列内の位置
- * @return 仮想行
- */
-static const int * getVL(enum LINE_KIND kind, int pos)
-{
-    switch (kind) {
-    case ROW:
-        return rows[torow(pos)];
-    case COL:
-        return cols[tocol(pos)];
-    case BLOCK:
-    default:
-        return blocks[toblk(pos)];
-    }
-}
-
-/**
  * 二つの仮想行の共通部分から数字を消す
  * @param array ナンプレ盤面配列
- * @param pos 起点の位置(xyのある位置)
+ * @param pos 起点の位置(xyzのある位置)
  * @param p1 xz のある位置
  * @param p2 yz のある位置
  * @param vl1 仮想行1

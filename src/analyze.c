@@ -21,6 +21,7 @@ static analyzer_t analyzers[] = {
     analyze_tuple,
     analyze_fish,
     analyze_xywing,
+    analyze_xyzwing,
     NULL};
 
 /**
@@ -101,5 +102,7 @@ double get_analyze_value(solve_info * info)
         s *= 100;
     }
     v += s * info->xy_count;
+    s *= 10;
+    v += s * info->xyz_count;
     return v;
 }

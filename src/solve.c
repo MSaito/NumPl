@@ -15,7 +15,7 @@
 typedef int (*solver_t)(numpl_array *);
 
 /** 関数の数 */
-static const int max_solvers = 6;
+static const int max_solvers = 7;
 static const int max_simple_solvers = 2;
 
 /** 関数 */
@@ -26,6 +26,7 @@ static solver_t solvers[] = {
     kill_tuple,
     kill_fish,
     kill_xywing,
+    kill_xyzwing,
     NULL};
 
 /** 機械的解法関数 */
@@ -153,6 +154,10 @@ static void set_info(solve_info * info, int count, solver_t sv)
         info->kl_count += count;
     } else if (sv == kill_fish) {
         info->sf_count += count;
+    } else if (sv == kill_xywing) {
+        info->xy_count += count;
+    } else if (sv == kill_xyzwing) {
+        info->xyz_count += count;
     }
 }
 
@@ -457,6 +462,7 @@ void print_solve_info(solve_info * info, int verbose)
             printf("fish[%d] = %d\n", i + 2, info->fish[i]);
         }
         printf("xywing     :%d\n", info->xy_count);
+        printf("xyzwing    :%d\n", info->xyz_count);
         printf("fx_count   :%d\n", info->fx_count);
         printf("solved     :%d\n", info->solved);
     } else {
@@ -479,8 +485,9 @@ void print_solve_info(solve_info * info, int verbose)
         for (int i = 0; i < LINE_SIZE - 2; i++) {
             printf("%d,", info->fish[i]);
         }
-        printf("%d,%d,%d",
+        printf("%d,%d,%d,%d",
                info->xy_count,
+               info->xyz_count,
                info->fx_count,
                info->solved);
     }

@@ -107,7 +107,8 @@ am_numberplace_analyze_OBJECTS = analyze_main.$(OBJEXT) \
 	analyze.$(OBJEXT) solve.$(OBJEXT) constants.$(OBJEXT) \
 	common.$(OBJEXT) kill_single.$(OBJEXT) \
 	kill_hidden_single.$(OBJEXT) locked_candidate.$(OBJEXT) \
-	tuple.$(OBJEXT) fish.$(OBJEXT) xywing.$(OBJEXT)
+	tuple.$(OBJEXT) fish.$(OBJEXT) xywing.$(OBJEXT) \
+	xyzwing.$(OBJEXT)
 numberplace_analyze_OBJECTS = $(am_numberplace_analyze_OBJECTS)
 numberplace_analyze_LDADD = $(LDADD)
 am_numberplace_convert_OBJECTS = convert_main.$(OBJEXT) \
@@ -115,14 +116,15 @@ am_numberplace_convert_OBJECTS = convert_main.$(OBJEXT) \
 	xsadd.$(OBJEXT) kill_single.$(OBJEXT) \
 	kill_hidden_single.$(OBJEXT) locked_candidate.$(OBJEXT) \
 	tuple.$(OBJEXT) fish.$(OBJEXT) xywing.$(OBJEXT) \
-	solve.$(OBJEXT) analyze.$(OBJEXT)
+	xyzwing.$(OBJEXT) solve.$(OBJEXT) analyze.$(OBJEXT)
 numberplace_convert_OBJECTS = $(am_numberplace_convert_OBJECTS)
 numberplace_convert_LDADD = $(LDADD)
 am_numberplace_digging_hole_OBJECTS = digging_hole.$(OBJEXT) \
 	solve.$(OBJEXT) constants.$(OBJEXT) common.$(OBJEXT) \
 	analyze.$(OBJEXT) xsadd.$(OBJEXT) kill_single.$(OBJEXT) \
 	kill_hidden_single.$(OBJEXT) locked_candidate.$(OBJEXT) \
-	tuple.$(OBJEXT) fish.$(OBJEXT) xywing.$(OBJEXT)
+	tuple.$(OBJEXT) fish.$(OBJEXT) xywing.$(OBJEXT) \
+	xyzwing.$(OBJEXT)
 numberplace_digging_hole_OBJECTS =  \
 	$(am_numberplace_digging_hole_OBJECTS)
 numberplace_digging_hole_LDADD = $(LDADD)
@@ -131,7 +133,8 @@ am_numberplace_generate_OBJECTS = generate.$(OBJEXT) \
 	common.$(OBJEXT) convert.$(OBJEXT) solve.$(OBJEXT) \
 	xsadd.$(OBJEXT) kill_single.$(OBJEXT) \
 	kill_hidden_single.$(OBJEXT) locked_candidate.$(OBJEXT) \
-	tuple.$(OBJEXT) fish.$(OBJEXT) xywing.$(OBJEXT)
+	tuple.$(OBJEXT) fish.$(OBJEXT) xywing.$(OBJEXT) \
+	xyzwing.$(OBJEXT)
 numberplace_generate_OBJECTS = $(am_numberplace_generate_OBJECTS)
 numberplace_generate_LDADD = $(LDADD)
 am_numberplace_normalize_OBJECTS = normalize_main.$(OBJEXT) \
@@ -139,7 +142,7 @@ am_numberplace_normalize_OBJECTS = normalize_main.$(OBJEXT) \
 	common.$(OBJEXT) convert.$(OBJEXT) solve.$(OBJEXT) \
 	kill_single.$(OBJEXT) kill_hidden_single.$(OBJEXT) \
 	locked_candidate.$(OBJEXT) tuple.$(OBJEXT) fish.$(OBJEXT) \
-	xywing.$(OBJEXT)
+	xywing.$(OBJEXT) xyzwing.$(OBJEXT)
 numberplace_normalize_OBJECTS = $(am_numberplace_normalize_OBJECTS)
 numberplace_normalize_LDADD = $(LDADD)
 AM_V_P = $(am__v_P_@AM_V@)
@@ -365,7 +368,7 @@ SUBDIRS = 6x6
 numberplace_generate_SOURCES = generate.c normalize.c analyze.c constants.c \
 	common.c convert.c solve.c xsadd.c \
 	kill_single.c kill_hidden_single.c locked_candidate.c \
-	tuple.c fish.c xywing.c \
+	tuple.c fish.c xywing.c xyzwing.c \
 	analyze.h config.h convert.h inline_functions.h \
 	normalize.h solve.h common.h constants.h generate.h \
 	killer.h numpl.h xsadd.h
@@ -373,24 +376,24 @@ numberplace_generate_SOURCES = generate.c normalize.c analyze.c constants.c \
 numberplace_digging_hole_SOURCES = digging_hole.c solve.c \
 	constants.c common.c analyze.c xsadd.c \
 	kill_single.c kill_hidden_single.c locked_candidate.c \
-	tuple.c fish.c xywing.c
+	tuple.c fish.c xywing.c xyzwing.c
 
 numberplace_convert_SOURCES = convert_main.c convert.c constants.c common.c \
 	xsadd.c \
 	kill_single.c kill_hidden_single.c locked_candidate.c \
-	tuple.c fish.c xywing.c \
+	tuple.c fish.c xywing.c xyzwing.c \
 	solve.c analyze.c
 
 numberplace_analyze_SOURCES = analyze_main.c analyze.c solve.c constants.c \
 	common.c \
 	kill_single.c kill_hidden_single.c locked_candidate.c \
-	tuple.c fish.c xywing.c
+	tuple.c fish.c xywing.c xyzwing.c
 
 numberplace_normalize_SOURCES = normalize_main.c normalize.c analyze.c \
 	constants.c \
 	common.c convert.c solve.c \
 	kill_single.c kill_hidden_single.c locked_candidate.c \
-	tuple.c fish.c xywing.c
+	tuple.c fish.c xywing.c xyzwing.c
 
 AM_CFLAGS = -O3 -Wall -Wextra -Wno-unused-parameter -std=c99
 all: config.h
@@ -529,6 +532,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tuple.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xsadd.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xywing.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xyzwing.Po@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
