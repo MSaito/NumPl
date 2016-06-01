@@ -831,7 +831,7 @@ static int parse_opt(int argc, char * argv[])
         if (error) {
             break;
         }
-        c = getopt_long(argc, argv, "?vhltfySs:c:", longopts, NULL);
+        c = getopt_long(argc, argv, "?vhltfyzSs:c:", longopts, NULL);
         if (c < 0) {
             break;
         }
