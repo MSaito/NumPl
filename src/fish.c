@@ -10,6 +10,17 @@
 #include <stdio.h>
 #include <math.h>
 
+struct PATTERN_STACK {
+    int sp;
+    uint16_t stack[ARRAY_SIZE];
+};
+typedef struct PATTERN_STACK pattern_stack;
+
+static void init_stack(pattern_stack * stack);
+static int push_if(pattern_stack * stack, uint16_t pattern);
+static void sort(pattern_stack * data);
+static void remove_subpattern(pattern_stack * stack);
+
 static int fishsub(int fish_count, uint16_t mask,
                  const int rows[LINE_SIZE][LINE_SIZE],
                  numpl_array * array);
@@ -17,14 +28,15 @@ static void make_mat(uint16_t mask,
                      uint16_t mat[LINE_SIZE],
                      const int rows[LINE_SIZE][LINE_SIZE],
                      numpl_array * array);
-static void adjust_patterns(int fish_count, uint16_t patterns[],
-                            int point, int size);
+static int adjust_patterns(int fish_count, uint16_t patterns[],
+                           int point, int size, pattern_stack * result);
 static int kill_fish_cells(uint16_t mask,
                      uint16_t pat,
                      uint16_t mat[LINE_SIZE],
                      const int rows[LINE_SIZE][LINE_SIZE],
                      numpl_array * array);
 static int contains(uint16_t array[], int pos, uint16_t value);
+static int contains_partial(uint16_t array[], int size, uint16_t value);
 #if defined(DEBUG) && 0
 static void print_patterns(uint16_t pattern[], int size);
 #endif
@@ -125,12 +137,12 @@ static int fishsub(int fish_count, uint16_t mask,
     if (count2 < fish_count) {
         return 0;
     }
-    adjust_patterns(fish_count, patterns, p, LINE_SIZE * LINE_SIZE);
-    for (int i = 0; i < LINE_SIZE * LINE_SIZE; i++) {
-        uint16_t pat = patterns[i];
-        if (pat == UINT16_C(0xffff)) {
-            continue;
-        }
+    pattern_stack result;
+    init_stack(&result);
+    adjust_patterns(fish_count, patterns, p, LINE_SIZE * LINE_SIZE,
+                    &result);
+    for (int i = 0; i < result.sp; i++) {
+        uint16_t pat = result.stack[i];
         int count = 0;
         for (int j = 0; j < LINE_SIZE; j++) {
             if ((mat[j] | pat) == pat) {
@@ -198,43 +210,56 @@ static void make_mat(uint16_t mask,
  * @param patterns 入出力配列
  * @param point pattern配列に入っているパターンの個数
  * @param size pattern配列の宣言された大きさ
+ * @return 変更があったか -> やはり使わない
  */
-static void adjust_patterns(int fish_count, uint16_t patterns[],
-                            int point, int size)
+static int adjust_patterns(int fish_count, uint16_t patterns[],
+                           int point, int size, pattern_stack * result)
 {
-    uint16_t result[size];
-    int result_pos = 0;
-    for (int i = point; i < size; i++) {
-        patterns[i] = UINT16_C(0xffff);
-    }
     // 同じパターンを一つだけにする
     for (int i = 0; i < point; i++) {
-        if (patterns[i] == UINT16_C(0xffff)) {
-            continue;
-        }
         if (ones16(patterns[i]) == fish_count) {
-            if (!contains(result, result_pos, patterns[i])) {
-                result[result_pos++] = patterns[i];
-            }
-            continue;
+            push_if(result, patterns[i]);
         }
-        // 部分パターンは組み合わせる
-        for (int j = i + 1; j < point; j++) {
-            uint16_t p = patterns[i] | patterns[j];
-            if (ones16(p) == fish_count) {
-                if (!contains(result, result_pos, p)) {
-                    result[result_pos++] = p;
+    }
+    // X-Wing には部分パターンがない
+    if (fish_count == 2) {
+        return 0;
+    }
+    // 部分パターンをpartialに入れる
+    pattern_stack partial;
+    int changed = 0;
+    for (int i = 0; i < point; i++) {
+        if (ones16(patterns[i]) < fish_count) {
+            // result の部分パターンでなければ部分パターンリストに追加
+            if (!contains_partial(result->stack, result->sp, patterns[i])) {
+                push_if(&partial, patterns[i]);
+            }
+        }
+    }
+    // partial に部分パターンが入っている
+    pattern_stack * instack = &partial;
+    while (changed) {
+        // sword fish では一方がもう一方の部分パターンということはない。
+        if (fish_count >= 4) {
+            remove_subpattern(&partial);
+        }
+        changed = 0;
+        int oldsp = instack->sp;
+        for (int i = 0; i < oldsp; i++) {
+            for (int j = i + 1; j < oldsp; j++) {
+                uint16_t p1 = instack->stack[i];
+                uint16_t p2 = instack->stack[j];
+                uint16_t p = p1 | p2;
+                if (ones16(p) == fish_count) {
+                    push_if(result, p);
+                }
+                if (ones16(p) < fish_count) {
+                    changed += push_if(instack, p);
                 }
             }
         }
     }
-    for (int i = 0; i < result_pos; i++) {
-        patterns[i] = result[i];
-    }
-    for (int i = result_pos; i < size; i++) {
-        patterns[i] = UINT16_C(0xffff);
-    }
-
+    return 0;
 }
 
 /**
@@ -286,4 +311,81 @@ static int contains(uint16_t array[], int size, uint16_t value)
         }
     }
     return 0;
+}
+
+/**
+ * 配列の中にパターンを含むものがあるか調べる
+ * @param array 配列
+ * @param size 配列のサイズ
+ * @param value 調べる値
+ * @return 0:等しいものはない。1:等しいものがある。
+ */
+static int contains_partial(uint16_t array[], int size, uint16_t value)
+{
+    for (int i = 0; i < size; i++) {
+        if ((array[i] | value) == array[i]) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+static void init_stack(pattern_stack * stack)
+{
+    stack->sp = 0;
+}
+
+static int push_if(pattern_stack * stack, uint16_t pattern)
+{
+    if (stack->sp >= ARRAY_SIZE) {
+        return 0;
+    }
+    if (!contains(stack->stack, stack->sp, pattern)) {
+        stack->stack[stack->sp++] = pattern;
+        return 1;
+    } else {
+        return 0;
+    }
+}
+
+/**
+ * スタック中のサブパターンを削除する
+ *
+ */
+static void remove_subpattern(pattern_stack * stack)
+{
+    // 簡単ソート
+    sort(stack);
+    // サブパターンの削除
+    for (int i = stack->sp -1; i >= 0; i--) {
+        for (int j = 0; j < i; j++) {
+            if ((stack->stack[j] | stack->stack[i]) == stack->stack[j]) {
+                stack->stack[i] = 0;
+            }
+        }
+    }
+    sort(stack);
+}
+
+/** 簡単ソート(ソート済みの場合に速い挿入ソート)
+ *
+ *
+ */
+static void sort(pattern_stack * data)
+{
+    for (int i = 1; i < data->sp; i++) {
+        uint16_t tmp = data->stack[i];
+        int tc = ones16(tmp);
+        if (ones16(data->stack[i - 1]) < tc) {
+            int j = i;
+            do {
+                data->stack[j] = data->stack[j - 1];
+                j--;
+            } while (j > 0 && ones16(data->stack[j - 1]) > tc);
+            data->stack[j] = tmp;
+        }
+    }
+    while (data->sp >= 0 && data->stack[data->sp -1] == 0) {
+        data->sp--;
+    }
 }
