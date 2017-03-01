@@ -25,6 +25,8 @@ AM_INIT_AUTOMAKE
 # Checks for programs.
 AC_PROG_CC
 
+AX_GCC_ARCHFLAG
+
 # Checks for libraries.
 
 # Checks for header files.
@@ -41,6 +43,8 @@ AC_TYPE_UINT64_T
 AC_CHECK_FUNCS([memset strtoul strtoull])
 # Checks for builtin functions.
 AX_GCC_BUILTIN(__builtin_popcount)
+AX_GCC_BUILTIN(__builtin_popcountl)
+AX_GCC_BUILTIN(__builtin_popcountll)
 
 AC_CONFIG_FILES([Makefile src/Makefile src/6x6/Makefile])
 AC_OUTPUT

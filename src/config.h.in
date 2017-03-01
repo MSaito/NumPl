@@ -42,6 +42,14 @@
 /* Define to 1 if the system has the `__builtin_popcount' built-in function */
 #undef HAVE___BUILTIN_POPCOUNT
 
+/* Define to 1 if the system has the `__builtin_popcountl' built-in function
+   */
+#undef HAVE___BUILTIN_POPCOUNTL
+
+/* Define to 1 if the system has the `__builtin_popcountll' built-in function
+   */
+#undef HAVE___BUILTIN_POPCOUNTLL
+
 /* Name of package */
 #undef PACKAGE
 
